@@ -1,6 +1,6 @@
 # actions
 
-Common GitHub Actions
+Shared GitHub actions
 
 ## Usage
 
@@ -12,7 +12,7 @@ on:
 
 jobs:
   my-job:
-    uses: holepunchto/bump-deps.yml@main
+    uses: holepunchto/actions/.github/workflows/bump-deps.yml
 ```
 
 ## License
