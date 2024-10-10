@@ -1,4 +1,4 @@
-name: Bump Versions
+name: Bump Version
 
 inputs:
   use-create-pr:
