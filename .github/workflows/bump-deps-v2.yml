@@ -9,6 +9,7 @@ on:
     outputs:
       pull-request-url:
         value: ${{ jobs.bump-deps.outputs.pull-request-url }}
+
 jobs:
   bump-deps:
     runs-on: ubuntu-latest
