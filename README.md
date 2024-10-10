@@ -24,7 +24,7 @@ jobs:
           use-create-pr: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: holepunchto/actions/.github/steps/bump-versions@v1
+      - uses: holepunchto/actions/.github/steps/bump-version@v1
         with:
           use-create-pr: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
