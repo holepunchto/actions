@@ -5,17 +5,16 @@ on:
     inputs:
       labels:
         type: string
-        default: ''
+        default: ""
     outputs:
       pull-request-url:
         value: ${{ jobs.bump-deps.outputs.pull-request-url }}
+
 jobs:
   bump-deps:
     runs-on: ubuntu-latest
-
     outputs:
       pull-request-url: ${{ steps.pr.outputs.pull-request-url }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,7 +34,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          registry-url: 'https://npm.pkg.github.com'
+          registry-url: "https://npm.pkg.github.com"
 
       - name: Install dependencies
         run: npm install
@@ -52,6 +51,6 @@ jobs:
           author: GitHub Actions Bot <noreply@holepunchto.com>
           branch: bump-deps
           labels: ${{ inputs.labels }}
-          title: 'Bump deps'
+          title: "Bump deps"
           body: |
             Bump all deps
