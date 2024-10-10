@@ -18,7 +18,8 @@ jobs:
     steps:
       - name: Bump Versions
         id: bump-versions
-        uses: ./.github/steps/bump-versions
+        # TODO: Use @main after merging https://github.com/holepunchto/actions/pull/1
+        uses: holepunchto/actions/.github/steps/bump-versions@87f1c8e3ef71f8659b08a4dbed0e28b3068aad3f
         with:
           use-checkout: true
           use-git-config: true
