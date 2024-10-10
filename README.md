@@ -21,15 +21,11 @@ jobs:
     steps:
       - uses: holepunchto/actions/.github/steps/bump-deps@main
         with:
-          use-checkout: true
-          use-git-config: true
           use-create-pr: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: holepunchto/actions/.github/steps/bump-versions@main
         with:
-          use-checkout: false
-          use-git-config: false
           use-create-pr: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ inputs.version }}
