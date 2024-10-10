@@ -3,9 +3,11 @@ name: Bump Version
 inputs:
   use-create-pr:
     type: boolean
+    description: "create a PR"
     default: false
   GITHUB_TOKEN:
     type: string
+    description: "from secrets.GITHUB"
     required: true
   version:
     type: string
