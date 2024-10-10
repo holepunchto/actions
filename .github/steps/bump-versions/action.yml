@@ -45,7 +45,8 @@ runs:
         result=$(npm version ${{ inputs.version }} --preid=rc --no-git-tag-version)
         echo version=$result >> $GITHUB_OUTPUT
 
-    - name: Create PR
+    - if: ${{ inputs.use-create-pr == 'true' }}
+      name: Create PR
       id: pr
       uses: peter-evans/create-pull-request@v6
       with:
