@@ -12,46 +12,20 @@ on:
 jobs:
   bump-deps:
     runs-on: ubuntu-latest
-
     outputs:
-      pull-request-url: ${{ steps.pr.outputs.pull-request-url }}
-
+      pull-request-url: ${{ steps.bump-deps.outputs.pull-request-url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref_name }}
 
       - name: Git config
-        id: git-config
         run: |
           git config user.name 'GitHub Actions Bot'
           git config user.email 'bot@github.actions.com'
 
-      - name: Remove package-lock.json
-        run: |
-          rm package-lock.json
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - name: Bump Deps
+        id: bump-deps
+        uses: holepunchto/actions/.github/steps/bump-deps@v1
         with:
-          registry-url: 'https://npm.pkg.github.com'
-
-      - name: Install dependencies
-        run: npm install
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create PR
-        id: pr
-        uses: peter-evans/create-pull-request@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: Bump deps
-          committer: GitHub Actions Bot <noreply@holepunchto.com>
-          author: GitHub Actions Bot <noreply@holepunchto.com>
-          branch: bump-deps
-          labels: ${{ inputs.labels }}
-          title: 'Bump deps'
-          body: |
-            Bump all deps
+          use-create-pr: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

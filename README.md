@@ -19,12 +19,12 @@ jobs:
   my-job-reuse-step:
     runs-on: ubuntu-latest
     steps:
-      - uses: holepunchto/actions/.github/steps/bump-deps@main
+      - uses: holepunchto/actions/.github/steps/bump-deps@v1
         with:
           use-create-pr: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: holepunchto/actions/.github/steps/bump-versions@main
+      - uses: holepunchto/actions/.github/steps/bump-versions@v1
         with:
           use-create-pr: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
