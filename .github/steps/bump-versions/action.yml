@@ -9,9 +9,11 @@ inputs:
     required: true
   version:
     type: string
+    description: "version type: prerelease, patch, minor, major"
     required: true
   labels:
     type: string
+    description: "labels for the PR"
     default: ""
 
 outputs:

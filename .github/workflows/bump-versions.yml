@@ -1,20 +1,25 @@
-name: Bump Deps
+name: Bump Versions
 
 on:
   workflow_call:
     inputs:
+      version:
+        type: string
+        description: 'version type: prerelease, patch, minor, major'
+        required: true
       labels:
         type: string
-        description: "labels for the PR"
+        description: 'labels for the PR'
         default: ''
     outputs:
       pull-request-url:
-        value: ${{ jobs.bump-deps.outputs.pull-request-url }}
+        value: ${{ jobs.bump-versions.outputs.pull-request-url }}
+
 jobs:
-  bump-deps:
+  bump-versions:
     runs-on: ubuntu-latest
     outputs:
-      pull-request-url: ${{ steps.bump-deps.outputs.pull-request-url }}
+      pull-request-url: ${{ steps.bump-versions.outputs.pull-request-url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,10 +29,11 @@ jobs:
           git config user.name 'GitHub Actions Bot'
           git config user.email 'bot@github.actions.com'
 
-      - name: Bump Deps
-        id: bump-deps
-        uses: holepunchto/actions/.github/steps/bump-deps@v1
+      - name: Bump Versions
+        id: bump-versions
+        uses: holepunchto/actions/.github/steps/bump-versions@v1
         with:
           use-create-pr: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ inputs.version }}
           labels: ${{ inputs.labels }}

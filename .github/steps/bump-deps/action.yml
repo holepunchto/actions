@@ -9,6 +9,7 @@ inputs:
     required: true
   labels:
     type: string
+    description: "labels for the PR"
     default: ""
 
 outputs:
