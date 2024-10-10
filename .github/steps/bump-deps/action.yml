@@ -53,7 +53,7 @@ runs:
     - if: ${{ inputs.use-create-pr == 'true' }}
       name: Create PR
       id: pr
-      uses: peter-evans/create-pull-request@v4
+      uses: peter-evans/create-pull-request@v7
       with:
         token: ${{ inputs.GITHUB_TOKEN }}
         commit-message: Bump deps
