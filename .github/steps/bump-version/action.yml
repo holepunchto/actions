@@ -19,6 +19,8 @@ inputs:
     default: ""
 
 outputs:
+  version:
+    value: ${{ steps.bump.outputs.version }}
   pull-request-url:
     value: ${{ steps.pr.outputs.pull-request-url }}
 

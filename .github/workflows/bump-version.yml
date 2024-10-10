@@ -12,6 +12,8 @@ on:
         description: 'labels for the PR'
         default: ''
     outputs:
+      version: 
+        value: ${{ jobs.bump-version.outputs.version }}
       pull-request-url:
         value: ${{ jobs.bump-version.outputs.pull-request-url }}
 
@@ -19,6 +21,7 @@ jobs:
   bump-version:
     runs-on: ubuntu-latest
     outputs:
+      version: ${{ steps.bump-version.outputs.version }}
       pull-request-url: ${{ steps.bump-version.outputs.pull-request-url }}
     steps:
       - name: Checkout
