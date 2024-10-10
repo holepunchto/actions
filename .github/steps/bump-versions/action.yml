@@ -40,6 +40,7 @@ runs:
 
     - name: Bump version
       id: bump
+      shell: bash
       run: |
         result=$(npm version ${{ inputs.version }} --preid=rc --no-git-tag-version)
         echo version=$result >> $GITHUB_OUTPUT
