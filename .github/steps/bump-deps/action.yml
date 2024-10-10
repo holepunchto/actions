@@ -1,12 +1,6 @@
 name: Bump Deps
 
 inputs:
-  use-checkout:
-    type: boolean
-    default: false
-  use-git-config:
-    type: boolean
-    default: false
   use-create-pr:
     type: boolean
     default: false
@@ -24,17 +18,6 @@ outputs:
 runs:
   using: composite
   steps:
-    - if: ${{ inputs.use-checkout == 'true' }}
-      name: Checkout
-      uses: actions/checkout@v4
-
-    - if: ${{ inputs.use-git-config == 'true' }}
-      name: Git config
-      shell: bash
-      run: |
-        git config user.name 'GitHub Actions Bot'
-        git config user.email 'bot@github.actions.com'
-
     - name: Remove package-lock.json
       shell: bash
       run: rm package-lock.json
