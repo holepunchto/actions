@@ -1,0 +1,67 @@
+name: Bump Deps
+
+inputs:
+  use-checkout:
+    type: boolean
+    default: false
+  use-git-config:
+    type: boolean
+    default: false
+  use-create-pr:
+    type: boolean
+    default: false
+  GITHUB_TOKEN:
+    description: "GITHUB_TOKEN"
+    type: string
+    required: true
+  labels:
+    type: string
+    default: ""
+
+outputs:
+  pull-request-url:
+    value: ${{ steps.pr.outputs.pull-request-url }}
+
+runs:
+  using: composite
+  steps:
+    - if: ${{ inputs.use-checkout == 'true' }}
+      name: Checkout
+      uses: actions/checkout@v4
+
+    - if: ${{ inputs.use-git-config == 'true' }}
+      name: Git config
+      shell: bash
+      run: |
+        git config user.name 'GitHub Actions Bot'
+        git config user.email 'bot@github.actions.com'
+
+    - name: Remove package-lock.json
+      shell: bash
+      run: rm package-lock.json
+
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        registry-url: "https://npm.pkg.github.com"
+
+    - name: Install dependencies
+      shell: bash
+      run: npm install
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+
+    - if: ${{ inputs.use-create-pr == 'true' }}
+      name: Create PR
+      id: pr
+      uses: peter-evans/create-pull-request@v4
+      with:
+        token: ${{ inputs.GITHUB_TOKEN }}
+        commit-message: Bump deps
+        committer: GitHub Actions Bot <noreply@holepunchto.com>
+        author: GitHub Actions Bot <noreply@holepunchto.com>
+        branch: bump-deps
+        labels: ${{ inputs.labels }}
+        title: "Bump deps"
+        body: |
+          Bump all deps
