@@ -1,0 +1,51 @@
+name: Bump Version
+
+inputs:
+  use-create-pr:
+    type: boolean
+    description: "create a PR"
+    default: false
+  GITHUB_TOKEN:
+    type: string
+    description: "from secrets.GITHUB"
+    required: true
+  version:
+    type: string
+    description: "version type: prerelease, patch, minor, major"
+    required: true
+  labels:
+    type: string
+    description: "labels for the PR"
+    default: ""
+
+outputs:
+  version:
+    value: ${{ steps.bump.outputs.version }}
+  pull-request-url:
+    value: ${{ steps.pr.outputs.pull-request-url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Bump version
+      id: bump
+      shell: bash
+      run: |
+        result=$(npm version ${{ inputs.version }} --preid=rc --no-git-tag-version)
+        echo version=$result >> $GITHUB_OUTPUT
+
+    - if: ${{ inputs.use-create-pr == 'true' }}
+      name: Create PR
+      id: pr
+      uses: peter-evans/create-pull-request@v7
+      with:
+        token: ${{ inputs.GITHUB_TOKEN }}
+        commit-message: ${{ steps.bump.outputs.version }}
+        committer: GitHub Actions Bot <noreply@holepunchto.com>
+        author: GitHub Actions Bot <noreply@holepunchto.com>
+        branch: bump-version
+        delete-branch: true
+        labels: ${{ inputs.labels }}
+        title: ${{ steps.bump.outputs.version }}
+        body: |
+          Bump version to `${{ steps.bump.outputs.version }}`

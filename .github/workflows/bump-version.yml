@@ -1,0 +1,37 @@
+name: Bump Version
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        description: 'version type: prerelease, patch, minor, major'
+        required: true
+      labels:
+        type: string
+        description: 'labels for the PR'
+        default: ''
+    outputs:
+      version: 
+        value: ${{ jobs.bump-version.outputs.version }}
+      pull-request-url:
+        value: ${{ jobs.bump-version.outputs.pull-request-url }}
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump-version.outputs.version }}
+      pull-request-url: ${{ steps.bump-version.outputs.pull-request-url }}
+    steps:
+      - name: Setup repo
+        uses: holepunchto/actions/.github/steps/setup-repo@v1
+
+      - name: Bump Version
+        id: bump-version
+        uses: holepunchto/actions/.github/steps/bump-version@v1
+        with:
+          use-create-pr: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ inputs.version }}
+          labels: ${{ inputs.labels }}

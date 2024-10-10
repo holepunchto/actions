@@ -1,0 +1,18 @@
+name: Setup Repo
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Git config
+      shell: bash
+      run: |
+        git config user.name 'GitHub Actions Bot'
+        git config user.email 'bot@github.actions.com'
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        registry-url: "https://npm.pkg.github.com"
