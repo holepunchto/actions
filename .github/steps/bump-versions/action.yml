@@ -1,0 +1,60 @@
+name: Bump Versions
+
+inputs:
+  use-checkout:
+    type: boolean
+    default: false
+  use-git-config:
+    type: boolean
+    default: false
+  use-create-pr:
+    type: boolean
+    default: false
+  GITHUB_TOKEN:
+    type: string
+    required: true
+  version:
+    type: string
+    required: true
+  labels:
+    type: string
+    default: ""
+
+outputs:
+  pull-request-url:
+    value: ${{ steps.pr.outputs.pull-request-url }}
+
+runs:
+  using: composite
+  steps:
+    - if: ${{ inputs.use-checkout == 'true' }}
+      name: Checkout
+      uses: actions/checkout@v4
+
+    - if: ${{ inputs.use-git-config == 'true' }}
+      name: Git config
+      shell: bash
+      run: |
+        git config user.name 'GitHub Actions Bot'
+        git config user.email 'bot@github.actions.com'
+
+    - name: Bump version
+      id: bump
+      run: |
+        result=$(npm version ${{ inputs.version }} --preid=rc --no-git-tag-version)
+        echo version=$result >> $GITHUB_OUTPUT
+
+    - name: Create PR
+      id: pr
+      uses: peter-evans/create-pull-request@v6
+      with:
+        token: ${{ inputs.GITHUB_TOKEN }}
+        commit-message: ${{ steps.bump.outputs.version }}
+        committer: GitHub Actions Bot <noreply@holepunchto.com>
+        author: GitHub Actions Bot <noreply@holepunchto.com>
+        branch: bump-version
+        delete-branch: true
+        labels: ${{ inputs.labels }}
+        title: ${{ steps.bump.outputs.version }}
+        body: |
+          Bump version to `${{ steps.bump.outputs.version }}`
