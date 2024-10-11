@@ -16,13 +16,8 @@ jobs:
     outputs:
       pull-request-url: ${{ steps.bump-deps.outputs.pull-request-url }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Git config
-        run: |
-          git config user.name 'GitHub Actions Bot'
-          git config user.email 'bot@github.actions.com'
+      - name: Setup repo
+        uses: holepunchto/actions/.github/steps/setup-repo@v1
 
       - name: Bump Deps
         id: bump-deps
