@@ -21,18 +21,16 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Remove package-lock.json
-      shell: bash
-      run: rm package-lock.json
-
     - name: Setup Node
       uses: actions/setup-node@v4
       with:
         registry-url: "https://npm.pkg.github.com"
 
-    - name: Install dependencies
+    - name: Bump deps
       shell: bash
-      run: npm install
+      run: |
+        rm package-lock.json
+        npm install
       env:
         NODE_AUTH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
 
