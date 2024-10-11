@@ -21,18 +21,13 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Setup Node
-      uses: actions/setup-node@v4
-      with:
-        registry-url: "https://npm.pkg.github.com"
-
     - name: Bump deps
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       shell: bash
       run: |
         rm package-lock.json
         npm install
-      env:
-        NODE_AUTH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
 
     - if: ${{ inputs.use-create-pr == 'true' }}
       name: Create PR
