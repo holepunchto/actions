@@ -43,7 +43,7 @@ runs:
         commit-message: ${{ steps.bump.outputs.version }}
         committer: GitHub Actions Bot <noreply@holepunchto.com>
         author: GitHub Actions Bot <noreply@holepunchto.com>
-        branch: bump-version
+        branch: "bump-version-${{ steps.bump.outputs.version }}"
         delete-branch: true
         labels: ${{ inputs.labels }}
         title: ${{ steps.bump.outputs.version }}
