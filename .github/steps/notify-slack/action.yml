@@ -1,0 +1,27 @@
+name: Notify Slack
+
+inputs:
+  auth_token:
+    type: string
+    description: "Slack Bot User OAuth Access Token"
+    required: true
+  channel_id:
+    type: string
+    description: "Slack Channel ID"
+    required: true
+  message:
+    type: string
+    description: "Message to post"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Post to Slack
+      shell: bash
+      run: |
+        curl -s -X POST \
+          -H "Content-type: application/json; charset=utf-8" \
+          -H "Authorization: Bearer ${{ inputs.auth_token }}" \
+          -d "{\"channel\":\"${{ inputs.channel_id }}\",\"text\":\"${{ inputs.message }}\"}" \
+          "https://slack.com/api/chat.postMessage" \
