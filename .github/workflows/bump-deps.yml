@@ -7,6 +7,10 @@ on:
         type: string
         description: "labels for the PR"
         default: ''
+      channel-id:
+        type: string
+        description: "channel to notify Slack"
+        required: false
     outputs:
       pull-request-url:
         value: ${{ jobs.bump-deps.outputs.pull-request-url }}
@@ -27,3 +31,11 @@ jobs:
           use-create-pr: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           labels: ${{ inputs.labels }}
+
+      - name: Notify Slack
+        if: ${{ inputs.channel-id }}
+        uses: holepunchto/actions/.github/steps/notify-slack@v1
+        with:
+          auth_token: ${{ secrets.SLACK_TOKEN }}
+          channel_id: ${{ inputs.channel-id }}
+          message: "Please review: Bump Deps ${{ steps.bump-deps.outputs.pull-request-url }}"
