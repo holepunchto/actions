@@ -7,13 +7,13 @@ on:
         type: string
         description: "job to run"
         required: true
-      channel:
-        type: string
-        description: "channel"
-        required: true
       commit:
         type: string
         description: "commit"
+        required: true
+      channel:
+        type: string
+        description: "channel"
         required: true
       notify:
         type: string

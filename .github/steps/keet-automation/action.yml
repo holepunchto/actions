@@ -5,21 +5,21 @@ inputs:
     type: string
     description: "from secrets.GITHUB"
     required: true
-  job:
-    type: string
-    description: "job to run"
-    required: true
   seed:
     type: string
     description: "seed for the automation"
     required: true
-  channel:
+  job:
     type: string
-    description: "channel"
+    description: "job to run"
     required: true
   commit:
     type: string
     description: "commit"
+    required: true
+  channel:
+    type: string
+    description: "channel"
     required: true
   notify:
     type: string
@@ -44,10 +44,11 @@ runs:
     - name: Build
       shell: bash
       run: |
-        keet-automation ${{ inputs.job }} \
-          --remote c855820b0f7586b90a033b655aa97e713266fee588754223a29c489f540ef68d \
+        keet-automation
           --seed ${{ inputs.seed }} \
-          --channel ${{ inputs.channel }} \
+          --remote c855820b0f7586b90a033b655aa97e713266fee588754223a29c489f540ef68d \
+          ${{ inputs.job }} \
           --commit ${{ inputs.commit }} \
+          --channel ${{ inputs.channel }} \
           --notify ${{ inputs.notify }} \
           ${{ inputs.dry-run == 'true' && '--dry-run' || '' }} \
