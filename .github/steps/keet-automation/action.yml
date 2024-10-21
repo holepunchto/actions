@@ -1,6 +1,10 @@
 name: Keet Automation
 
 inputs:
+  GITHUB_TOKEN:
+    type: string
+    description: "from secrets.GITHUB"
+    required: true
   job:
     type: string
     description: "job to run"
@@ -32,7 +36,7 @@ runs:
   steps:
     - name: Install keet-automation
       env:
-        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NODE_AUTH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       shell: bash
       run: |
         npm install -g @holepunchto/keet-automation
