@@ -1,0 +1,49 @@
+name: Keet Automation
+
+inputs:
+  job:
+    type: string
+    description: "job to run"
+    required: true
+  seed:
+    type: string
+    description: "seed for the automation"
+    required: true
+  channel:
+    type: string
+    description: "channel"
+    required: true
+  commit:
+    type: string
+    description: "commit"
+    required: true
+  notify:
+    type: string
+    description: 'notify'
+    required: false
+    default: 'true'
+  dry-run:
+    type: string
+    description: 'dry run'
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Install keet-automation
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      shell: bash
+      run: |
+        npm install -g @holepunchto/keet-automation
+
+    - name: Build
+      shell: bash
+      run: |
+        keet-automation ${{ inputs.job }} \
+          --remote c855820b0f7586b90a033b655aa97e713266fee588754223a29c489f540ef68d \
+          --seed ${{ inputs.seed }} \
+          --channel ${{ inputs.channel }} \
+          --commit ${{ inputs.commit }} \
+          --notify ${{ inputs.notify }} \
+          ${{ inputs.dry-run == 'true' && '--dry-run' || '' }} \

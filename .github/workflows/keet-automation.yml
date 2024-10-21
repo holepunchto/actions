@@ -1,0 +1,43 @@
+name: Keet Automation
+
+on:
+  workflow_call:
+    inputs:
+      job:
+        type: string
+        description: "job to run"
+        required: true
+      channel:
+        type: string
+        description: "channel"
+        required: true
+      commit:
+        type: string
+        description: "commit"
+        required: true
+      notify:
+        type: string
+        description: 'notify'
+        required: false
+        default: 'true'
+      dry-run:
+        type: string
+        description: 'dry run'
+        required: false
+
+jobs:
+  keet-automation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: holepunchto/actions/.github/steps/setup-repo@v1
+
+      - name: Keet Automation
+        uses: holepunchto/actions/.github/steps/keet-automation@v1
+        with:
+          seed: ${{ secrets.AUTOMATION }}
+          job: ${{ inputs.job }}
+          channel: ${{ inputs.channel }}
+          commit: ${{ inputs.commit }}
+          notify: ${{ inputs.notify }}
+          dry-run: ${{ inputs.dry-run }}
