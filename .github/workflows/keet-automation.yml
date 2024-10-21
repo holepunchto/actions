@@ -31,6 +31,8 @@ jobs:
     steps:
       - name: Setup repo
         uses: holepunchto/actions/.github/steps/setup-repo@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Keet Automation
         uses: holepunchto/actions/.github/steps/keet-automation@v1
