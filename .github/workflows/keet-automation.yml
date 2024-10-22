@@ -10,11 +10,11 @@ on:
       commit:
         type: string
         description: "commit"
-        required: true
+        required: false
       channel:
         type: string
         description: "channel"
-        required: true
+        required: false
       notify:
         type: string
         description: 'notify'
