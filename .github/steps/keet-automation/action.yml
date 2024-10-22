@@ -48,6 +48,10 @@ runs:
     - name: Build
       shell: bash
       run: |
+        COMMIT_ARG=""
+        if [ -n "${{ inputs.commit }}" ]; then
+          COMMIT_ARG="--commit ${{ inputs.commit }}"
+        fi
         CHANNEL_ARG=""
         if [ -n "${{ inputs.channel }}" ]; then
           CHANNEL_ARG="--channel ${{ inputs.channel }}"
@@ -57,7 +61,7 @@ runs:
           --seed ${{ inputs.seed }} \
           --remote ${{ inputs.remote }} \
           ${{ inputs.job }} \
-          --commit ${{ inputs.commit }} \
+          $COMMIT_ARG \
           $CHANNEL_ARG \
           ${{ inputs.notify == 'true' && '--notify true' || '' }} \
           ${{ inputs.dry-run == 'true' && '--dry-run' || '' }} \
