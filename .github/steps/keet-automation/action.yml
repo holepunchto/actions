@@ -48,11 +48,16 @@ runs:
     - name: Build
       shell: bash
       run: |
+        CHANNEL_ARG=""
+        if [ -n "${{ inputs.channel }}" ]; then
+          CHANNEL_ARG="--channel ${{ inputs.channel }}"
+        fi
+
         keet-automation \
           --seed ${{ inputs.seed }} \
           --remote ${{ inputs.remote }} \
           ${{ inputs.job }} \
           --commit ${{ inputs.commit }} \
-          --channel ${{ inputs.channel }} \
-          --notify ${{ inputs.notify }} \
+          $CHANNEL_ARG \
+          ${{ inputs.notify == 'true' && '--notify true' || '' }} \
           ${{ inputs.dry-run == 'true' && '--dry-run' || '' }} \
