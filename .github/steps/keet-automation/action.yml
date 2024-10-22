@@ -9,6 +9,10 @@ inputs:
     type: string
     description: "seed for the automation"
     required: true
+  remote:
+    type: string
+    description: "remote key for the automation"
+    required: true
   job:
     type: string
     description: "job to run"
@@ -46,7 +50,7 @@ runs:
       run: |
         keet-automation \
           --seed ${{ inputs.seed }} \
-          --remote c855820b0f7586b90a033b655aa97e713266fee588754223a29c489f540ef68d \
+          --remote ${{ inputs.remote }} \
           ${{ inputs.job }} \
           --commit ${{ inputs.commit }} \
           --channel ${{ inputs.channel }} \
