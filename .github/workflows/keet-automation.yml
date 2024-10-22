@@ -37,7 +37,7 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           seed: ${{ secrets.AUTOMATION }}
-          remote: ${{ secrets.AUTOMATION_KEY }}
+          remote: ${{ secrets.AUTOMATION_PUBLIC_KEY }}
           job: ${{ inputs.job }}
           channel: ${{ inputs.channel }}
           commit: ${{ inputs.commit }}
