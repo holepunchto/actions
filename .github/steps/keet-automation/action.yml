@@ -1,0 +1,67 @@
+name: Keet Automation
+
+inputs:
+  GITHUB_TOKEN:
+    type: string
+    description: "from secrets.GITHUB"
+    required: true
+  seed:
+    type: string
+    description: "seed for the automation"
+    required: true
+  remote:
+    type: string
+    description: "remote key for the automation"
+    required: true
+  job:
+    type: string
+    description: "job to run"
+    required: true
+  commit:
+    type: string
+    description: "commit"
+    required: false
+  channel:
+    type: string
+    description: "channel"
+    required: false
+  notify:
+    type: string
+    description: 'notify'
+    required: false
+    default: 'true'
+  dry-run:
+    type: string
+    description: 'dry run'
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Install keet-automation
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+      shell: bash
+      run: |
+        npm install -g @holepunchto/keet-automation
+
+    - name: Build
+      shell: bash
+      run: |
+        COMMIT_ARG=""
+        if [ -n "${{ inputs.commit }}" ]; then
+          COMMIT_ARG="--commit ${{ inputs.commit }}"
+        fi
+        CHANNEL_ARG=""
+        if [ -n "${{ inputs.channel }}" ]; then
+          CHANNEL_ARG="--channel ${{ inputs.channel }}"
+        fi
+
+        keet-automation \
+          --seed ${{ inputs.seed }} \
+          --remote ${{ inputs.remote }} \
+          ${{ inputs.job }} \
+          $COMMIT_ARG \
+          $CHANNEL_ARG \
+          ${{ inputs.notify == 'true' && '--notify true' || '' }} \
+          ${{ inputs.dry-run == 'true' && '--dry-run' || '' }} \
