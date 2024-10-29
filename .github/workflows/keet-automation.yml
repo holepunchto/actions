@@ -24,6 +24,11 @@ on:
         type: string
         description: 'dry run'
         required: false
+      timeout:
+        type: number
+        description: 'timeout'
+        required: false
+        default: 15
 
 jobs:
   keet-automation:
@@ -34,6 +39,7 @@ jobs:
 
       - name: Keet Automation
         uses: holepunchto/actions/.github/steps/keet-automation@v1
+        timeout-minutes: ${{ inputs.timeout }}
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           seed: ${{ secrets.AUTOMATION }}
