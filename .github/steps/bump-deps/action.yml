@@ -35,6 +35,7 @@ runs:
       uses: peter-evans/create-pull-request@v7
       with:
         token: ${{ inputs.GITHUB_TOKEN }}
+        draft: always-true # require user to manually click "ready for review" for triggering another workflow, ref. https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
         commit-message: Bump deps
         committer: GitHub Actions Bot <noreply@holepunchto.com>
         author: GitHub Actions Bot <noreply@holepunchto.com>
