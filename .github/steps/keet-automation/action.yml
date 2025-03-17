@@ -17,6 +17,10 @@ inputs:
     type: string
     description: "job to run"
     required: true
+  next:
+    type: string
+    description: "next"
+    required: false
   commit:
     type: string
     description: "commit"
@@ -61,6 +65,7 @@ runs:
           --seed ${{ inputs.seed }} \
           --remote ${{ inputs.remote }} \
           ${{ inputs.job }} \
+          ${{ inputs.next == 'true' && '--next' || '' }} \
           $COMMIT_ARG \
           $CHANNEL_ARG \
           ${{ inputs.notify == 'true' && '--notify true' || '' }} \
