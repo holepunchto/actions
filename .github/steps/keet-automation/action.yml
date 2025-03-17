@@ -17,6 +17,10 @@ inputs:
     type: string
     description: "job to run"
     required: true
+  next:
+    type: string
+    description: "next"
+    required: false
   commit:
     type: string
     description: "commit"
@@ -48,6 +52,10 @@ runs:
     - name: Build
       shell: bash
       run: |
+        NEXT_ARG=""
+        if [ -n "${{ inputs.next }}" ]; then
+          NEXT_ARG="--next ${{ inputs.next }}"
+        fi
         COMMIT_ARG=""
         if [ -n "${{ inputs.commit }}" ]; then
           COMMIT_ARG="--commit ${{ inputs.commit }}"
@@ -61,6 +69,7 @@ runs:
           --seed ${{ inputs.seed }} \
           --remote ${{ inputs.remote }} \
           ${{ inputs.job }} \
+          $NEXT_ARG \
           $COMMIT_ARG \
           $CHANNEL_ARG \
           ${{ inputs.notify == 'true' && '--notify true' || '' }} \
