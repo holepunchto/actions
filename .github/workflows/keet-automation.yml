@@ -11,10 +11,6 @@ on:
         type: string
         description: "commit"
         required: false
-      next:
-        type: string
-        description: "next"
-        required: false
       channel:
         type: string
         description: "channel"
@@ -50,7 +46,6 @@ jobs:
           seed: ${{ secrets.AUTOMATION }}
           remote: ${{ secrets.AUTOMATION_PUBLIC_KEY }}
           job: ${{ inputs.job }}
-          next: ${{ inputs.next }}
           channel: ${{ inputs.channel }}
           commit: ${{ inputs.commit }}
           notify: ${{ inputs.notify }}
