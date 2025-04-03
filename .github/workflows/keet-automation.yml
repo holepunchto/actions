@@ -3,6 +3,12 @@ name: Keet Automation
 on:
   workflow_call:
     inputs:
+      seed:
+        type: string
+        required: false
+      remote:
+        type: string
+        required: false
       job:
         type: string
         description: "job to run"
@@ -43,8 +49,8 @@ jobs:
         timeout-minutes: ${{ inputs.timeout }}
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          seed: ${{ secrets.AUTOMATION }}
-          remote: ${{ secrets.AUTOMATION_PUBLIC_KEY }}
+          seed: ${{ inputs.seed || secrets.AUTOMATION }}
+          remote: ${{ inputs.remote || secrets.AUTOMATION_PUBLIC_KEY }}
           job: ${{ inputs.job }}
           channel: ${{ inputs.channel }}
           commit: ${{ inputs.commit }}
