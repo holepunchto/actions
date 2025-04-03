@@ -43,8 +43,8 @@ jobs:
         timeout-minutes: ${{ inputs.timeout }}
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          seed: ${{ secrets.AUTOMATION }}
-          remote: ${{ secrets.AUTOMATION_PUBLIC_KEY }}
+          seed: ${{ inputs.channel == 'next' && secrets.AUTOMATION_NEXT || secrets.AUTOMATION }}
+          remote: ${{ inputs.channel == 'next' && secrets.AUTOMATION_PUBLIC_KEY_NEXT || secrets.AUTOMATION_PUBLIC_KEY }}
           job: ${{ inputs.job }}
           channel: ${{ inputs.channel }}
           commit: ${{ inputs.commit }}
