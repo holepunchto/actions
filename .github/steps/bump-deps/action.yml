@@ -26,6 +26,7 @@ runs:
         NODE_AUTH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       shell: bash
       run: |
+        npx npm-check-updates -t semver -u
         rm package-lock.json
         npm install
 
