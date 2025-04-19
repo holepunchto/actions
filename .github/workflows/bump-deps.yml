@@ -10,7 +10,7 @@ on:
       update-package-json:
         type: boolean
         description: "update package.json"
-        default: true
+        default: false
     outputs:
       pull-request-url:
         value: ${{ jobs.bump-deps.outputs.pull-request-url }}
