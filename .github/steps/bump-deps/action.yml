@@ -16,7 +16,7 @@ inputs:
   update-package-json:
     type: boolean
     description: "update package.json"
-    default: true
+    default: false
 
 outputs:
   pull-request-url:
