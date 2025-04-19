@@ -13,6 +13,10 @@ inputs:
     type: string
     description: "labels for the PR"
     default: ""
+  update-package-json:
+    type: boolean
+    description: "update package.json"
+    default: true
 
 outputs:
   pull-request-url:
@@ -26,7 +30,9 @@ runs:
         NODE_AUTH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       shell: bash
       run: |
-        npx npm-check-updates -t semver -u
+        if [[ "${{ inputs.update-package-json }}" == "true" ]]; then
+          npx npm-check-updates -t semver -u
+        fi
         rm package-lock.json
         npm install
 
