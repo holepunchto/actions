@@ -7,6 +7,10 @@ on:
         type: string
         description: "labels for the PR"
         default: ''
+      update-package-json:
+        type: boolean
+        description: "update package.json"
+        default: false
     outputs:
       pull-request-url:
         value: ${{ jobs.bump-deps.outputs.pull-request-url }}
@@ -27,3 +31,4 @@ jobs:
           use-create-pr: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           labels: ${{ inputs.labels }}
+          update-package-json: ${{ inputs.update-package-json }}
