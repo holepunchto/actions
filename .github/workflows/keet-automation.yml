@@ -29,7 +29,7 @@ on:
       dry-run:
         type: string
         description: 'dry run'
-        required: false
+        required: 'true'
       timeout:
         type: number
         description: 'timeout'

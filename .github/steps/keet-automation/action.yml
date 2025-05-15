@@ -33,7 +33,7 @@ inputs:
   dry-run:
     type: string
     description: 'dry run'
-    required: false
+    required: 'true'
 
 runs:
   using: composite
