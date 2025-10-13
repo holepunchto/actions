@@ -36,6 +36,10 @@ runs:
         rm package-lock.json
         npm install
 
+        if [[ "${{ inputs.use-create-pr }}" == "true" ]]; then
+          git push origin :bump-deps || true
+        fi
+
     - if: ${{ inputs.use-create-pr == 'true' }}
       name: Create PR
       id: pr
