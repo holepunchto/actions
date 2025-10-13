@@ -37,7 +37,7 @@ runs:
         npm install
 
         if [[ "${{ inputs.use-create-pr }}" == "true" ]]; then
-          git push origin :bump-deps
+          git push origin :bump-deps -f
         fi
 
     - if: ${{ inputs.use-create-pr == 'true' }}
