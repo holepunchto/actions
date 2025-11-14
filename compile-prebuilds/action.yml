@@ -10,6 +10,11 @@ inputs:
     required: true
   flags:
     description: Additional flags to apply
+  tags:
+    description: Additional tags to apply to uploaded prebuilds
+  upload:
+    description: Upload the compiled prebuilds
+    default: false
 
 runs:
   using: composite
@@ -22,3 +27,9 @@ runs:
       shell: bash
     - run: bare-make install
       shell: bash
+    - uses: holepunchto/actions/upload-prebuilds@native-actions
+      if: ${{ inputs.upload }}
+      with:
+        platform: ${{ matrix.platform }}
+        arch: ${{ matrix.arch }}
+        tags: ${{ matrix.tags}}
