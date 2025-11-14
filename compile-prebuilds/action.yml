@@ -28,7 +28,7 @@ runs:
     - run: bare-make install
       shell: bash
     - uses: holepunchto/actions/upload-prebuilds@native-actions
-      if: ${{ inputs.upload == true }}
+      if: ${{ inputs.upload == 'true' }}
       with:
         platform: ${{ matrix.platform }}
         arch: ${{ matrix.arch }}
