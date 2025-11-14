@@ -1,0 +1,20 @@
+name: Compile prebuilds
+description: Compile native prebuilds
+
+inputs:
+  platform:
+    description: The platform compiled for
+    required: true
+  arch:
+    description: The architecture compiled for
+    required: true
+  flags:
+    description: Additional flags to apply
+
+runs:
+  using: composite
+  steps:
+    - run: npm install -g bare-make
+    - run: bare-make generate --platform ${{ inputs.platform }} --arch ${{ inputs.arch }} ${{ inputs.flags }}
+    - run: bare-make build
+    - run: bare-make install
