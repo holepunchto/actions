@@ -1,0 +1,35 @@
+name: Compile prebuilds
+description: Compile and optionally upload native prebuilds
+
+inputs:
+  platform:
+    description: The platform to compile for
+    required: true
+  arch:
+    description: The architecture to compile for
+    required: true
+  flags:
+    description: Additional flags to apply to the build system
+  tags:
+    description: Additional tags to apply to uploaded prebuilds
+  upload:
+    description: Upload the compiled prebuilds
+    default: false
+
+runs:
+  using: composite
+  steps:
+    - run: npm install -g bare-make
+      shell: bash
+    - run: bare-make generate --platform ${{ inputs.platform }} --arch ${{ inputs.arch }} ${{ inputs.flags }}
+      shell: bash
+    - run: bare-make build
+      shell: bash
+    - run: bare-make install
+      shell: bash
+    - uses: holepunchto/actions/upload-prebuilds@v1
+      if: ${{ inputs.upload == 'true' }}
+      with:
+        platform: ${{ matrix.platform }}
+        arch: ${{ matrix.arch }}
+        tags: ${{ matrix.tags}}

@@ -1,0 +1,14 @@
+name: Merge prebuilds
+description: Merge and upload native prebuilds
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 #v6
+      with:
+        path: prebuilds
+        merge-multiple: true
+    - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+      with:
+        name: prebuilds
+        path: prebuilds

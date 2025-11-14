@@ -1,0 +1,20 @@
+name: Upload prebuilds
+description: Upload native prebuilds
+
+inputs:
+  platform:
+    description: The platform compiled for
+    required: true
+  arch:
+    description: The architecture compiled for
+    required: true
+  tags:
+    description: Additional tags to apply to uploaded prebuilds
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+      with:
+        name: ${{ inputs.platform }}-${{ inputs.arch }}${{ inputs.tags }}
+        path: prebuilds/*
