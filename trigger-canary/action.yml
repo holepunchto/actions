@@ -1,0 +1,26 @@
+name: Trigger Canary Tests
+description: Triggers canary tests for a repository release
+
+inputs:
+  repository-name:
+    description: "Name of the repository triggering canary tests"
+    required: true
+  ref-name:
+    description: "Git ref name (tag or branch)"
+    required: true
+  canary-dispatch-pat:
+    description: "PAT for triggering canary tests"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Trigger canary tests
+      shell: bash
+      run: |
+        curl -L -X POST \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${{ inputs.canary_dispatch_pat }}" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        https://api.github.com/repos/holepunchto/canary-tests/dispatches \
+        -d '{"event_type":"triggered-by-${{ inputs.repository_name }}-${{ inputs.ref_name }}"}'
