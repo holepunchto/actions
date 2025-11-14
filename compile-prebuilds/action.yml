@@ -1,15 +1,15 @@
 name: Compile prebuilds
-description: Compile native prebuilds
+description: Compile and optionally upload native prebuilds
 
 inputs:
   platform:
-    description: The platform compiled for
+    description: The platform to compile for
     required: true
   arch:
-    description: The architecture compiled for
+    description: The architecture to compile for
     required: true
   flags:
-    description: Additional flags to apply
+    description: Additional flags to apply to the build system
   tags:
     description: Additional tags to apply to uploaded prebuilds
   upload:

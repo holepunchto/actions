@@ -9,7 +9,7 @@ inputs:
     description: The architecture compiled for
     required: true
   tags:
-    description: Additional tags to apply
+    description: Additional tags to apply to uploaded prebuilds
 
 runs:
   using: composite
