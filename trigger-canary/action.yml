@@ -2,13 +2,13 @@ name: Trigger Canary Tests
 description: Triggers canary tests for a repository release
 
 inputs:
-  repository_name:
+  repository-name:
     description: "Name of the repository triggering canary tests"
     required: true
-  ref_name:
+  ref-name:
     description: "Git ref name (tag or branch)"
     required: true
-  canary_dispatch_pat:
+  canary-dispatch-pat:
     description: "PAT for triggering canary tests"
     required: true
 
