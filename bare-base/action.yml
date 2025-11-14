@@ -4,6 +4,6 @@ description: Setup required components for Bare projects
 runs:
   using: composite
   steps:
-    - uses: holepunchto/actions/node-base@current
+    - uses: holepunchto/actions/node-base@v1
     - run: npm install -g bare-runtime
       shell: bash
