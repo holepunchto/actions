@@ -7,14 +7,20 @@ jobs:
   request-review:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout calling repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Checkout actions repo
+        uses: actions/checkout@v4
+        with:
+          repository: holepunch/actions
+          path: .github/actions-repo
 
       - name: Get changed files and request reviewers from CODEOWNERS
         uses: actions/github-script@v7
         with:
           script: |
-            const script = require('./.github/workflows/auto-review-request.js');
+            const script = require('./.github/actions-repo/.github/workflows/auto-review-request.js');
             await script({ github, context });
