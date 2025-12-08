@@ -4,7 +4,7 @@ Shared GitHub actions
 
 ## Usage
 
-```
+```yaml
 name: My Action
 
 on:
