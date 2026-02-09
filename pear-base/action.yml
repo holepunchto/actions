@@ -1,0 +1,25 @@
+name: Setup Pear
+description: Setup required components for Pear projects
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      with: { node-version: lts/* }
+
+    - name: Setup Pear
+      run: npx -y pear
+      shell: bash
+
+    - name: Add pear to PATH
+      shell: bash
+      run: |
+        case "$RUNNER_OS" in
+          Linux)   echo "$HOME/.config/pear/bin" >> "$GITHUB_PATH" ;;
+          macOS)   echo "$HOME/Library/Application Support/pear/bin" >> "$GITHUB_PATH" ;;
+          Windows) echo "$USERPROFILE\\AppData\\Roaming\\pear\\bin" >> "$GITHUB_PATH" ;;
+        esac
+
+    - run: npm install
+      shell: bash
