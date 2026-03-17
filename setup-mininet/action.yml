@@ -1,0 +1,18 @@
+name: Setup Mininet
+description: Install Mininet and dependencies
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y \
+          python3 \
+          python-is-python3 \
+          openvswitch-common \
+          openvswitch-switch \
+          mininet
+
+        sudo systemctl start openvswitch-switch
+        sudo systemctl status openvswitch-switch --no-pager
