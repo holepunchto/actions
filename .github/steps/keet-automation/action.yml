@@ -25,6 +25,10 @@ inputs:
     type: string
     description: "channel"
     required: false
+  dir:
+    type: string
+    description: "dir"
+    required: false
   notify:
     type: string
     description: 'notify'
@@ -56,6 +60,10 @@ runs:
         if [ -n "${{ inputs.channel }}" ]; then
           CHANNEL_ARG="--channel ${{ inputs.channel }}"
         fi
+        DIR_ARG=""
+        if [ -n "${{ inputs.dir }}" ]; then
+          DIR_ARG="--dir ${{ inputs.dir }}"
+        fi
 
         keet-automation \
           --seed ${{ inputs.seed }} \
@@ -63,5 +71,6 @@ runs:
           ${{ inputs.job }} \
           $COMMIT_ARG \
           $CHANNEL_ARG \
+          $DIR_ARG \
           ${{ inputs.notify == 'true' && '--notify true' || '' }} \
           ${{ inputs.dry-run == 'true' && '--dry-run' || '' }} \

@@ -21,6 +21,10 @@ on:
         type: string
         description: "channel"
         required: false
+      dir:
+        type: string
+        description: "dir"
+        required: false
       notify:
         type: string
         description: 'notify'
@@ -53,6 +57,7 @@ jobs:
           remote: ${{ inputs.remote || secrets.AUTOMATION_PUBLIC_KEY }}
           job: ${{ inputs.job }}
           channel: ${{ inputs.channel }}
+          dir: ${{ inputs.dir }}
           commit: ${{ inputs.commit }}
           notify: ${{ inputs.notify }}
           dry-run: ${{ inputs.dry-run }}
