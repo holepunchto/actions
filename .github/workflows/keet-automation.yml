@@ -25,6 +25,14 @@ on:
         type: string
         description: "dir"
         required: false
+      artifact:
+        type: string
+        description: "artifact to download"
+        required: false
+      skip-install:
+        type: string
+        description: "skip install step"
+        required: false
       notify:
         type: string
         description: 'notify'
