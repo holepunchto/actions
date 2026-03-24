@@ -29,6 +29,14 @@ inputs:
     type: string
     description: "dir"
     required: false
+  artifact:
+    type: string
+    description: "artifact to download"
+    required: false
+  skip-install:
+    type: string
+    description: "skip install step"
+    required: false
   notify:
     type: string
     description: 'notify'
@@ -64,6 +72,9 @@ runs:
         if [ -n "${{ inputs.dir }}" ]; then
           DIR_ARG="--dir ${{ inputs.dir }}"
         fi
+        if [ -n "${{ inputs.artifact }}" ]; then
+          ARTIFACT_ARG="--artifact ${{ inputs.artifact }}"
+        fi
 
         keet-automation \
           --seed ${{ inputs.seed }} \
@@ -72,5 +83,7 @@ runs:
           $COMMIT_ARG \
           $CHANNEL_ARG \
           $DIR_ARG \
+          $ARTIFACT_ARG \
+          ${{ inputs.skip-install == 'true' && '--skip-install' || '' }} \
           ${{ inputs.notify == 'true' && '--notify true' || '' }} \
           ${{ inputs.dry-run == 'true' && '--dry-run' || '' }} \

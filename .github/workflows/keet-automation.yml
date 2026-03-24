@@ -58,6 +58,8 @@ jobs:
           job: ${{ inputs.job }}
           channel: ${{ inputs.channel }}
           dir: ${{ inputs.dir }}
+          artifact: ${{ inputs.artifact }}
+          skip-install: ${{ inputs.skip-install }}
           commit: ${{ inputs.commit }}
           notify: ${{ inputs.notify }}
           dry-run: ${{ inputs.dry-run }}
