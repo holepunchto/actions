@@ -163,6 +163,7 @@ runs:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: "${{ inputs.channel }}"
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
+        NODE_ENV: production
       run: |
         npm run make
       shell: bash
@@ -174,6 +175,7 @@ runs:
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
         MAC_CODESIGN_IDENTITY: "${{ inputs.macos_codesign_identity }}"
         KEYCHAIN_PROFILE: ${{ steps.keychain_notary_setup.outputs.KEYCHAIN_PROFILE }}
+        NODE_ENV: production
       run: |
         npm run make
       shell: bash
@@ -185,7 +187,7 @@ runs:
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
         NODE_ENV: production
       run: |
-        npx electron-forge make
+        npm run make
       shell: pwsh
     - name: 'Install @actions/artifact module (Linux/macOS)'
       if: ${{ runner.os != 'Windows' }}
