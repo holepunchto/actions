@@ -23,7 +23,8 @@ inputs:
     default: ''
   macos_notarization_method:
     description: 'Notarization method to use: appstore_connect or apple_id_password'
-    required: true
+    required: false
+    default: ''
   macos_apple_id:
     description: 'Apple ID email for notarization'
     required: false
