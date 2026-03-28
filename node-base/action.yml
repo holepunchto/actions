@@ -1,5 +1,5 @@
-name: Setup
-description: Node LTS + fixed action versions
+name: Setup Node.js
+description: Setup Node.js LTS
 
 runs:
   using: composite
@@ -8,5 +8,5 @@ runs:
     - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
       with:
         node-version: lts/*
-    - run: npm install
+    - run: npm install --ignore-scripts
       shell: bash
