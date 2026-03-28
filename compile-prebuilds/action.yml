@@ -19,7 +19,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - run: npm install -g bare-make
+    - run: npm install --global bare-make
       shell: bash
     - run: bare-make generate --platform ${{ inputs.platform }} --arch ${{ inputs.arch }} ${{ inputs.flags }}
       shell: bash

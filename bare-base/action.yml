@@ -5,5 +5,5 @@ runs:
   using: composite
   steps:
     - uses: holepunchto/actions/node-base@v1
-    - run: npm install -g bare-runtime
+    - run: npm install --global bare-runtime
       shell: bash
