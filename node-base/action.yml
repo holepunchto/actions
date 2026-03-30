@@ -8,5 +8,5 @@ runs:
     - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
       with:
         node-version: lts/*
-    - run: npm install --ignore-scripts
+    - run: npm install --ignore-scripts --allow-git=none
       shell: bash
