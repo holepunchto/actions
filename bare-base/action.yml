@@ -1,9 +1,8 @@
-name: Setup Bare
-description: Setup required components for Bare projects
+name: Bare base
+description: Configure a Bare project
 
 runs:
   using: composite
   steps:
     - uses: holepunchto/actions/node-base@v1
-    - run: npm install --global bare-runtime
-      shell: bash
+    - uses: holepunchto/actions/setup-bare@v1

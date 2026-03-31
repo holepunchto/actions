@@ -1,7 +1,8 @@
-name: Setup Swift
-description: Setup required components for Swift projects
+name: Swift base
+description: Configure a Swift project
 
 runs:
   using: composite
   steps:
-    - uses: swift-actions/setup-swift@7ca6abe6b3b0e8b5421b88be48feee39cbf52c6a # v2
+    - uses: holepunchto/actions/checkout@v1
+    - uses: holepunchto/actions/setup-swift@v1

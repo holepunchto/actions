@@ -1,0 +1,9 @@
+name: Setup Node.js
+description: Install and configure Node.js LTS
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+      with:
+        node-version: lts/*
