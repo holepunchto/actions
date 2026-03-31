@@ -1,10 +1,16 @@
 name: Node.js base
 description: Configure a Node.js project
 
+inputs:
+  allow-git:
+    description: Allow git dependencies
+    default: none
+    type: string
+
 runs:
   using: composite
   steps:
     - uses: holepunchto/actions/checkout@v1
     - uses: holepunchto/actions/setup-node@v1
-    - run: npm install --ignore-scripts --allow-git=none
+    - run: npm install --ignore-scripts --allow-git=${{ inputs.allow-git }}
       shell: bash
