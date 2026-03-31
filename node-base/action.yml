@@ -1,12 +1,10 @@
-name: Setup Node.js
-description: Setup Node.js LTS
+name: Node.js base
+description: Configure a Node.js project
 
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-    - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
-      with:
-        node-version: lts/*
+    - uses: holepunchto/actions/checkout@v1
+    - uses: holepunchto/actions/setup-node@v1
     - run: npm install --ignore-scripts --allow-git=none
       shell: bash

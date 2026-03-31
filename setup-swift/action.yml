@@ -1,0 +1,7 @@
+name: Setup Swift
+description: Install and configure Swift
+
+runs:
+  using: composite
+  steps:
+    - uses: swift-actions/setup-swift@7ca6abe6b3b0e8b5421b88be48feee39cbf52c6a # v2
