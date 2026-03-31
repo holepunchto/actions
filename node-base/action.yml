@@ -7,7 +7,7 @@ runs:
     - uses: holepunchto/actions/checkout@v1
     - uses: holepunchto/actions/setup-node@v1
       with:
-        registry-url: "https://npm.pkg.github.com"
+        registry-url: 'https://npm.pkg.github.com'
     - run: npm install --ignore-scripts --foreground-scripts --allow-git=none
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
