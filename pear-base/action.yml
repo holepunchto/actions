@@ -4,8 +4,7 @@ description: Configure a Pear project
 runs:
   using: composite
   steps:
-    - uses: holepunchto/actions/checkout@v1
-    - uses: holepunchto/actions/setup-node@v1
+    - uses: holepunchto/actions/node-base@v1
 
     - name: Setup Pear
       run: npx -y pear
@@ -18,7 +17,4 @@ runs:
           macOS)   echo "$HOME/Library/Application Support/pear/bin" >> "$GITHUB_PATH" ;;
           Windows) echo "$USERPROFILE\\AppData\\Roaming\\pear\\bin" >> "$GITHUB_PATH" ;;
         esac
-      shell: bash
-
-    - run: npm install --ignore-scripts --allow-git=none
       shell: bash
