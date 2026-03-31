@@ -7,4 +7,6 @@ runs:
     - uses: holepunchto/actions/checkout@v1
     - uses: holepunchto/actions/setup-node@v1
     - run: npm install --ignore-scripts --allow-git=none
+      env:
+        NODE_AUTH_TOKEN: ${{ github.token }}
       shell: bash
