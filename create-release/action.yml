@@ -1,0 +1,10 @@
+name: Create release
+description: Create a GitHub release
+
+runs:
+  using: composite
+  steps:
+    - run: gh release create ${{ github.ref_name }} "$(npm pack)" --generate-notes
+      env:
+        GH_TOKEN: ${{ github.token }}
+      shell: bash
