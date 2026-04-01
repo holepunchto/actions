@@ -4,6 +4,6 @@ description: Create a GitHub release and publish to npm
 runs:
   using: composite
   steps:
-    - uses: holepunchto/actions/create-release@v1
     - run: npm publish --ignore-scripts
       shell: bash
+    - uses: holepunchto/actions/create-release@v1
