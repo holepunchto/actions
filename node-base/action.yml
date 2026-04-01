@@ -5,7 +5,7 @@ runs:
   using: composite
   steps:
     - uses: holepunchto/actions/checkout@v1
-    - uses: holepunchto/actions/setup-node@a9ab94e2a7f8cd4654d036935608c65416f8fa63
+    - uses: holepunchto/actions/setup-node@node-install-github-token
     - run: npm install --ignore-scripts --foreground-scripts --allow-git=none
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
