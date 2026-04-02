@@ -1,10 +1,15 @@
 name: Download prebuilds
 description: Download native prebuilds
 
+inputs:
+  prefix:
+    description: The prebuild prefix
+    default: prebuilds
+
 runs:
   using: composite
   steps:
     - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #v8
       with:
-        path: prebuilds
+        path: ${{ inputs.prefix }}
         merge-multiple: true
