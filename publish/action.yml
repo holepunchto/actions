@@ -15,3 +15,6 @@ runs:
     - run: npm publish --ignore-scripts ${{ inputs.workspaces == 'true' && '--workspaces' || '' }} ${{ inputs.include-workspace-root == 'true' && '--include-workspace-root' || '' }}
       shell: bash
     - uses: holepunchto/actions/create-release@v1
+      with:
+        workspaces: ${{ inputs.workspaces }}
+        include-workspace-root: ${{ inputs.include-workspace-root }}

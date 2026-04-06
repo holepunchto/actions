@@ -1,10 +1,18 @@
 name: Create release
 description: Create a GitHub release
 
+inputs:
+  workspaces:
+    description: Pack all workspace packages
+    default: false
+  include-workspace-root:
+    description: Also pack the workspace root
+    default: false
+
 runs:
   using: composite
   steps:
-    - run: gh release create ${{ github.ref_name }} "$(npm pack)" --generate-notes
+    - run: gh release create ${{ github.ref_name }} $(npm pack ${{ inputs.workspaces == 'true' && '--workspaces' || '' }} ${{ inputs.include-workspace-root == 'true' && '--include-workspace-root' || '' }}) --generate-notes
       env:
         GH_TOKEN: ${{ github.token }}
       shell: bash
