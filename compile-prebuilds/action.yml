@@ -12,6 +12,9 @@ inputs:
     description: Additional flags to apply to the build system
   tags:
     description: Additional tags to apply to uploaded prebuilds
+  prefix:
+    description: The prebuild prefix
+    default: prebuilds
   upload:
     description: Upload the compiled prebuilds
     default: false
@@ -25,11 +28,12 @@ runs:
       shell: bash
     - run: bare-make build
       shell: bash
-    - run: bare-make install
+    - run: bare-make install --prefix ${{ inputs.prefix }}
       shell: bash
     - uses: holepunchto/actions/upload-prebuilds@v1
       if: ${{ inputs.upload == 'true' }}
       with:
-        platform: ${{ matrix.platform }}
-        arch: ${{ matrix.arch }}
-        tags: ${{ matrix.tags}}
+        platform: ${{ inputs.platform }}
+        arch: ${{ inputs.arch }}
+        tags: ${{ inputs.tags }}
+        prefix: ${{ inputs.prefix }}

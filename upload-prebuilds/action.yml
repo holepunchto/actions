@@ -10,6 +10,9 @@ inputs:
     required: true
   tags:
     description: Additional tags to apply to uploaded prebuilds
+  prefix:
+    description: The prebuild prefix
+    default: prebuilds
 
 runs:
   using: composite
@@ -17,4 +20,4 @@ runs:
     - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       with:
         name: ${{ inputs.platform }}-${{ inputs.arch }}${{ inputs.tags }}
-        path: prebuilds/*
+        path: ${{ inputs.prefix }}/*
