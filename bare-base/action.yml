@@ -1,8 +1,15 @@
 name: Bare base
 description: Configure a Bare project
 
+inputs:
+  force-install:
+    description: Force install npm packages
+    default: false
+
 runs:
   using: composite
   steps:
     - uses: holepunchto/actions/node-base@v1
+      with:
+        force-install: ${{ inputs.force-install }}
     - uses: holepunchto/actions/setup-bare@v1
