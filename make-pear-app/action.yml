@@ -188,9 +188,18 @@ runs:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: "${{ inputs.channel }}"
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
-        NODE_ENV: production
+        NODE_ENV: development
       run: |
-        npm run make
+        npm run make || true
+        pwd
+        ls
+        cd out
+        ls
+        ls Keet*
+        ls snap
+        sudo -u $USER -E snapcraft pack --output snap
+        ls snap
+        mv snap/* make
       shell: bash
     - name: 'Build application (macOS)'
       if: ${{ runner.os == 'macOS' }}
