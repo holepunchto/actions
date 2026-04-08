@@ -172,6 +172,16 @@ runs:
 
         echo "KEYCHAIN_PROFILE=$KEYCHAIN_PROFILE" >> $GITHUB_OUTPUT
       shell: bash
+    - name: 'Set up Snapcraft'
+      if: ${{ runner.os == 'Linux' }}
+      run: |
+        sudo snap install snapcraft --classic
+        sudo snap install lxd
+        sudo usermod -a -G lxd $USER
+        groups $USER
+        sudo iptables -P FORWARD ACCEPT
+        sudo lxd init --auto
+      shell: bash
     - name: 'Build application (Linux)'
       if: ${{ runner.os == 'Linux' }}
       env:
