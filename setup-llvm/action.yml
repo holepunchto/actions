@@ -1,0 +1,16 @@
+name: Setup LLVM
+description: Install and configure LLVM
+
+runs:
+  using: composite
+  steps:
+    - run: |
+        wget https://apt.llvm.org/llvm.sh
+        chmod +x llvm.sh
+        sudo ./llvm.sh 20
+        rm llvm.sh
+      if: ${{ runner.os == 'Linux' }}
+    - run: brew install llvm@20
+      if: ${{ runner.os == 'macOS' }}
+    - run: choco install llvm --version 20.1.8 --force
+      if: ${{ runner.os == 'Windows' }}
