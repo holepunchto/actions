@@ -12,7 +12,12 @@ inputs:
 runs:
   using: composite
   steps:
-    - run: gh release create ${{ github.ref_name }} $(npm pack ${{ inputs.workspaces == 'true' && '--workspaces' || '' }} ${{ inputs.include-workspace-root == 'true' && '--include-workspace-root' || '' }}) --generate-notes
+    - run: npm pack ${{ inputs.workspaces == 'true' && '--workspaces' || '' }} ${{ inputs.include-workspace-root == 'true' && '--include-workspace-root' || '' }}
+      shell: bash
+    - id: pack
+      run: echo "packages=$(ls *.tgz)" >> "$GITHUB_OUTPUT"
+      shell: bash
+    - run: gh release create ${{ github.ref_name }} ${{ steps.pack.outputs.packages }} --generate-notes
       env:
         GH_TOKEN: ${{ github.token }}
       shell: bash
