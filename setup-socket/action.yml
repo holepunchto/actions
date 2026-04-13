@@ -1,0 +1,9 @@
+name: Setup Socket.dev
+description: Install and configure Socket.dev
+
+runs:
+  using: composite
+  steps:
+    - uses: socketdev/action@ba6de6cc0565af1f42295590380973573297e31f # v1
+      with:
+        mode: firewall
