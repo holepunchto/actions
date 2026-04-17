@@ -1,0 +1,28 @@
+name: 'Pear Provision Recover'
+description: 'Recover a provision drive from the network into a new writable drive'
+
+inputs:
+  path:
+    description: 'Corestore storage path for the recovered drive'
+    required: true
+  key:
+    description: 'Public key of the remote production drive to recover from'
+    required: true
+  timeout:
+    description: 'Peer discovery timeout in milliseconds'
+    required: false
+    default: '30000'
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/node-base@v1
+    - name: 'Run pear-provision-recover'
+      env:
+        NODE_AUTH_TOKEN: ${{ github.token }}
+      run: |
+        npx --yes pear-provision-recover \
+          --path "${{ inputs.path }}" \
+          --key "${{ inputs.key }}" \
+          --timeout "${{ inputs.timeout }}"
+      shell: bash
