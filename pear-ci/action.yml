@@ -1,0 +1,89 @@
+name: 'Pear CI Stage'
+description: 'Stage a local app to a Hyperdrive using pear-ci, then open PRs with the updated snapshot against both main and the current branch'
+
+inputs:
+  primary-key:
+    description: '32-byte hex key for the Corestore identity'
+    required: true
+  namespace:
+    description: 'Namespace name, used as the drive namespace'
+    required: true
+  target:
+    description: 'Path to the directory to stage'
+    required: true
+  dry-run:
+    description: 'Preview changes without writing to the Hyperdrive'
+    required: false
+    default: 'false'
+  github-token:
+    description: 'GitHub token'
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install pear-ci
+      shell: bash
+      run: npm install -g pear-ci
+
+    - name: Fetch snapshot from main
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: |
+        mkdir -p ci
+        rm -f ci/snapshot.json
+        gh api \
+          --header "Accept: application/vnd.github.raw+json" \
+          "/repos/${{ github.repository }}/contents/ci/snapshot.json?ref=main" > ci/snapshot.json
+
+    - name: Stage
+      shell: bash
+      run: |
+        ARGS="--primary-key ${{ inputs.primary-key }} \
+              --name ${{ inputs.namespace }} \
+              --target ${{ inputs.target }} \
+              --snapshot ci/snapshot.json \
+              --storage /tmp/store"
+
+        if [ "${{ inputs.dry-run }}" = "true" ]; then
+          ARGS="$ARGS --dry-run"
+        fi
+
+        pear-ci $ARGS
+
+    - name: Create snapshot PRs
+      if: inputs.dry-run != 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: |
+        BRANCH="pear-ci/snapshot-${{ github.run_id }}"
+        CURRENT_BRANCH="${{ github.ref_name }}"
+
+        git config user.name  "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        git checkout -b "$BRANCH"
+        git add ci/snapshot.json
+        git diff --cached --quiet && echo "Snapshot unchanged, skipping PRs" && exit 0
+
+        git commit -m "chore: update pear-ci snapshot [run ${{ github.run_id }}]"
+        git push origin "$BRANCH"
+
+        # PR against main
+        gh pr create \
+          --base main \
+          --head "$BRANCH" \
+          --title "chore: update pear-ci snapshot (${{ inputs.namespace }})" \
+          --body "Automated snapshot update from pear-ci run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+
+        # PR against the current branch (skip if we're already on main)
+        if [ "$CURRENT_BRANCH" != "main" ]; then
+          gh pr create \
+            --base "$CURRENT_BRANCH" \
+            --head "$BRANCH" \
+            --title "chore: update pear-ci snapshot (${{ inputs.namespace }})" \
+            --body "Automated snapshot update from pear-ci run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+        fi
