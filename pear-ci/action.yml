@@ -37,12 +37,9 @@ runs:
       run: |
         mkdir -p ci
         rm -f ci/snapshot.json
-        curl -fsSL \
-          -H "Authorization: Bearer $GH_TOKEN" \
-          -H "Accept: application/vnd.github.raw+json" \
-          "https://api.github.com/repos/${{ github.repository }}/contents/ci/snapshot.json?ref=main" \
-          -o ci/snapshot.json \
-          || echo "No existing snapshot on main, starting fresh"
+        gh api \
+          --header "Accept: application/vnd.github.raw+json" \
+          "/repos/${{ github.repository }}/contents/ci/snapshot.json?ref=main"
 
     - name: Stage
       shell: bash
