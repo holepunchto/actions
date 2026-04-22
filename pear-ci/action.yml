@@ -23,9 +23,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Setup Node.js
-      uses: holepunchto/actions/node-base@v1
-
     - name: Install pear-ci
       shell: bash
       run: npm install -g pear-ci
@@ -39,7 +36,7 @@ runs:
         rm -f ci/snapshot.json
         gh api \
           --header "Accept: application/vnd.github.raw+json" \
-          "/repos/${{ github.repository }}/contents/ci/snapshot.json?ref=main"
+          "/repos/${{ github.repository }}/contents/ci/snapshot.json?ref=main" > ci/snapshot.json
 
     - name: Stage
       shell: bash
