@@ -1,0 +1,27 @@
+name: Pear base
+description: Configure a Pear project
+
+inputs:
+  force-install:
+    description: Force install npm packages
+    default: false
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/node-base@v1
+      with:
+        force-install: ${{ inputs.force-install }}
+
+    - name: Setup Pear
+      run: npx -y pear
+      shell: bash
+
+    - name: Add Pear to $PATH
+      run: |
+        case "$RUNNER_OS" in
+          Linux)   echo "$HOME/.config/pear/bin" >> "$GITHUB_PATH" ;;
+          macOS)   echo "$HOME/Library/Application Support/pear/bin" >> "$GITHUB_PATH" ;;
+          Windows) echo "$USERPROFILE\\AppData\\Roaming\\pear\\bin" >> "$GITHUB_PATH" ;;
+        esac
+      shell: bash

@@ -1,11 +1,21 @@
-name: Setup
-description: Node LTS + fixed action versions
+name: Node.js base
+description: Configure a Node.js project
+
+inputs:
+  allow-git:
+    description: Allow git dependencies
+    default: none
+  force-install:
+    description: Force install npm packages
+    default: false
 
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
-    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-      with: { node-version: lts/* }
-    - run: npm install
+    - uses: holepunchto/actions/checkout@v1
+    - uses: holepunchto/actions/setup-socket@v1
+    - uses: holepunchto/actions/setup-node@v1
+    - run: sfw npm install --ignore-scripts --foreground-scripts --allow-git=${{ inputs.allow-git }} ${{ inputs.force-install == 'true' && '--force' || '' }}
+      env:
+        NODE_AUTH_TOKEN: ${{ github.token }}
       shell: bash

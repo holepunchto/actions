@@ -1,0 +1,8 @@
+name: Swift base
+description: Configure a Swift project
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/checkout@v1
+    - uses: holepunchto/actions/setup-swift@v1

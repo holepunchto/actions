@@ -21,6 +21,18 @@ on:
         type: string
         description: "channel"
         required: false
+      dir:
+        type: string
+        description: "dir"
+        required: false
+      artifact:
+        type: string
+        description: "artifact to download"
+        required: false
+      skip-install:
+        type: string
+        description: "skip install step"
+        required: false
       notify:
         type: string
         description: 'notify'
@@ -53,6 +65,9 @@ jobs:
           remote: ${{ inputs.remote || secrets.AUTOMATION_PUBLIC_KEY }}
           job: ${{ inputs.job }}
           channel: ${{ inputs.channel }}
+          dir: ${{ inputs.dir }}
+          artifact: ${{ inputs.artifact }}
+          skip-install: ${{ inputs.skip-install }}
           commit: ${{ inputs.commit }}
           notify: ${{ inputs.notify }}
           dry-run: ${{ inputs.dry-run }}

@@ -16,3 +16,9 @@ runs:
       uses: actions/setup-node@v4
       with:
         registry-url: "https://npm.pkg.github.com"
+
+    - name: Disable npm scripts
+      shell: bash
+      run: |
+        npm config set foreground-scripts true
+        npm config set ignore-scripts true
