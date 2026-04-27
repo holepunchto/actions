@@ -2,6 +2,9 @@ name: Bare base
 description: Configure a Bare project
 
 inputs:
+  allow-git:
+    description: Allow git dependencies
+    default: none
   force-install:
     description: Force install npm packages
     default: false
@@ -11,5 +14,6 @@ runs:
   steps:
     - uses: holepunchto/actions/node-base@v1
       with:
+        allow-git: ${{ inputs.allow-git }}
         force-install: ${{ inputs.force-install }}
     - uses: holepunchto/actions/setup-bare@v1
