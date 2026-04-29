@@ -2,6 +2,9 @@ name: Pear base
 description: Configure a Pear project
 
 inputs:
+  allow-git:
+    description: Allow git dependencies
+    default: none
   force-install:
     description: Force install npm packages
     default: false
@@ -11,6 +14,7 @@ runs:
   steps:
     - uses: holepunchto/actions/node-base@v1
       with:
+        allow-git: ${{ inputs.allow-git }}
         force-install: ${{ inputs.force-install }}
 
     - name: Setup Pear
