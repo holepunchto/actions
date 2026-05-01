@@ -60,30 +60,36 @@ runs:
         GH_TOKEN: ${{ inputs.github-token }}
       run: |
         BRANCH="pear-ci/snapshot-${{ github.run_id }}"
+        BRANCH_CURRENT="pear-ci/snapshot-current-${{ github.run_id }}"
         CURRENT_BRANCH="${{ github.ref_name }}"
-
         git config user.name  "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
 
-        git checkout -b "$BRANCH"
+        # Branch off main for the PR against main
+        git fetch origin main
+        git checkout -b "$BRANCH" origin/main
         git add ci/snapshot.json
         git diff --cached --quiet && echo "Snapshot unchanged, skipping PRs" && exit 0
-
-        git commit -m "chore: update pear-ci snapshot [run ${{ github.run_id }}]"
+        git commit -m "update pear-ci snapshot [run ${{ github.run_id }}]"
         git push origin "$BRANCH"
-
+        
         # PR against main
         gh pr create \
           --base main \
           --head "$BRANCH" \
-          --title "chore: update pear-ci snapshot (${{ inputs.namespace }})" \
+          --title "update pear-ci snapshot (${{ inputs.namespace }})" \
           --body "Automated snapshot update from pear-ci run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
-
+        
         # PR against the current branch (skip if we're already on main)
         if [ "$CURRENT_BRANCH" != "main" ]; then
+          git checkout -b "$BRANCH_CURRENT" origin/"$CURRENT_BRANCH"
+          git checkout "$BRANCH" -- ci/snapshot.json
+          git commit -m "update pear-ci snapshot [run ${{ github.run_id }}]"
+          git push origin "$BRANCH_CURRENT"
+        
           gh pr create \
             --base "$CURRENT_BRANCH" \
-            --head "$BRANCH" \
-            --title "chore: update pear-ci snapshot (${{ inputs.namespace }})" \
+            --head "$BRANCH_CURRENT" \
+            --title "update pear-ci snapshot (${{ inputs.namespace }})" \
             --body "Automated snapshot update from pear-ci run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
         fi
