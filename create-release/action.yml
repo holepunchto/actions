@@ -12,7 +12,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - run: npm pack ${{ inputs.workspaces == 'true' && '--workspaces' || '' }} ${{ inputs.include-workspace-root == 'true' && '--include-workspace-root' || '' }}
+    - run: npm pack --ignore-scripts ${{ inputs.workspaces == 'true' && '--workspaces' || '' }} ${{ inputs.include-workspace-root == 'true' && '--include-workspace-root' || '' }}
       shell: bash
     - id: pack
       run: echo "packages=$(ls *.tgz)" >> "$GITHUB_OUTPUT"
