@@ -1,0 +1,26 @@
+name: Trigger canary tests
+description: Triggers canary tests for a repository release
+
+inputs:
+  repository:
+    description: Name of the repository triggering canary tests
+    required: true
+  ref:
+    description: The branch, tag or SHA that triggered the canary tests
+    required: true
+  token:
+    description: Personal access token (PAT) used to trigger the canary tests
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - run: |
+        gh api repos/holepunchto/canary-tests/dispatches \
+          --method POST \
+          -f "event_type=release" \
+          -f "client_payload[repository]=${{ inputs.repository }}" \
+          -f "client_payload[ref]=${{ inputs.ref }}"
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}

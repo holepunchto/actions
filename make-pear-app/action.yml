@@ -53,6 +53,10 @@ inputs:
     description: 'SHA1 thumbprint of the Windows cert'
     required: false
     default: ''
+  linux_set_up_snapcraft:
+    description: 'Set up Snapcraft'
+    required: false
+    default: 'true'
 
 outputs:
   artifact-links:
@@ -173,7 +177,7 @@ runs:
         echo "KEYCHAIN_PROFILE=$KEYCHAIN_PROFILE" >> $GITHUB_OUTPUT
       shell: bash
     - name: 'Set up Snapcraft'
-      if: ${{ runner.os == 'Linux' }}
+      if: ${{ runner.os == 'Linux' && inputs.linux_set_up_snapcraft == 'true' }}
       run: |
         sudo snap install snapcraft --classic
         sudo snap install lxd
