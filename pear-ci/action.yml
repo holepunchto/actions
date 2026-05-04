@@ -60,8 +60,6 @@ runs:
         GH_TOKEN: ${{ inputs.github-token }}
       run: |
         BRANCH="pear-ci/snapshot-${{ github.run_id }}"
-        BRANCH_CURRENT="pear-ci/snapshot-current-${{ github.run_id }}"
-        CURRENT_BRANCH="${{ github.ref_name }}"
         git config user.name  "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
 
@@ -79,17 +77,3 @@ runs:
           --head "$BRANCH" \
           --title "update pear-ci snapshot (${{ inputs.namespace }})" \
           --body "Automated snapshot update from pear-ci run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
-        
-        # PR against the current branch (skip if we're already on main)
-        if [ "$CURRENT_BRANCH" != "main" ]; then
-          git checkout -b "$BRANCH_CURRENT" origin/"$CURRENT_BRANCH"
-          git checkout "$BRANCH" -- ci/snapshot.json
-          git commit -m "update pear-ci snapshot [run ${{ github.run_id }}]"
-          git push origin "$BRANCH_CURRENT"
-        
-          gh pr create \
-            --base "$CURRENT_BRANCH" \
-            --head "$BRANCH_CURRENT" \
-            --title "update pear-ci snapshot (${{ inputs.namespace }})" \
-            --body "Automated snapshot update from pear-ci run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
-        fi
