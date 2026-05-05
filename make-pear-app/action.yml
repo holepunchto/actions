@@ -49,8 +49,20 @@ inputs:
     description: 'UUID that identifies the API key issuer'
     required: false
     default: ''
+  windows_signing_method:
+    description: 'Signing method to use: windows_cert_sha1 or windows_cert_pfx'
+    required: false
+    default: ''
   windows_cert_sha1:
     description: 'SHA1 thumbprint of the Windows cert'
+    required: false
+    default: ''
+  windows_cert_pfx_base64:
+    description: 'Base64-encoded Windows cert pfx file'
+    required: false
+    default: ''
+  windows_cert_password:
+    description: 'Password for the Windows certificate'
     required: false
     default: ''
   linux_set_up_snapcraft:
@@ -109,7 +121,39 @@ runs:
       if: ${{ runner.os == 'Windows' }}
       run: |
         $missing = @()
-        if ([string]::IsNullOrEmpty('${{ inputs.windows_cert_sha1 }}')) { $missing += "windows_cert_sha1" }
+        $invalidMethod = $false
+
+        $method = '${{ inputs.windows_signing_method }}'
+
+        if ([string]::IsNullOrEmpty($method)) {
+          $missing += "windows_signing_method"
+        }
+        else {
+          switch ($method) {
+            "windows_cert_sha1" {
+              if ([string]::IsNullOrEmpty('${{ inputs.windows_cert_sha1 }}')) {
+                $missing += "windows_cert_sha1"
+              }
+            }
+            "windows_cert_pfx" {
+              if ([string]::IsNullOrEmpty('${{ inputs.windows_cert_pfx_base64 }}')) {
+                $missing += "windows_cert_pfx_base64"
+              }
+              if ([string]::IsNullOrEmpty('${{ inputs.windows_cert_password }}')) {
+                $missing += "windows_cert_password"
+              }
+            }
+            default {
+              $invalidMethod = $true
+            }
+          }
+        }
+
+        if ($invalidMethod) {
+          Write-Error "Error: Invalid windows_signing_method '$method'. Must be 'windows_cert_sha1' or 'windows_cert_pfx'."
+          exit 1
+        }
+
         if ($missing.Count -gt 0) {
           Write-Error "Error: Missing Windows inputs: $($missing -join ', ')"
           exit 1
@@ -176,6 +220,20 @@ runs:
 
         echo "KEYCHAIN_PROFILE=$KEYCHAIN_PROFILE" >> $GITHUB_OUTPUT
       shell: bash
+    - name: 'Install the Windows certificate'
+      id: windows_certificate_setup
+      if: ${{ runner.os == 'Windows' && inputs.windows_signing_method == 'windows_cert_pfx' }}
+      run: |
+        $certPath = "$env:RUNNER_TEMP\cert.pfx"
+        [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String("${{ inputs.windows_cert_pfx_base64 }}"))
+
+        $importedCert = Import-PfxCertificate `
+          -FilePath $certPath `
+          -CertStoreLocation Cert:\CurrentUser\My `
+          -Password (ConvertTo-SecureString -String "${{ inputs.windows_cert_password }}" -Force -AsPlainText)
+
+        echo "SHA1=$($importedCert.Thumbprint)" >> $env:GITHUB_OUTPUT
+      shell: powershell
     - name: 'Set up Snapcraft'
       if: ${{ runner.os == 'Linux' && inputs.linux_set_up_snapcraft == 'true' }}
       run: |
@@ -214,7 +272,7 @@ runs:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: "${{ inputs.channel }}"
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
-        WINDOWS_CERT_SHA1: "${{ inputs.windows_cert_sha1 }}"
+        WINDOWS_CERT_SHA1: "${{ inputs.windows_signing_method == 'windows_cert_pfx' && steps.windows_certificate_setup.outputs.SHA1 || inputs.windows_cert_sha1 }}"
         WINDOWS_SIGN_HOOK: ${{ github.action_path }}/windows-sign.js
         NODE_ENV: production
       run: |
