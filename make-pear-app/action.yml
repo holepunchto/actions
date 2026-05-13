@@ -168,14 +168,14 @@ runs:
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
       run: |
-        npm install
+        npm ci
       shell: bash
     - name: 'Install dependencies (Windows)'
       if: ${{ runner.os == 'Windows' }}
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
       run: |
-        npm install
+        npm ci
       shell: pwsh
     - name: 'Install the Apple certificate and notarytool credentials'
       id: keychain_notary_setup
