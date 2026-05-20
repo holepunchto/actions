@@ -10,7 +10,7 @@ inputs:
   length:
     description: 'Target length for the recovered provision drive'
     required: true
-  blobsLength:
+  blobs-length:
     description: 'Target blobs length for the recovered provision drive'
     required: true
   primary-key:
@@ -31,7 +31,7 @@ runs:
           --path "${{ inputs.path }}" \
           --key "${{ inputs.key }}" \
           --length "${{ inputs.length }}" \
-          --blobsLength "${{ inputs.blobsLength }}" \
+          --blobs-length "${{ inputs.blobs-length }}" \
           --primary-key "${{ inputs.primary-key }}" \
           --name "${{ inputs.name }}" \
       shell: bash
