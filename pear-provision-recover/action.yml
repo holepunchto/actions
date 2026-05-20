@@ -1,18 +1,24 @@
 name: 'Pear Provision Recover'
 description: 'Recover a provision drive from the network into a new writable drive'
-
 inputs:
   path:
     description: 'Corestore storage path for the recovered drive'
     required: true
   key:
-    description: 'Public key of the remote production drive to recover from'
+    description: 'Public key of the remote provision drive to recover from'
     required: true
-  timeout:
-    description: 'Peer discovery timeout in milliseconds'
-    required: false
-    default: '30000'
-
+  length:
+    description: 'Target length for the recovered provision drive'
+    required: true
+  blobsLength:
+    description: 'Target blobs length for the recovered provision drive'
+    required: true
+  primary-key:
+    description: 'New primary key for the recovered drive'
+    required: true
+  name:
+    description: 'New namespace name for the recovered drive'
+    required: true
 runs:
   using: composite
   steps:
@@ -24,5 +30,8 @@ runs:
         npx --yes pear-provision-recover \
           --path "${{ inputs.path }}" \
           --key "${{ inputs.key }}" \
-          --timeout "${{ inputs.timeout }}"
+          --length "${{ inputs.length }}" \
+          --blobsLength "${{ inputs.blobsLength }}" \
+          --primary-key "${{ inputs.primary-key }}" \
+          --name "${{ inputs.name }}" \
       shell: bash
