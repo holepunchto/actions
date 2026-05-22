@@ -15,6 +15,4 @@ runs:
     - uses: holepunchto/actions/checkout@v1
     - uses: holepunchto/actions/setup-node@v1
     - run: npm install --ignore-scripts --foreground-scripts --allow-git=${{ inputs.allow-git }} ${{ inputs.force-install == 'true' && '--force' || '' }}
-      env:
-        NODE_AUTH_TOKEN: ${{ github.token }}
       shell: bash
