@@ -11,7 +11,7 @@ runs:
         git config user.name 'GitHub Actions Bot'
         git config user.email 'bot@github.actions.com'
 
-    - uses: holepunchto/actions/.github/steps/setup-repo@v1
+    - uses: holepunchto/actions/setup-node@v1
 
     - name: Disable npm scripts
       shell: bash
