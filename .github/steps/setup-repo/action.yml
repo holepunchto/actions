@@ -3,7 +3,8 @@ name: Setup Repo
 runs:
   using: composite
   steps:
-    - uses: holepunchto/actions/checkout@v1
+    - name: Checkout
+      uses: holepunchto/actions/checkout@v1
 
     - name: Git config
       shell: bash
