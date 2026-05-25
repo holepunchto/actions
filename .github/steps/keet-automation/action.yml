@@ -71,30 +71,17 @@ runs:
         DRY_RUN: ${{ inputs.dry-run == 'true' && '--dry-run' || '' }}
       shell: bash
       run: |
-        COMMIT_ARG=""
-        if [ -n "$COMMIT" ]; then
-          COMMIT_ARG="--commit $COMMIT"
-        fi
-        CHANNEL_ARG=""
-        if [ -n "$CHANNEL" ]; then
-          CHANNEL_ARG="--channel $CHANNEL"
-        fi
-        DIR_ARG=""
-        if [ -n "$DIR" ]; then
-          DIR_ARG="--dir $DIR"
-        fi
-        if [ -n "$ARTIFACT" ]; then
-          ARTIFACT_ARG="--artifact $ARTIFACT"
-        fi
+        ARGS=()
+        [ -n "$COMMIT" ]   && ARGS+=(--commit "$COMMIT")
+        [ -n "$CHANNEL" ]  && ARGS+=(--channel "$CHANNEL")
+        [ -n "$DIR" ]      && ARGS+=(--dir "$DIR")
+        [ -n "$ARTIFACT" ] && ARGS+=(--artifact "$ARTIFACT")
 
         keet-automation \
           --seed $SEED \
           --remote $REMOTE \
           $JOB \
-          $COMMIT_ARG \
-          $CHANNEL_ARG \
-          $DIR_ARG \
-          $ARTIFACT_ARG \
+          "${ARGS[@]}" \
           $SKIP_INSTALL_FLAG \
           $NOTIFY \
           $DRY_RUN \
