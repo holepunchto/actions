@@ -86,5 +86,5 @@ runs:
         keet-automation \
           --seed "$SEED" \
           --remote "$REMOTE" \
-          "$JOB" \
           "${ARGS[@]}" \
+          "$JOB"
