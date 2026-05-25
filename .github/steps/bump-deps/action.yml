@@ -24,12 +24,13 @@ runs:
     - name: Bump deps
       env:
         NODE_AUTH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        USE_CREATE_PR: ${{ inputs.use-create-pr  }}
       shell: bash
       run: |
         rm package-lock.json
         npm install --ignore-scripts --foreground-scripts
 
-        if [[ "${{ inputs.use-create-pr }}" == "true" ]]; then
+        if [[ "$USE_CREATE_PR" == "true" ]]; then
           git push origin :bump-deps || true
         fi
 
