@@ -34,7 +34,7 @@ runs:
           npx npm-check-updates -t semver -u
         fi
         rm package-lock.json
-        npm install
+        npm install --ignore-scripts --foreground-scripts
 
         if [[ "${{ inputs.use-create-pr }}" == "true" ]]; then
           git push origin :bump-deps || true
