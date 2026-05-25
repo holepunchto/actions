@@ -11,6 +11,10 @@ on:
       pull-request-url:
         value: ${{ jobs.bump-deps.outputs.pull-request-url }}
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   bump-deps:
     runs-on: ubuntu-latest
