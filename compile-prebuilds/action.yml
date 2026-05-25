@@ -24,7 +24,11 @@ runs:
   steps:
     - run: npm install --global bare-make
       shell: bash
-    - run: bare-make generate --platform ${{ inputs.platform }} --arch ${{ inputs.arch }} ${{ inputs.flags }}
+    - env:
+        PLATFORM: ${{ inputs.platform }}
+        ARCH: ${{ inputs.arch }}
+        FLAGS: ${{ inputs.flags }}
+      run: bare-make generate --platform $PLATFORM --arch $ARCH $FLAGS
       shell: bash
     - run: bare-make build
       shell: bash
