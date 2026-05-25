@@ -81,7 +81,7 @@ runs:
         [ "$DRY_RUN" = "true" ]      && ARGS+=(--dry-run)
 
         # prevent job name injection with flags, e.g. JOB="keet-core --hack foo"
-        case "$JOB" in -*|*\ -*) echo "invalid job name"; exit 1 ;; esac
+        if [[ ! "$JOB" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]*$ ]]; then echo "invalid job name"; exit 1; fi
 
         keet-automation \
           --seed "$SEED" \
