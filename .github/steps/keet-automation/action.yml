@@ -80,6 +80,9 @@ runs:
         [ "$NOTIFY" = "true" ]       && ARGS+=(--notify true)
         [ "$DRY_RUN" = "true" ]      && ARGS+=(--dry-run)
 
+        # prevent job name injection with flags, e.g. JOB="keet-core --hack foo"
+        case "$JOB" in -*|*\ -*) echo "invalid job name"; exit 1 ;; esac
+
         keet-automation \
           --seed "$SEED" \
           --remote "$REMOTE" \
