@@ -30,8 +30,10 @@ runs:
     - name: Bump version
       id: bump
       shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
       run: |
-        result=$(npm version ${{ inputs.version }} --preid=rc --no-git-tag-version)
+        result=$(npm version $VERSION --preid=rc --no-git-tag-version)
         echo version=$result >> $GITHUB_OUTPUT
 
     - if: ${{ inputs.use-create-pr == 'true' }}
