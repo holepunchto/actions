@@ -58,32 +58,43 @@ runs:
         npm install -g @holepunchto/keet-automation
 
     - name: Build
+      env:
+        COMMIT: ${{ inputs.commit }}
+        CHANNEL: ${{ inputs.channel }}
+        DIR: ${{ inputs.dir }}
+        ARTIFACT: ${{ inputs.artifact }}
+        SEED: ${{ inputs.seed }}
+        REMOTE: ${{ inputs.remote }}
+        JOB: ${{ inputs.job }}
+        SKIP_INSTALL_FLAG: ${{ inputs.skip-install == 'true' && '--skip-install' || '' }}
+        NOTIFY: ${{ inputs.notify == 'true' && '--notify true' || '' }}
+        DRY_RUN: ${{ inputs.dry-run == 'true' && '--dry-run' || '' }}
       shell: bash
       run: |
         COMMIT_ARG=""
-        if [ -n "${{ inputs.commit }}" ]; then
-          COMMIT_ARG="--commit ${{ inputs.commit }}"
+        if [ -n "$COMMIT" ]; then
+          COMMIT_ARG="--commit $COMMIT"
         fi
         CHANNEL_ARG=""
-        if [ -n "${{ inputs.channel }}" ]; then
-          CHANNEL_ARG="--channel ${{ inputs.channel }}"
+        if [ -n "$CHANNEL" ]; then
+          CHANNEL_ARG="--channel $CHANNEL"
         fi
         DIR_ARG=""
-        if [ -n "${{ inputs.dir }}" ]; then
-          DIR_ARG="--dir ${{ inputs.dir }}"
+        if [ -n "$DIR" ]; then
+          DIR_ARG="--dir $DIR"
         fi
-        if [ -n "${{ inputs.artifact }}" ]; then
-          ARTIFACT_ARG="--artifact ${{ inputs.artifact }}"
+        if [ -n "$ARTIFACT" ]; then
+          ARTIFACT_ARG="--artifact $ARTIFACT"
         fi
 
         keet-automation \
-          --seed ${{ inputs.seed }} \
-          --remote ${{ inputs.remote }} \
-          ${{ inputs.job }} \
+          --seed $SEED \
+          --remote $REMOTE \
+          $JOB \
           $COMMIT_ARG \
           $CHANNEL_ARG \
           $DIR_ARG \
           $ARTIFACT_ARG \
-          ${{ inputs.skip-install == 'true' && '--skip-install' || '' }} \
-          ${{ inputs.notify == 'true' && '--notify true' || '' }} \
-          ${{ inputs.dry-run == 'true' && '--dry-run' || '' }} \
+          $SKIP_INSTALL_FLAG \
+          $NOTIFY \
+          $DRY_RUN \

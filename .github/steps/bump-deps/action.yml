@@ -28,15 +28,17 @@ runs:
     - name: Bump deps
       env:
         NODE_AUTH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        UPDATE_PACKAGE_JSON: ${{ inputs.update-package-json }}
+        USE_CREATE_PR: ${{ inputs.use-create-pr  }}
       shell: bash
       run: |
-        if [[ "${{ inputs.update-package-json }}" == "true" ]]; then
+        if [[ "$UPDATE_PACKAGE_JSON" == "true" ]]; then
           npx npm-check-updates -t semver -u
         fi
         rm package-lock.json
         npm install
 
-        if [[ "${{ inputs.use-create-pr }}" == "true" ]]; then
+        if [[ "$USE_CREATE_PR" == "true" ]]; then
           git push origin :bump-deps || true
         fi
 
