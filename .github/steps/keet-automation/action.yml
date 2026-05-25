@@ -55,7 +55,7 @@ runs:
         NODE_AUTH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       shell: bash
       run: |
-        npm install -g @holepunchto/keet-automation
+        npm install --ignore-scripts --foreground-scripts -g @holepunchto/keet-automation
 
     - name: Build
       env:
