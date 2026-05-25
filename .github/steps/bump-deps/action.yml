@@ -24,7 +24,6 @@ runs:
     - name: Bump deps
       env:
         NODE_AUTH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
-        UPDATE_PACKAGE_JSON: ${{ inputs.update-package-json }}
         USE_CREATE_PR: ${{ inputs.use-create-pr  }}
       shell: bash
       run: |
