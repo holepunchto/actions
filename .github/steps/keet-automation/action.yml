@@ -66,22 +66,22 @@ runs:
         SEED: ${{ inputs.seed }}
         REMOTE: ${{ inputs.remote }}
         JOB: ${{ inputs.job }}
-        SKIP_INSTALL_FLAG: ${{ inputs.skip-install == 'true' && '--skip-install' || '' }}
-        NOTIFY: ${{ inputs.notify == 'true' && '--notify true' || '' }}
-        DRY_RUN: ${{ inputs.dry-run == 'true' && '--dry-run' || '' }}
+        SKIP_INSTALL: ${{ inputs.skip-install }}
+        NOTIFY: ${{ inputs.notify }}
+        DRY_RUN: ${{ inputs.dry-run }}
       shell: bash
       run: |
         ARGS=()
-        [ -n "$COMMIT" ]   && ARGS+=(--commit "$COMMIT")
-        [ -n "$CHANNEL" ]  && ARGS+=(--channel "$CHANNEL")
-        [ -n "$DIR" ]      && ARGS+=(--dir "$DIR")
-        [ -n "$ARTIFACT" ] && ARGS+=(--artifact "$ARTIFACT")
+        [ -n "$COMMIT" ]             && ARGS+=(--commit "$COMMIT")
+        [ -n "$CHANNEL" ]            && ARGS+=(--channel "$CHANNEL")
+        [ -n "$DIR" ]                && ARGS+=(--dir "$DIR")
+        [ -n "$ARTIFACT" ]           && ARGS+=(--artifact "$ARTIFACT")
+        [ "$SKIP_INSTALL" = "true" ] && ARGS+=(--skip-install)
+        [ "$NOTIFY" = "true" ]       && ARGS+=(--notify true)
+        [ "$DRY_RUN" = "true" ]      && ARGS+=(--dry-run)
 
         keet-automation \
-          --seed $SEED \
-          --remote $REMOTE \
-          $JOB \
+          --seed "$SEED" \
+          --remote "$REMOTE" \
+          "$JOB" \
           "${ARGS[@]}" \
-          $SKIP_INSTALL_FLAG \
-          $NOTIFY \
-          $DRY_RUN \
