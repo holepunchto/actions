@@ -168,14 +168,14 @@ runs:
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
       run: |
-        npm ci
+        npm ci --ignore-scripts
       shell: bash
     - name: 'Install dependencies (Windows)'
       if: ${{ runner.os == 'Windows' }}
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
       run: |
-        npm ci
+        npm ci --ignore-scripts
       shell: pwsh
     - name: 'Install the Apple certificate and notarytool credentials'
       id: keychain_notary_setup
@@ -281,13 +281,13 @@ runs:
     - name: 'Install @actions/artifact module (Linux/macOS)'
       if: ${{ runner.os != 'Windows' }}
       run: |
-        npm install @actions/artifact@2.3.2 --global
+        npm install @actions/artifact@2.3.2 --global --ignore-scripts
         echo "NODE_PATH=$(npm root --quiet -g)" >> $GITHUB_ENV
       shell: bash
     - name: 'Install @actions/artifact module (Windows)'
       if: ${{ runner.os == 'Windows' }}
       run: |
-        npm install @actions/artifact@2.3.2 --global
+        npm install @actions/artifact@2.3.2 --global --ignore-scripts
         $npmRoot = npm root --quiet -g
         Add-Content -Path $env:GITHUB_ENV -Value "NODE_PATH=$npmRoot"
       shell: pwsh
