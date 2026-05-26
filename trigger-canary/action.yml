@@ -19,8 +19,10 @@ runs:
         gh api repos/holepunchto/canary-tests/dispatches \
           --method POST \
           -f "event_type=release" \
-          -f "client_payload[repository]=${{ inputs.repository }}" \
-          -f "client_payload[ref]=${{ inputs.ref }}"
-      shell: bash
+          -f "client_payload[repository]=$REPOSITORY" \
+          -f "client_payload[ref]=$REF"
       env:
         GH_TOKEN: ${{ inputs.token }}
+        REPOSITORY: ${{ inputs.repository }}
+        REF: ${{ inputs.ref }}
+      shell: bash
