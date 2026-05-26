@@ -161,8 +161,9 @@ runs:
       shell: pwsh
     - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
       with:
-        node-version: 20
+        node-version: lts/*
         registry-url: 'https://npm.pkg.github.com'
+        scope: '@holepunchto'
     - name: 'Install dependencies (Linux/macOS)'
       if: ${{ runner.os != 'Windows' }}
       env:
