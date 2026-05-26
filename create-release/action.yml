@@ -12,12 +12,14 @@ inputs:
 runs:
   using: composite
   steps:
-    - run: npm pack --ignore-scripts ${{ inputs.workspaces == 'true' && '--workspaces' || '' }} ${{ inputs.include-workspace-root == 'true' && '--include-workspace-root' || '' }}
+    - run: npm pack --ignore-scripts ${{ case(inputs.workspaces == 'true', '--workspaces', '') }} ${{ case(inputs.include-workspace-root == 'true', '--include-workspace-root', '') }}
       shell: bash
     - id: pack
       run: echo "packages=$(ls *.tgz | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
       shell: bash
-    - run: gh release create ${{ github.ref_name }} ${{ steps.pack.outputs.packages }}
+    - run: gh release create $REF_NAME $PACKAGES
       env:
         GH_TOKEN: ${{ github.token }}
+        REF_NAME: ${{ github.ref_name }}
+        PACKAGES: ${{ steps.pack.outputs.packages }}
       shell: bash

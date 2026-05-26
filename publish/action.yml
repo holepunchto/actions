@@ -15,7 +15,9 @@ inputs:
 runs:
   using: composite
   steps:
-    - run: npm publish --ignore-scripts --tag ${{ inputs.tag }} ${{ inputs.workspaces == 'true' && '--workspaces' || '' }} ${{ inputs.include-workspace-root == 'true' && '--include-workspace-root' || '' }}
+    - run: npm publish --ignore-scripts --tag $TAG ${{ case(inputs.workspaces == 'true', '--workspaces', '') }} ${{ case(inputs.include-workspace-root == 'true', '--include-workspace-root', '') }}
+      env:
+        TAG: ${{ inputs.tag }}
       shell: bash
     - uses: holepunchto/actions/create-release@v1
       with:
