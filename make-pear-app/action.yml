@@ -209,28 +209,28 @@ runs:
         MACOS_APPLE_TEAM_ID: ${{ inputs.macos_apple_team_id }}
       run: |
         # create variables
-        CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-        KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+        CERTIFICATE_PATH="$RUNNER_TEMP/build_certificate.p12"
+        KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
         KEYCHAIN_PASSWORD=keychain-password
         KEYCHAIN_PROFILE=notary
 
         # import certificate and API key from secrets
-        echo -n "$MACOS_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+        echo -n "$MACOS_CERTIFICATE_BASE64" | base64 --decode -o "$CERTIFICATE_PATH"
         # create temporary keychain
-        security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-        security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-        security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+        security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+        security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+        security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
         # import certificate to keychain
-        security import $CERTIFICATE_PATH -P "$MACOS_P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-        security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-        security list-keychain -d user -s $KEYCHAIN_PATH
+        security import "$CERTIFICATE_PATH" -P "$MACOS_P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+        security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+        security list-keychain -d user -s "$KEYCHAIN_PATH"
 
         # add notarytool credentials
         if [ "$MACOS_NOTARIZATION_METHOD" = "appstore_connect" ]; then
-          APIKEY_PATH=$RUNNER_TEMP/AuthKey.p8
+          APIKEY_PATH="$RUNNER_TEMP/AuthKey.p8"
 
-          echo -n "$MACOS_API_KEY_BASE64" | base64 --decode -o $APIKEY_PATH
+          echo -n "$MACOS_API_KEY_BASE64" | base64 --decode -o "$APIKEY_PATH"
 
           xcrun notarytool store-credentials "$KEYCHAIN_PROFILE" \
             --key "$APIKEY_PATH" \
@@ -245,7 +245,7 @@ runs:
             --keychain "$KEYCHAIN_PATH"
         fi
 
-        echo "KEYCHAIN_PROFILE=$KEYCHAIN_PROFILE" >> $GITHUB_OUTPUT
+        echo "KEYCHAIN_PROFILE=$KEYCHAIN_PROFILE" >> "$GITHUB_OUTPUT"
       shell: bash
     - name: 'Install the Windows certificate'
       id: windows_certificate_setup
@@ -269,8 +269,8 @@ runs:
       run: |
         sudo snap install snapcraft --classic
         sudo snap install lxd
-        sudo usermod -a -G lxd $USER
-        groups $USER
+        sudo usermod -a -G lxd "$USER"
+        groups "$USER"
         sudo iptables -P FORWARD ACCEPT
         sudo lxd init --auto
       shell: bash
@@ -336,7 +336,7 @@ runs:
       env:
         NODE_PATH: "${{ env.NODE_PATH }}"
         GITHUB_ACTION_PATH: ${{ github.action_path }}
-      run: node $GITHUB_ACTION_PATH/upload-artifacts.cjs
+      run: node "$GITHUB_ACTION_PATH/upload-artifacts.cjs"
       shell: bash
     - id: upload-artifacts-pwsh
       name: 'Upload folders as artifacts (Windows)'
@@ -344,5 +344,5 @@ runs:
       env:
         NODE_PATH: "${{ env.NODE_PATH }}"
         GITHUB_ACTION_PATH: ${{ github.action_path }}
-      run: node $env:GITHUB_ACTION_PATH/upload-artifacts.cjs
+      run: node "$env:GITHUB_ACTION_PATH/upload-artifacts.cjs"
       shell: pwsh
