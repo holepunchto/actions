@@ -11,12 +11,16 @@ inputs:
   include-workspace-root:
     description: Also publish the workspace root
     default: false
+  node-auth-token:
+    description: npm auth token
+    default: ${{ env.NODE_AUTH_TOKEN }}
 
 runs:
   using: composite
   steps:
     - run: npm publish --ignore-scripts --tag $TAG ${{ case(inputs.workspaces == 'true', '--workspaces', '') }} ${{ case(inputs.include-workspace-root == 'true', '--include-workspace-root', '') }}
       env:
+        NODE_AUTH_TOKEN: ${{ inputs.node-auth-token }}
         TAG: ${{ inputs.tag }}
       shell: bash
     - uses: holepunchto/actions/create-release@v1

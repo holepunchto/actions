@@ -1,0 +1,23 @@
+{
+  "private": true,
+  "name": "actions",
+  "scripts": {
+    "format": "prettier --write . && lunte --fix",
+    "lint": "prettier --check . && lunte"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/holepunchto/actions.git"
+  },
+  "author": "Holepunch",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/holepunchto/actions/issues"
+  },
+  "homepage": "https://github.com/holepunchto/actions#readme",
+  "devDependencies": {
+    "lunte": "^1.6.0",
+    "prettier": "^3.4.2",
+    "prettier-config-holepunch": "^2.0.0"
+  }
+}
