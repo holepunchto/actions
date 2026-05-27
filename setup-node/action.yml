@@ -7,7 +7,6 @@ inputs:
     default: https://registry.npmjs.org
   scope:
     description: Optional scope for scoped registries (e.g. @myorg)
-    default: ''
   always-auth:
     description: Set always-auth in .npmrc
     default: false
