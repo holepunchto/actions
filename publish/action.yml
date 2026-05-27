@@ -13,14 +13,13 @@ inputs:
     default: false
   node-auth-token:
     description: npm auth token
-    default: ${{ env.NODE_AUTH_TOKEN }}
 
 runs:
   using: composite
   steps:
     - run: npm publish --ignore-scripts --tag $TAG ${{ case(inputs.workspaces == 'true', '--workspaces', '') }} ${{ case(inputs.include-workspace-root == 'true', '--include-workspace-root', '') }}
       env:
-        NODE_AUTH_TOKEN: ${{ inputs.node-auth-token }}
+        NODE_AUTH_TOKEN: ${{ inputs.node-auth-token || env.NODE_AUTH_TOKEN }}
         TAG: ${{ inputs.tag }}
       shell: bash
     - uses: holepunchto/actions/create-release@v1
