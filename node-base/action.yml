@@ -8,11 +8,27 @@ inputs:
   force-install:
     description: Force install npm packages
     default: false
+  registry-url:
+    description: npm registry URL to configure for auth
+    default: https://registry.npmjs.org
+  scope:
+    description: Optional scope for scoped registries (e.g. @myorg)
+  always-auth:
+    description: Set always-auth in .npmrc
+    default: false
+  node-auth-token:
+    description: npm auth token
 
 runs:
   using: composite
   steps:
     - uses: holepunchto/actions/checkout@v1
     - uses: holepunchto/actions/setup-node@v1
+      with:
+        registry-url: ${{ inputs.registry-url }}
+        scope: ${{ inputs.scope }}
+        always-auth: ${{ inputs.always-auth }}
     - run: npm install --ignore-scripts --foreground-scripts --allow-git=${{ case(inputs.allow-git == 'root', 'root', inputs.allow-git == 'all', 'all', 'none') }} ${{ case(inputs.force-install == 'true', '--force', '') }}
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.node-auth-token || env.NODE_AUTH_TOKEN }}
       shell: bash
