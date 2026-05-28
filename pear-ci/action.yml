@@ -66,6 +66,15 @@ runs:
         git checkout main
         cp /tmp/snapshot.json ci/snapshot.json
         git add ci/snapshot.json
-        git diff --cached --quiet && echo "Snapshot unchanged, skipping commit" && exit 0
+        git diff --cached --quiet && echo "Snapshot unchanged, skipping" && exit 0
         git commit -m "update pear-ci snapshot [run ${{ github.run_id }}]"
-        git push origin main
+        if ! git push origin main; then
+          BRANCH="pear-ci/snapshot-${{ github.run_id }}"
+          git checkout -b "$BRANCH"
+          git push origin "$BRANCH"
+          gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "update pear-ci snapshot [run ${{ github.run_id }}]" \
+            --body "Automated snapshot update from pear-ci run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}). Direct push to main failed, creating PR instead."
+        fi
