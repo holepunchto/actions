@@ -60,6 +60,10 @@ runs:
           echo "::error::Invalid path: directory traversal not allowed"
           exit 1
         fi
+        if [[ "$INPUT_PATH" == /* ]]; then
+          echo "::error::Invalid path: absolute paths not allowed"
+          exit 1
+        fi
     - name: 'Install pear-provision-recover'
       shell: bash
       run: npm install --global --ignore-scripts pear-provision-recover@1.0.0
