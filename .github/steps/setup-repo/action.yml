@@ -4,7 +4,7 @@ runs:
   using: composite
   steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: holepunchto/actions/checkout@v1
 
     - name: Git config
       shell: bash
@@ -13,9 +13,11 @@ runs:
         git config user.email 'bot@github.actions.com'
 
     - name: Setup Node
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
       with:
+        node-version: lts/*
         registry-url: "https://npm.pkg.github.com"
+        scope: '@holepunchto'
 
     - name: Disable npm scripts
       shell: bash

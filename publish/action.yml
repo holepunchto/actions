@@ -2,17 +2,25 @@ name: Publish
 description: Create a GitHub release and publish to npm
 
 inputs:
+  tag:
+    description: npm dist-tag to publish under
+    default: latest
   workspaces:
     description: Publish all workspace packages
     default: false
   include-workspace-root:
     description: Also publish the workspace root
     default: false
+  node-auth-token:
+    description: npm auth token
 
 runs:
   using: composite
   steps:
-    - run: npm publish --ignore-scripts ${{ inputs.workspaces == 'true' && '--workspaces' || '' }} ${{ inputs.include-workspace-root == 'true' && '--include-workspace-root' || '' }}
+    - run: npm publish --ignore-scripts --tag $TAG ${{ case(inputs.workspaces == 'true', '--workspaces', '') }} ${{ case(inputs.include-workspace-root == 'true', '--include-workspace-root', '') }}
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.node-auth-token || env.NODE_AUTH_TOKEN }}
+        TAG: ${{ inputs.tag }}
       shell: bash
     - uses: holepunchto/actions/create-release@v1
       with:

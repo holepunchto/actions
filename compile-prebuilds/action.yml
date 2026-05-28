@@ -24,11 +24,17 @@ runs:
   steps:
     - run: npm install --global bare-make
       shell: bash
-    - run: bare-make generate --platform ${{ inputs.platform }} --arch ${{ inputs.arch }} ${{ inputs.flags }}
+    - run: bare-make generate --platform $PLATFORM --arch $ARCH $FLAGS
+      env:
+        PLATFORM: ${{ inputs.platform }}
+        ARCH: ${{ inputs.arch }}
+        FLAGS: ${{ inputs.flags }}
       shell: bash
     - run: bare-make build
       shell: bash
-    - run: bare-make install --prefix ${{ inputs.prefix }}
+    - run: bare-make install --prefix $PREFIX
+      env:
+        PREFIX: ${{ inputs.prefix }}
       shell: bash
     - uses: holepunchto/actions/upload-prebuilds@v1
       if: ${{ inputs.upload == 'true' }}

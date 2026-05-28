@@ -55,35 +55,36 @@ runs:
         NODE_AUTH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       shell: bash
       run: |
-        npm install -g @holepunchto/keet-automation
+        npm install --ignore-scripts --foreground-scripts -g @holepunchto/keet-automation
 
     - name: Build
+      env:
+        COMMIT: ${{ inputs.commit }}
+        CHANNEL: ${{ inputs.channel }}
+        DIR: ${{ inputs.dir }}
+        ARTIFACT: ${{ inputs.artifact }}
+        SEED: ${{ inputs.seed }}
+        REMOTE: ${{ inputs.remote }}
+        JOB: ${{ inputs.job }}
+        SKIP_INSTALL: ${{ inputs.skip-install }}
+        NOTIFY: ${{ inputs.notify }}
+        DRY_RUN: ${{ inputs.dry-run }}
       shell: bash
       run: |
-        COMMIT_ARG=""
-        if [ -n "${{ inputs.commit }}" ]; then
-          COMMIT_ARG="--commit ${{ inputs.commit }}"
-        fi
-        CHANNEL_ARG=""
-        if [ -n "${{ inputs.channel }}" ]; then
-          CHANNEL_ARG="--channel ${{ inputs.channel }}"
-        fi
-        DIR_ARG=""
-        if [ -n "${{ inputs.dir }}" ]; then
-          DIR_ARG="--dir ${{ inputs.dir }}"
-        fi
-        if [ -n "${{ inputs.artifact }}" ]; then
-          ARTIFACT_ARG="--artifact ${{ inputs.artifact }}"
-        fi
+        ARGS=()
+        [ -n "$COMMIT" ]             && ARGS+=(--commit "$COMMIT")
+        [ -n "$CHANNEL" ]            && ARGS+=(--channel "$CHANNEL")
+        [ -n "$DIR" ]                && ARGS+=(--dir "$DIR")
+        [ -n "$ARTIFACT" ]           && ARGS+=(--artifact "$ARTIFACT")
+        [ "$SKIP_INSTALL" = "true" ] && ARGS+=(--skip-install)
+        [ "$NOTIFY" = "true" ]       && ARGS+=(--notify true)
+        [ "$DRY_RUN" = "true" ]      && ARGS+=(--dry-run)
+
+        # prevent job name injection with flags, e.g. JOB="keet-core --hack foo"
+        if [[ ! "$JOB" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]*$ ]]; then echo "invalid job name"; exit 1; fi
 
         keet-automation \
-          --seed ${{ inputs.seed }} \
-          --remote ${{ inputs.remote }} \
-          ${{ inputs.job }} \
-          $COMMIT_ARG \
-          $CHANNEL_ARG \
-          $DIR_ARG \
-          $ARTIFACT_ARG \
-          ${{ inputs.skip-install == 'true' && '--skip-install' || '' }} \
-          ${{ inputs.notify == 'true' && '--notify true' || '' }} \
-          ${{ inputs.dry-run == 'true' && '--dry-run' || '' }} \
+          --seed "$SEED" \
+          --remote "$REMOTE" \
+          "${ARGS[@]}" \
+          "$JOB"

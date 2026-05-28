@@ -30,14 +30,16 @@ runs:
     - name: Bump version
       id: bump
       shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
       run: |
-        result=$(npm version ${{ inputs.version }} --preid=rc --no-git-tag-version)
+        result=$(npm version $VERSION --preid=rc --no-git-tag-version)
         echo version=$result >> $GITHUB_OUTPUT
 
     - if: ${{ inputs.use-create-pr == 'true' }}
       name: Create PR
       id: pr
-      uses: peter-evans/create-pull-request@v7
+      uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
       with:
         token: ${{ inputs.GITHUB_TOKEN }}
         commit-message: ${{ steps.bump.outputs.version }}

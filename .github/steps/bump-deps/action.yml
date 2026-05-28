@@ -13,10 +13,6 @@ inputs:
     type: string
     description: "labels for the PR"
     default: ""
-  update-package-json:
-    type: boolean
-    description: "update package.json"
-    default: false
 
 outputs:
   pull-request-url:
@@ -30,20 +26,13 @@ runs:
         NODE_AUTH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       shell: bash
       run: |
-        if [[ "${{ inputs.update-package-json }}" == "true" ]]; then
-          npx npm-check-updates -t semver -u
-        fi
         rm package-lock.json
-        npm install
-
-        if [[ "${{ inputs.use-create-pr }}" == "true" ]]; then
-          git push origin :bump-deps || true
-        fi
+        npm install --ignore-scripts --foreground-scripts
 
     - if: ${{ inputs.use-create-pr == 'true' }}
       name: Create PR
       id: pr
-      uses: peter-evans/create-pull-request@v7
+      uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
       with:
         token: ${{ inputs.GITHUB_TOKEN }}
         draft: always-true # require user to manually click "ready for review" for triggering another workflow, ref. https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
