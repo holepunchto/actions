@@ -25,37 +25,84 @@ outputs:
 runs:
   using: 'composite'
   steps:
+    - name: 'Validate inputs'
+      env:
+        INPUT_PRIMARY_KEY: ${{ inputs.primary-key }}
+        INPUT_NAMESPACE: ${{ inputs.namespace }}
+        INPUT_TARGET: ${{ inputs.target }}
+        INPUT_DRY_RUN: ${{ inputs.dry-run }}
+      shell: bash
+      run: |
+        if ! [[ "$INPUT_PRIMARY_KEY" =~ ^[a-fA-F0-9]{64}$ ]]; then
+          echo "::error::Invalid primary-key: must be a 64-character hex string"
+          exit 1
+        fi
+        if ! [[ "$INPUT_NAMESPACE" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+          echo "::error::Invalid namespace: only alphanumeric, dots, hyphens, and underscores allowed"
+          exit 1
+        fi
+        if ! [[ "$INPUT_TARGET" =~ ^[a-zA-Z0-9_./-]+$ ]]; then
+          echo "::error::Invalid target: contains disallowed characters"
+          exit 1
+        fi
+        if [[ "$INPUT_TARGET" == /* ]]; then
+          echo "::error::Invalid target: absolute paths not allowed"
+          exit 1
+        fi
+        if [[ "$INPUT_TARGET" == *".."* ]]; then
+          echo "::error::Invalid target: directory traversal not allowed"
+          exit 1
+        fi
+        if ! [[ "$INPUT_DRY_RUN" =~ ^(true|false)$ ]]; then
+          echo "::error::Invalid dry-run: must be 'true' or 'false'"
+          exit 1
+        fi
+
     - name: Install pear-ci
       shell: bash
-      run: npm install -g pear-ci
+      run: npm install -g --ignore-scripts pear-ci
+
     - name: Fetch snapshot from main
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
       run: |
         mkdir -p ci
         rm -f ci/snapshot.json
         gh api \
           --header "Accept: application/vnd.github.raw+json" \
-          "/repos/${{ github.repository }}/contents/ci/snapshot.json?ref=main" > ci/snapshot.json
+          "/repos/${GITHUB_REPOSITORY}/contents/ci/snapshot.json?ref=main" > ci/snapshot.json
+
     - name: Stage
       shell: bash
+      env:
+        INPUT_PRIMARY_KEY: ${{ inputs.primary-key }}
+        INPUT_NAMESPACE: ${{ inputs.namespace }}
+        INPUT_TARGET: ${{ inputs.target }}
+        INPUT_DRY_RUN: ${{ inputs.dry-run }}
       run: |
-        ARGS="--primary-key ${{ inputs.primary-key }} \
-              --name ${{ inputs.namespace }} \
-              --target ${{ inputs.target }} \
-              --snapshot ci/snapshot.json \
-              --storage /tmp/store"
-        if [ "${{ inputs.dry-run }}" = "true" ]; then
-          ARGS="$ARGS --dry-run"
+        ARGS=(
+          --primary-key "$INPUT_PRIMARY_KEY"
+          --name "$INPUT_NAMESPACE"
+          --target "$INPUT_TARGET"
+          --snapshot ci/snapshot.json
+          --storage /tmp/store
+        )
+        if [ "$INPUT_DRY_RUN" = "true" ]; then
+          ARGS+=(--dry-run)
         fi
-        pear-ci $ARGS
+        pear-ci "${ARGS[@]}"
+
     - name: Commit snapshot to main
       id: commit
       if: inputs.dry-run != 'true'
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
+        GITHUB_RUN_ID: ${{ github.run_id }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_SERVER_URL: ${{ github.server_url }}
       run: |
         git config user.name  "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -65,15 +112,15 @@ runs:
         cp /tmp/snapshot.json ci/snapshot.json
         git add ci/snapshot.json
         git diff --cached --quiet && echo "Snapshot unchanged, skipping" && exit 0
-        git commit -m "update pear-ci snapshot [run ${{ github.run_id }}]"
+        git commit -m "update pear-ci snapshot [run ${GITHUB_RUN_ID}]"
         if ! git push origin main; then
-          BRANCH="pear-ci/snapshot-${{ github.run_id }}"
+          BRANCH="pear-ci/snapshot-${GITHUB_RUN_ID}"
           git checkout -b "$BRANCH"
           git push origin "$BRANCH"
           PR_URL=$(gh pr create \
             --base main \
             --head "$BRANCH" \
-            --title "update pear-ci snapshot [run ${{ github.run_id }}]" \
-            --body "Automated snapshot update from pear-ci run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}). Direct push to main failed, creating PR instead.")
+            --title "update pear-ci snapshot [run ${GITHUB_RUN_ID}]" \
+            --body "Automated snapshot update from pear-ci run [${GITHUB_RUN_ID}](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}). Direct push to main failed, creating PR instead.")
           echo "pr-url=$PR_URL" >> "$GITHUB_OUTPUT"
         fi
