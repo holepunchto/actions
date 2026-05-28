@@ -1,0 +1,86 @@
+name: 'Pear Provision Recover'
+description: 'Recover a provision drive from the network into a new writable drive'
+inputs:
+  path:
+    description: 'Corestore storage path for the recovered drive'
+    required: true
+  key:
+    description: 'Public key of the remote provision drive to recover from'
+    required: true
+  length:
+    description: 'Target length for the recovered provision drive'
+    required: true
+  blobs-length:
+    description: 'Target blobs length for the recovered provision drive'
+    required: true
+  primary-key:
+    description: 'New primary key for the recovered drive'
+    required: true
+  name:
+    description: 'New namespace name for the recovered drive'
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: 'Validate inputs'
+      env:
+        INPUT_LENGTH: ${{ inputs.length }}
+        INPUT_BLOBS_LENGTH: ${{ inputs.blobs-length }}
+        INPUT_KEY: ${{ inputs.key }}
+        INPUT_NAME: ${{ inputs.name }}
+        INPUT_PRIMARY_KEY: ${{ inputs.primary-key }}
+        INPUT_PATH: ${{ inputs.path }}
+      shell: bash
+      run: |
+        if ! [[ "$INPUT_LENGTH" =~ ^[0-9]+$ ]]; then
+          echo "::error::Invalid length: must be a positive integer"
+          exit 1
+        fi
+        if ! [[ "$INPUT_BLOBS_LENGTH" =~ ^[0-9]+$ ]]; then
+          echo "::error::Invalid blobs-length: must be a positive integer"
+          exit 1
+        fi
+        if ! [[ "$INPUT_KEY" =~ ^[a-z0-9]{1,52}$ ]]; then
+          echo "::error::Invalid key: must be an alphanumeric z-base-32 string (max 52 chars)"
+          exit 1
+        fi
+        if ! [[ "$INPUT_NAME" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+          echo "::error::Invalid name: only alphanumeric, dots, hyphens, and underscores allowed"
+          exit 1
+        fi
+        if ! [[ "$INPUT_PRIMARY_KEY" =~ ^[a-fA-F0-9]{64}$ ]]; then
+          echo "::error::Invalid primary-key: must be a 64-character hex string"
+          exit 1
+        fi
+        if ! [[ "$INPUT_PATH" =~ ^[a-zA-Z0-9_./-]+$ ]]; then
+          echo "::error::Invalid path: contains disallowed characters"
+          exit 1
+        fi
+        if [[ "$INPUT_PATH" == *".."* ]]; then
+          echo "::error::Invalid path: directory traversal not allowed"
+          exit 1
+        fi
+        if [[ "$INPUT_PATH" == /* ]]; then
+          echo "::error::Invalid path: absolute paths not allowed"
+          exit 1
+        fi
+    - name: 'Install pear-provision-recover'
+      shell: bash
+      run: npm install --global --ignore-scripts pear-provision-recover@1.0.0
+    - name: 'Run pear-provision-recover'
+      env:
+        INPUT_PATH: ${{ inputs.path }}
+        INPUT_KEY: ${{ inputs.key }}
+        INPUT_LENGTH: ${{ inputs.length }}
+        INPUT_BLOBS_LENGTH: ${{ inputs.blobs-length }}
+        INPUT_PRIMARY_KEY: ${{ inputs.primary-key }}
+        INPUT_NAME: ${{ inputs.name }}
+      shell: bash
+      run: |
+        pear-provision-recover \
+          --path "$INPUT_PATH" \
+          --key "$INPUT_KEY" \
+          --length "$INPUT_LENGTH" \
+          --blobs-length "$INPUT_BLOBS_LENGTH" \
+          --primary-key "$INPUT_PRIMARY_KEY" \
+          --name "$INPUT_NAME"
