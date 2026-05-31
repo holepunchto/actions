@@ -108,7 +108,7 @@ runs:
         git config user.email "github-actions[bot]@users.noreply.github.com"
         cp ci/snapshot.json /tmp/snapshot.json
         git fetch origin main
-        git checkout main
+        git checkout -f main
         cp /tmp/snapshot.json ci/snapshot.json
         git add ci/snapshot.json
         git diff --cached --quiet && echo "Snapshot unchanged, skipping" && exit 0
