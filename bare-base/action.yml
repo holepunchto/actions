@@ -8,6 +8,13 @@ inputs:
   force-install:
     description: Force install npm packages
     default: false
+  registry-url:
+    description: npm registry URL to configure for auth
+    default: https://registry.npmjs.org
+  scope:
+    description: Optional scope for scoped registries (e.g. @myorg)
+  node-auth-token:
+    description: npm auth token
 
 runs:
   using: composite
@@ -16,4 +23,7 @@ runs:
       with:
         allow-git: ${{ inputs.allow-git }}
         force-install: ${{ inputs.force-install }}
+        registry-url: ${{ inputs.registry-url }}
+        scope: ${{ inputs.scope }}
+        node-auth-token: ${{ inputs.node-auth-token }}
     - uses: holepunchto/actions/setup-bare@v1
