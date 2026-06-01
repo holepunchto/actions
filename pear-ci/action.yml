@@ -103,15 +103,15 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
-        INPUT_APP_SLUG: ${{ inputs.app-slug }}
+        APP_SLUG: ${{ inputs.app-slug }}
         GITHUB_RUN_ID: ${{ github.run_id }}
         GITHUB_REPOSITORY: ${{ github.repository }}
         GITHUB_SERVER_URL: ${{ github.server_url }}
       run: |
-        if [ -n "$INPUT_APP_SLUG" ]; then
-          USER_ID=$(gh api "/users/${INPUT_APP_SLUG}[bot]" -q .id)
-          git config user.name "${INPUT_APP_SLUG}[bot]"
-          git config user.email "${USER_ID}+${INPUT_APP_SLUG}[bot]@users.noreply.github.com"
+        if [ -n "$APP_SLUG" ]; then
+          USER_ID=$(gh api "/users/${APP_SLUG}[bot]" -q .id)
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${USER_ID}+${APP_SLUG}[bot]@users.noreply.github.com"
         else
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
