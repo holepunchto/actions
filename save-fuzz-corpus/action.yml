@@ -1,0 +1,33 @@
+name: Save fuzz corpus
+description: Save the fuzz corpus to cache and upload corpus and crash inputs as artifacts
+
+inputs:
+  path:
+    description: Path to the fuzz corpus directory
+    default: test/fuzz/corpus
+  crashes-path:
+    description: Path to the fuzz crashes directory
+    default: test/fuzz/crashes
+  key:
+    description: Cache key prefix
+    default: fuzz-corpus
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+      if: always()
+      with:
+        path: ${{ inputs.path }}
+        key: ${{ inputs.key }}-${{ github.run_id }}
+    - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+      if: always()
+      with:
+        name: corpus
+        path: ${{ inputs.path }}
+    - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+      if: failure()
+      with:
+        name: crashes
+        path: ${{ inputs.crashes-path }}
+        if-no-files-found: ignore
