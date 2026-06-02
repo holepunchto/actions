@@ -1,0 +1,19 @@
+name: Restore fuzz corpus
+description: Restore the accumulated fuzz corpus from the GitHub Actions cache
+
+inputs:
+  path:
+    description: Path to the fuzz corpus directory
+    default: test/fuzz/corpus
+  key:
+    description: Cache key prefix
+    default: fuzz-corpus
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+      with:
+        path: ${{ inputs.path }}
+        key: ${{ inputs.key }}-${{ github.run_id }}
+        restore-keys: ${{ inputs.key }}-
