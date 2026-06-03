@@ -21,6 +21,9 @@ inputs:
     description: 'Code signing identity used for macOS builds'
     required: false
     default: ''
+  macos_provision_profile_base64:
+    description: 'Base64-encoded Apple provisioning profile for MAS build (mobileprovision)'
+    required: true
   macos_notarization_method:
     description: 'Notarization method to use: appstore_connect or apple_id_password'
     required: false
@@ -87,6 +90,7 @@ runs:
         [ -z "${{ inputs.macos_certificate_base64 }}" ] && MISSING="$MISSING macos_certificate_base64"
         [ -z "${{ inputs.macos_p12_password }}" ] && MISSING="$MISSING macos_p12_password"
         [ -z "${{ inputs.macos_codesign_identity }}" ] && MISSING="$MISSING macos_codesign_identity"
+        [ -z "${{ inputs.macos_provision_profile_base64 }}" ] && MISSING="$MISSING macos_provision_profile_base64"
         [ -z "${{ inputs.macos_notarization_method }}" ] && MISSING="$MISSING macos_notarization_method"
 
         # Validate notarization fields based on selected method
@@ -183,12 +187,15 @@ runs:
       run: |
         # create variables
         CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+        PP_PATH=$RUNNER_TEMP/app.mas.provisionprofile
         KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
         KEYCHAIN_PASSWORD=keychain-password
         KEYCHAIN_PROFILE=notary
 
         # import certificate and API key from secrets
         echo -n "${{ inputs.macos_certificate_base64 }}" | base64 --decode -o $CERTIFICATE_PATH
+        echo -n "${{ inputs.macos_provision_profile_base64 }}" | base64 --decode -o "$PP_PATH"
+
         # create temporary keychain
         security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
         security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
@@ -218,7 +225,12 @@ runs:
             --keychain "$KEYCHAIN_PATH"
         fi
 
+        # apply provisioning profile
+        mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+        cp "$PP_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/app.mas.provisionprofile
+
         echo "KEYCHAIN_PROFILE=$KEYCHAIN_PROFILE" >> $GITHUB_OUTPUT
+        echo "PROVISIONING_PROFILE=$PP_PATH" >> $GITHUB_OUTPUT
       shell: bash
     - name: 'Install the Windows certificate'
       id: windows_certificate_setup
@@ -262,9 +274,10 @@ runs:
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
         MAC_CODESIGN_IDENTITY: "${{ inputs.macos_codesign_identity }}"
         KEYCHAIN_PROFILE: ${{ steps.keychain_notary_setup.outputs.KEYCHAIN_PROFILE }}
+        MAS_PROVISION_PROFILE: ${{ steps.keychain_notary_setup.outputs.PROVISIONING_PROFILE }}
         NODE_ENV: production
       run: |
-        npm run make
+        npm run make -- --platform=mas
       shell: bash
     - name: 'Build application (Windows)'
       if: ${{ runner.os == 'Windows' }}
