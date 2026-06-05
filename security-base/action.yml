@@ -9,6 +9,6 @@ runs:
   using: composite
   steps:
     - uses: holepunchto/actions/checkout@v1
-    - uses: holepunchto/actions/setup-zizmor@setup-zizmor
+    - uses: holepunchto/actions/setup-zizmor@v1
       with:
         advanced-security: ${{ inputs.advanced-security }}
