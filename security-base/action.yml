@@ -4,7 +4,7 @@ description: Base action for security-related GitHub Actions
 inputs:
   advanced-security:
     description: Upload results to GitHub Advanced Security
-    default: 'false'
+    default: false
 
 runs:
   using: composite
