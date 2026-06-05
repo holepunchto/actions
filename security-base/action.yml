@@ -1,0 +1,13 @@
+name: Security base
+
+inputs:
+  continue-on-error:
+    description: Continue if zizmor finds issues
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/checkout@v1
+    - uses: holepunchto/actions/setup-zizmor@setup-zizmor
+      continue-on-error: ${{ inputs.continue-on-error  == 'true' }}
