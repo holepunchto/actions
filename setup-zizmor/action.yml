@@ -1,8 +1,15 @@
 name: Setup zizmor
 description: Run zizmor static analysis on current repository
 
+inputs:
+  advanced-security:
+    description: Upload results to GitHub Advanced Security
+    default: 'false'
+
 runs:
   using: composite
   steps:
     - name: Run zizmor
       uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
+      with:
+        advanced-security: ${{ inputs.advanced-security }}
