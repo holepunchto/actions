@@ -13,3 +13,4 @@ runs:
     - uses: holepunchto/actions/setup-zizmor@v1
       with:
         advanced-security: ${{ inputs.advanced-security }}
+        version: '0.5.6'
