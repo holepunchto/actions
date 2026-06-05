@@ -1,8 +1,8 @@
 name: Security base
 
 inputs:
-  continue-on-error:
-    description: Continue if zizmor finds issues
+  advanced-security:
+    description: Upload results to GitHub Advanced Security
     default: 'false'
 
 runs:
@@ -10,4 +10,5 @@ runs:
   steps:
     - uses: holepunchto/actions/checkout@v1
     - uses: holepunchto/actions/setup-zizmor@setup-zizmor
-      continue-on-error: ${{ inputs.continue-on-error  == 'true' }}
+      with:
+        advanced-security: ${{ inputs.advanced-security }}
