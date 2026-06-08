@@ -1,0 +1,15 @@
+name: Security base
+description: Base action for security-related GitHub Actions
+
+inputs:
+  advanced-security:
+    description: Upload results to GitHub Advanced Security
+    default: false
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/checkout@v1
+    - uses: holepunchto/actions/setup-zizmor@v1
+      with:
+        advanced-security: ${{ inputs.advanced-security }}
