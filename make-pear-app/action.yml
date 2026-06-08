@@ -87,10 +87,12 @@ runs:
         [ -z "${{ inputs.macos_certificate_base64 }}" ] && MISSING="$MISSING macos_certificate_base64"
         [ -z "${{ inputs.macos_p12_password }}" ] && MISSING="$MISSING macos_p12_password"
         [ -z "${{ inputs.macos_codesign_identity }}" ] && MISSING="$MISSING macos_codesign_identity"
-        [ -z "${{ inputs.macos_notarization_method }}" ] && MISSING="$MISSING macos_notarization_method"
 
         # Validate notarization fields based on selected method
         case "${{ inputs.macos_notarization_method }}" in
+          "")
+            # Allow empty notarization method
+            ;;
           appstore_connect)
             [ -z "${{ inputs.macos_api_key_base64 }}" ] && MISSING="$MISSING macos_api_key_base64"
             [ -z "${{ inputs.macos_api_key_id }}" ] && MISSING="$MISSING macos_api_key_id"
@@ -106,7 +108,7 @@ runs:
         esac
 
         if [ "$INVALID_METHOD" = "true" ]; then
-          echo "Error: Invalid macos_notarization_method '${{ inputs.macos_notarization_method }}'. Must be 'appstore_connect' or 'apple_id_password'."
+          echo "Error: Invalid macos_notarization_method '${{ inputs.macos_notarization_method }}'. Must be '', 'appstore_connect' or 'apple_id_password'."
         fi
 
         # Fail if any required fields are missing or invalid
@@ -210,7 +212,7 @@ runs:
             --key-id "${{ inputs.macos_api_key_id }}" \
             --issuer "${{ inputs.macos_api_issuer }}" \
             --keychain "$KEYCHAIN_PATH"
-        else
+        elif [ "${{ inputs.macos_notarization_method }}" = "apple_id_password" ]; then
           xcrun notarytool store-credentials "$KEYCHAIN_PROFILE" \
             --apple-id "${{ inputs.macos_apple_id }}" \
             --password "${{ inputs.macos_apple_password }}" \
