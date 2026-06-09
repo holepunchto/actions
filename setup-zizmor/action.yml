@@ -14,9 +14,11 @@ runs:
   steps:
     - id: resolve-config-path
       shell: bash
+      env:
+        CONFIG: ${{ inputs.config }}
       run: |
-        if [ -n "${{ inputs.config }}" ]; then
-          echo "path=${{ inputs.config }}" >> $GITHUB_OUTPUT
+        if [ -n "$CONFIG" ]; then
+          echo "path=$CONFIG" >> $GITHUB_OUTPUT
         else
           # Copy to workspace and use a relative path — zizmor-action runs zizmor from the
           # workspace root, so a relative path works both on the host and inside a container.
