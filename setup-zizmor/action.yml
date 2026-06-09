@@ -18,8 +18,10 @@ runs:
         if [ -n "${{ inputs.config }}" ]; then
           echo "path=${{ inputs.config }}" >> $GITHUB_OUTPUT
         else
+          # Copy to workspace and use a relative path — zizmor-action runs zizmor from the
+          # workspace root, so a relative path works both on the host and inside a container.
           cp "$GITHUB_ACTION_PATH/config.yml" "$GITHUB_WORKSPACE/.zizmor-config.yml"
-          echo "path=$GITHUB_WORKSPACE/.zizmor-config.yml" >> $GITHUB_OUTPUT
+          echo "path=.zizmor-config.yml" >> $GITHUB_OUTPUT
         fi
     - uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
       with:
