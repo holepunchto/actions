@@ -5,11 +5,28 @@ inputs:
   advanced-security:
     description: Upload results to GitHub Advanced Security
     default: false
+  config:
+    description: Path to a zizmor configuration file
+    default: ''
 
 runs:
   using: composite
   steps:
+    - id: resolve-config-path
+      shell: bash
+      env:
+        CONFIG: ${{ inputs.config }}
+      run: |
+        if [ -n "$CONFIG" ]; then
+          echo "path=$CONFIG" >> $GITHUB_OUTPUT
+        else
+          # Copy to workspace and use a relative path - zizmor-action runs zizmor from the
+          # workspace root, so a relative path works both on the host and inside a container.
+          cp "$GITHUB_ACTION_PATH/config.yml" "$GITHUB_WORKSPACE/.zizmor-config.yml"
+          echo "path=.zizmor-config.yml" >> $GITHUB_OUTPUT
+        fi
     - uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
       with:
         advanced-security: ${{ inputs.advanced-security }}
         version: 1.25.2
+        config: ${{ steps.resolve-config-path.outputs.path }}
