@@ -7,7 +7,7 @@ inputs:
     default: false
   config:
     description: Path to a zizmor configuration file
-    default: ${{ github.action_path }}/config.yml
+    default: ./config.yml
 
 runs:
   using: composite
