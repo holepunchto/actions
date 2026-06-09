@@ -2,4 +2,4 @@ rules:
   unpinned-uses:
     config:
       policies:
-        holepunchto/*: ref-pin
+        holepunchto/actions/*: ref-pin
