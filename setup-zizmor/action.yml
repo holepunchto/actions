@@ -20,7 +20,7 @@ runs:
         if [ -n "$CONFIG" ]; then
           echo "path=$CONFIG" >> $GITHUB_OUTPUT
         else
-          # Copy to workspace and use a relative path — zizmor-action runs zizmor from the
+          # Copy to workspace and use a relative path - zizmor-action runs zizmor from the
           # workspace root, so a relative path works both on the host and inside a container.
           cp "$GITHUB_ACTION_PATH/config.yml" "$GITHUB_WORKSPACE/.zizmor-config.yml"
           echo "path=.zizmor-config.yml" >> $GITHUB_OUTPUT
