@@ -5,6 +5,9 @@ inputs:
   advanced-security:
     description: Upload results to GitHub Advanced Security
     default: false
+  config:
+    description: Path to a zizmor configuration file
+    default: ${{ github.action_path }}/config.yml
 
 runs:
   using: composite
@@ -13,3 +16,4 @@ runs:
       with:
         advanced-security: ${{ inputs.advanced-security }}
         version: 1.25.2
+        config: ${{ inputs.config }}
