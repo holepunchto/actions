@@ -73,7 +73,7 @@ inputs:
 outputs:
   artifact-links:
     description: 'Links to uploaded artifacts'
-    value: ${{ steps.upload-artifacts-bash.outputs.artifact-links || steps.upload-artifacts-pwsh.outputs.artifact-links }}
+    value: ${{ steps.upload-artifacts.outputs.artifact-links }}
 
 runs:
   using: composite
@@ -278,19 +278,6 @@ runs:
       run: |
         npm run make
       shell: pwsh
-    - name: 'Install @actions/artifact module (Linux/macOS)'
-      if: ${{ runner.os != 'Windows' }}
-      run: |
-        npm install @actions/artifact@2.3.2 --global
-        echo "NODE_PATH=$(npm root --quiet -g)" >> $GITHUB_ENV
-      shell: bash
-    - name: 'Install @actions/artifact module (Windows)'
-      if: ${{ runner.os == 'Windows' }}
-      run: |
-        npm install @actions/artifact@2.3.2 --global
-        $npmRoot = npm root --quiet -g
-        Add-Content -Path $env:GITHUB_ENV -Value "NODE_PATH=$npmRoot"
-      shell: pwsh
     - name: 'Extract Actions runtime variables'
       uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
       env:
@@ -300,17 +287,9 @@ runs:
           core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL'])
           core.exportVariable('ACTIONS_RUNTIME_URL', process.env['ACTIONS_RUNTIME_URL'])
           core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'])
-    - id: upload-artifacts-bash
-      name: 'Upload folders as artifacts (Linux/macOS)'
-      if: ${{ runner.os != 'Windows' }}
-      env:
-        NODE_PATH: "${{ env.NODE_PATH }}"
-      run: node ${{ github.action_path }}/upload-artifacts.cjs
-      shell: bash
-    - id: upload-artifacts-pwsh
-      name: 'Upload folders as artifacts (Windows)'
-      if: ${{ runner.os == 'Windows' }}
-      env:
-        NODE_PATH: "${{ env.NODE_PATH }}"
-      run: node ${{ github.action_path }}/upload-artifacts.cjs
-      shell: pwsh
+    - name: 'Upload artifacts'
+      id: upload-artifacts
+      uses: holepunchto/actions/upload-directory-artifacts@v1
+      with:
+        path: ./out/make
+        run-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
