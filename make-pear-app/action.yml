@@ -287,9 +287,9 @@ runs:
           core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL'])
           core.exportVariable('ACTIONS_RUNTIME_URL', process.env['ACTIONS_RUNTIME_URL'])
           core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'])
-    - name: 'Install action dependencies'
-      run: npm ci --ignore-scripts
-      working-directory: ${{ github.action_path }}
-    - name: 'Upload folders as artifacts'
+    - name: 'Upload artifacts'
       id: upload-artifacts
-      run: node ${{ github.action_path }}/upload-artifacts.cjs
+      uses: RaisinTen/actions/upload-directory-artifacts@refactor-make-pear-app-upload-artifacts
+      with:
+        path: ./out/make
+        run-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

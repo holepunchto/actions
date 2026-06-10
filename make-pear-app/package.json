@@ -1,8 +1,0 @@
-{
-  "name": "make-pear-app",
-  "private": true,
-  "type": "commonjs",
-  "dependencies": {
-    "@actions/artifact": "^2.3.2"
-  }
-}

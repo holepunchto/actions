@@ -1,0 +1,18 @@
+name: Upload Directory Artifacts
+description: Recursively uploads files as separate GitHub artifacts
+
+inputs:
+  path:
+    description: Directory to upload
+    required: true
+  run-url:
+    description: Optional run URL for link formatting
+    required: true
+
+outputs:
+  artifact-links:
+    description: Links to uploaded artifacts
+
+runs:
+  using: node20
+  main: dist/index.js
