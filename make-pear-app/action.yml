@@ -289,7 +289,7 @@ runs:
           core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'])
     - name: 'Upload artifacts'
       id: upload-artifacts
-      uses: RaisinTen/actions/upload-directory-artifacts@refactor-make-pear-app-upload-artifacts
+      uses: holepunchto/actions/upload-directory-artifacts@v1
       with:
         path: ./out/make
         run-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
