@@ -308,17 +308,19 @@ runs:
         npm run make
       shell: pwsh
     - name: 'Install @actions/artifact module (Linux/macOS)'
+      id: npm-root-bash
       if: ${{ runner.os != 'Windows' }}
       run: |
         npm install @actions/artifact@2.3.2 --global
-        echo "NODE_PATH=$(npm root --quiet -g)" >> $GITHUB_ENV
+        echo "path=$(npm root --quiet -g)" >> $GITHUB_OUTPUT
       shell: bash
     - name: 'Install @actions/artifact module (Windows)'
+      id: npm-root-pwsh
       if: ${{ runner.os == 'Windows' }}
       run: |
         npm install @actions/artifact@2.3.2 --global
         $npmRoot = npm root --quiet -g
-        Add-Content -Path $env:GITHUB_ENV -Value "NODE_PATH=$npmRoot"
+        Add-Content -Path $env:GITHUB_OUTPUT -Value "path=$npmRoot"
       shell: pwsh
     - name: 'Extract Actions runtime variables'
       uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
@@ -333,13 +335,13 @@ runs:
       name: 'Upload folders as artifacts (Linux/macOS)'
       if: ${{ runner.os != 'Windows' }}
       env:
-        NODE_PATH: "${{ env.NODE_PATH }}"
+        NODE_PATH: "${{ steps.npm-root-bash.outputs.path }}"
       run: node ${{ github.action_path }}/upload-artifacts.cjs
       shell: bash
     - id: upload-artifacts-pwsh
       name: 'Upload folders as artifacts (Windows)'
       if: ${{ runner.os == 'Windows' }}
       env:
-        NODE_PATH: "${{ env.NODE_PATH }}"
+        NODE_PATH: "${{ steps.npm-root-pwsh.outputs.path }}"
       run: node ${{ github.action_path }}/upload-artifacts.cjs
       shell: pwsh
