@@ -80,33 +80,44 @@ runs:
   steps:
     - name: 'Validate macOS inputs'
       if: ${{ runner.os == 'macOS' }}
+      env:
+        MACOS_CERTIFICATE_BASE64: ${{ inputs.macos_certificate_base64 }}
+        MACOS_P12_PASSWORD: ${{ inputs.macos_p12_password }}
+        MACOS_CODESIGN_IDENTITY: ${{ inputs.macos_codesign_identity }}
+        MACOS_NOTARIZATION_METHOD: ${{ inputs.macos_notarization_method }}
+        MACOS_API_KEY_BASE64: ${{ inputs.macos_api_key_base64 }}
+        MACOS_API_KEY_ID: ${{ inputs.macos_api_key_id }}
+        MACOS_API_ISSUER: ${{ inputs.macos_api_issuer }}
+        MACOS_APPLE_ID: ${{ inputs.macos_apple_id }}
+        MACOS_APPLE_PASSWORD: ${{ inputs.macos_apple_password }}
+        MACOS_APPLE_TEAM_ID: ${{ inputs.macos_apple_team_id }}
       run: |
         MISSING=""
 
         # Always required for signing
-        [ -z "${{ inputs.macos_certificate_base64 }}" ] && MISSING="$MISSING macos_certificate_base64"
-        [ -z "${{ inputs.macos_p12_password }}" ] && MISSING="$MISSING macos_p12_password"
-        [ -z "${{ inputs.macos_codesign_identity }}" ] && MISSING="$MISSING macos_codesign_identity"
-        [ -z "${{ inputs.macos_notarization_method }}" ] && MISSING="$MISSING macos_notarization_method"
+        [ -z "$MACOS_CERTIFICATE_BASE64" ] && MISSING="$MISSING macos_certificate_base64"
+        [ -z "$MACOS_P12_PASSWORD" ] && MISSING="$MISSING macos_p12_password"
+        [ -z "$MACOS_CODESIGN_IDENTITY" ] && MISSING="$MISSING macos_codesign_identity"
+        [ -z "$MACOS_NOTARIZATION_METHOD" ] && MISSING="$MISSING macos_notarization_method"
 
         # Validate notarization fields based on selected method
-        case "${{ inputs.macos_notarization_method }}" in
+        case "$MACOS_NOTARIZATION_METHOD" in
           appstore_connect)
-            [ -z "${{ inputs.macos_api_key_base64 }}" ] && MISSING="$MISSING macos_api_key_base64"
-            [ -z "${{ inputs.macos_api_key_id }}" ] && MISSING="$MISSING macos_api_key_id"
-            [ -z "${{ inputs.macos_api_issuer }}" ] && MISSING="$MISSING macos_api_issuer"
+            [ -z "$MACOS_API_KEY_BASE64" ] && MISSING="$MISSING macos_api_key_base64"
+            [ -z "$MACOS_API_KEY_ID" ] && MISSING="$MISSING macos_api_key_id"
+            [ -z "$MACOS_API_ISSUER" ] && MISSING="$MISSING macos_api_issuer"
             ;;
           apple_id_password)
-            [ -z "${{ inputs.macos_apple_id }}" ] && MISSING="$MISSING macos_apple_id"
-            [ -z "${{ inputs.macos_apple_password }}" ] && MISSING="$MISSING macos_apple_password"
-            [ -z "${{ inputs.macos_apple_team_id }}" ] && MISSING="$MISSING macos_apple_team_id"
+            [ -z "$MACOS_APPLE_ID" ] && MISSING="$MISSING macos_apple_id"
+            [ -z "$MACOS_APPLE_PASSWORD" ] && MISSING="$MISSING macos_apple_password"
+            [ -z "$MACOS_APPLE_TEAM_ID" ] && MISSING="$MISSING macos_apple_team_id"
             ;;
           *)
             INVALID_METHOD="true"
         esac
 
         if [ "$INVALID_METHOD" = "true" ]; then
-          echo "Error: Invalid macos_notarization_method '${{ inputs.macos_notarization_method }}'. Must be 'appstore_connect' or 'apple_id_password'."
+          echo "Error: Invalid macos_notarization_method '$MACOS_NOTARIZATION_METHOD'. Must be 'appstore_connect' or 'apple_id_password'."
         fi
 
         # Fail if any required fields are missing or invalid
@@ -119,11 +130,16 @@ runs:
       shell: bash
     - name: 'Validate Windows inputs'
       if: ${{ runner.os == 'Windows' }}
+      env:
+        WINDOWS_SIGNING_METHOD: ${{ inputs.windows_signing_method }}
+        WINDOWS_CERT_SHA1: ${{ inputs.windows_cert_sha1 }}
+        WINDOWS_CERT_PFX_BASE64: ${{ inputs.windows_cert_pfx_base64 }}
+        WINDOWS_CERT_PASSWORD: ${{ inputs.windows_cert_password }}
       run: |
         $missing = @()
         $invalidMethod = $false
 
-        $method = '${{ inputs.windows_signing_method }}'
+        $method = $env:WINDOWS_SIGNING_METHOD
 
         if ([string]::IsNullOrEmpty($method)) {
           $missing += "windows_signing_method"
@@ -131,15 +147,15 @@ runs:
         else {
           switch ($method) {
             "windows_cert_sha1" {
-              if ([string]::IsNullOrEmpty('${{ inputs.windows_cert_sha1 }}')) {
+              if ([string]::IsNullOrEmpty($env:WINDOWS_CERT_SHA1)) {
                 $missing += "windows_cert_sha1"
               }
             }
             "windows_cert_pfx" {
-              if ([string]::IsNullOrEmpty('${{ inputs.windows_cert_pfx_base64 }}')) {
+              if ([string]::IsNullOrEmpty($env:WINDOWS_CERT_PFX_BASE64)) {
                 $missing += "windows_cert_pfx_base64"
               }
-              if ([string]::IsNullOrEmpty('${{ inputs.windows_cert_password }}')) {
+              if ([string]::IsNullOrEmpty($env:WINDOWS_CERT_PASSWORD)) {
                 $missing += "windows_cert_password"
               }
             }
@@ -159,7 +175,7 @@ runs:
           exit 1
         }
       shell: pwsh
-    - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+    - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
       with:
         node-version: 20
         registry-url: 'https://npm.pkg.github.com'
@@ -180,6 +196,16 @@ runs:
     - name: 'Install the Apple certificate and notarytool credentials'
       id: keychain_notary_setup
       if: ${{ runner.os == 'macOS' }}
+      env:
+        MACOS_CERTIFICATE_BASE64: ${{ inputs.macos_certificate_base64 }}
+        MACOS_P12_PASSWORD: ${{ inputs.macos_p12_password }}
+        MACOS_NOTARIZATION_METHOD: ${{ inputs.macos_notarization_method }}
+        MACOS_API_KEY_BASE64: ${{ inputs.macos_api_key_base64 }}
+        MACOS_API_KEY_ID: ${{ inputs.macos_api_key_id }}
+        MACOS_API_ISSUER: ${{ inputs.macos_api_issuer }}
+        MACOS_APPLE_ID: ${{ inputs.macos_apple_id }}
+        MACOS_APPLE_PASSWORD: ${{ inputs.macos_apple_password }}
+        MACOS_APPLE_TEAM_ID: ${{ inputs.macos_apple_team_id }}
       run: |
         # create variables
         CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
@@ -188,33 +214,33 @@ runs:
         KEYCHAIN_PROFILE=notary
 
         # import certificate and API key from secrets
-        echo -n "${{ inputs.macos_certificate_base64 }}" | base64 --decode -o $CERTIFICATE_PATH
+        echo -n "$MACOS_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
         # create temporary keychain
         security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
         security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
         security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
         # import certificate to keychain
-        security import $CERTIFICATE_PATH -P "${{ inputs.macos_p12_password }}" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+        security import $CERTIFICATE_PATH -P "$MACOS_P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
         security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
         security list-keychain -d user -s $KEYCHAIN_PATH
 
         # add notarytool credentials
-        if [ "${{ inputs.macos_notarization_method }}" = "appstore_connect" ]; then
+        if [ "$MACOS_NOTARIZATION_METHOD" = "appstore_connect" ]; then
           APIKEY_PATH=$RUNNER_TEMP/AuthKey.p8
 
-          echo -n "${{ inputs.macos_api_key_base64 }}" | base64 --decode -o $APIKEY_PATH
+          echo -n "$MACOS_API_KEY_BASE64" | base64 --decode -o $APIKEY_PATH
 
           xcrun notarytool store-credentials "$KEYCHAIN_PROFILE" \
             --key "$APIKEY_PATH" \
-            --key-id "${{ inputs.macos_api_key_id }}" \
-            --issuer "${{ inputs.macos_api_issuer }}" \
+            --key-id "$MACOS_API_KEY_ID" \
+            --issuer "$MACOS_API_ISSUER" \
             --keychain "$KEYCHAIN_PATH"
         else
           xcrun notarytool store-credentials "$KEYCHAIN_PROFILE" \
-            --apple-id "${{ inputs.macos_apple_id }}" \
-            --password "${{ inputs.macos_apple_password }}" \
-            --team-id "${{ inputs.macos_apple_team_id }}" \
+            --apple-id "$MACOS_APPLE_ID" \
+            --password "$MACOS_APPLE_PASSWORD" \
+            --team-id "$MACOS_APPLE_TEAM_ID" \
             --keychain "$KEYCHAIN_PATH"
         fi
 
@@ -223,14 +249,17 @@ runs:
     - name: 'Install the Windows certificate'
       id: windows_certificate_setup
       if: ${{ runner.os == 'Windows' && inputs.windows_signing_method == 'windows_cert_pfx' }}
+      env:
+        WINDOWS_CERT_PFX_BASE64: ${{ inputs.windows_cert_pfx_base64 }}
+        WINDOWS_CERT_PASSWORD: ${{ inputs.windows_cert_password }}
       run: |
         $certPath = "$env:RUNNER_TEMP\cert.pfx"
-        [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String("${{ inputs.windows_cert_pfx_base64 }}"))
+        [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($env:WINDOWS_CERT_PFX_BASE64))
 
         $importedCert = Import-PfxCertificate `
           -FilePath $certPath `
           -CertStoreLocation Cert:\CurrentUser\My `
-          -Password (ConvertTo-SecureString -String "${{ inputs.windows_cert_password }}" -Force -AsPlainText)
+          -Password (ConvertTo-SecureString -String $env:WINDOWS_CERT_PASSWORD -Force -AsPlainText)
 
         echo "SHA1=$($importedCert.Thumbprint)" >> $env:GITHUB_OUTPUT
       shell: powershell
@@ -279,17 +308,19 @@ runs:
         npm run make
       shell: pwsh
     - name: 'Install @actions/artifact module (Linux/macOS)'
+      id: npm-root-bash
       if: ${{ runner.os != 'Windows' }}
       run: |
         npm install @actions/artifact@2.3.2 --global
-        echo "NODE_PATH=$(npm root --quiet -g)" >> $GITHUB_ENV
+        echo "path=$(npm root --quiet -g)" >> $GITHUB_OUTPUT
       shell: bash
     - name: 'Install @actions/artifact module (Windows)'
+      id: npm-root-pwsh
       if: ${{ runner.os == 'Windows' }}
       run: |
         npm install @actions/artifact@2.3.2 --global
         $npmRoot = npm root --quiet -g
-        Add-Content -Path $env:GITHUB_ENV -Value "NODE_PATH=$npmRoot"
+        Add-Content -Path $env:GITHUB_OUTPUT -Value "path=$npmRoot"
       shell: pwsh
     - name: 'Extract Actions runtime variables'
       uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
@@ -304,13 +335,13 @@ runs:
       name: 'Upload folders as artifacts (Linux/macOS)'
       if: ${{ runner.os != 'Windows' }}
       env:
-        NODE_PATH: "${{ env.NODE_PATH }}"
+        NODE_PATH: "${{ steps.npm-root-bash.outputs.path }}"
       run: node ${{ github.action_path }}/upload-artifacts.cjs
       shell: bash
     - id: upload-artifacts-pwsh
       name: 'Upload folders as artifacts (Windows)'
       if: ${{ runner.os == 'Windows' }}
       env:
-        NODE_PATH: "${{ env.NODE_PATH }}"
+        NODE_PATH: "${{ steps.npm-root-pwsh.outputs.path }}"
       run: node ${{ github.action_path }}/upload-artifacts.cjs
       shell: pwsh
