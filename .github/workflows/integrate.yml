@@ -14,5 +14,5 @@ jobs:
     name: Lint
     steps:
       - uses: holepunchto/actions/node-base@v1
-      - uses: holepunchto/actions/setup-zizmor@v1
+      - uses: holepunchto/actions/audit-workflows@v1
       - run: npm run lint
