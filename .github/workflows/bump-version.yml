@@ -12,7 +12,7 @@ on:
         description: 'labels for the PR'
         default: ''
     outputs:
-      version: 
+      version:
         value: ${{ jobs.bump-version.outputs.version }}
       pull-request-url:
         value: ${{ jobs.bump-version.outputs.pull-request-url }}

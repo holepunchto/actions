@@ -4,7 +4,7 @@ const { DefaultArtifactClient } = require('@actions/artifact')
 
 const artifact = new DefaultArtifactClient()
 
-function listFilesRecursive (dir) {
+function listFilesRecursive(dir) {
   let results = []
   const list = fs.readdirSync(dir)
 
@@ -21,10 +21,11 @@ function listFilesRecursive (dir) {
   return results
 }
 
-async function main () {
-  const runUrl = process.env.GITHUB_SERVER_URL && process.env.GITHUB_REPOSITORY && process.env.GITHUB_RUN_ID
-    ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
-    : null
+async function main() {
+  const runUrl =
+    process.env.GITHUB_SERVER_URL && process.env.GITHUB_REPOSITORY && process.env.GITHUB_RUN_ID
+      ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
+      : null
 
   const artifactPath = './out/make'
   const artifactLinks = []

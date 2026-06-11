@@ -3,20 +3,20 @@ name: Bump Version
 inputs:
   use-create-pr:
     type: boolean
-    description: "create a PR"
+    description: 'create a PR'
     default: false
   GITHUB_TOKEN:
     type: string
-    description: "from secrets.GITHUB"
+    description: 'from secrets.GITHUB'
     required: true
   version:
     type: string
-    description: "version type: prerelease, patch, minor, major"
+    description: 'version type: prerelease, patch, minor, major'
     required: true
   labels:
     type: string
-    description: "labels for the PR"
-    default: ""
+    description: 'labels for the PR'
+    default: ''
 
 outputs:
   version:
@@ -45,7 +45,7 @@ runs:
         commit-message: ${{ steps.bump.outputs.version }}
         committer: GitHub Actions Bot <noreply@holepunchto.com>
         author: GitHub Actions Bot <noreply@holepunchto.com>
-        branch: "bump-version-${{ steps.bump.outputs.version }}"
+        branch: 'bump-version-${{ steps.bump.outputs.version }}'
         delete-branch: true
         labels: ${{ inputs.labels }}
         title: ${{ steps.bump.outputs.version }}

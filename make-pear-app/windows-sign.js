@@ -7,11 +7,7 @@ if (!certSha1) {
   throw new Error('WINDOWS_CERT_SHA1 not set')
 }
 
-async function spawnPromise (
-  name,
-  args,
-  options,
-) {
+async function spawnPromise(name, args, options) {
   const fork = spawn(name, args, options)
 
   console.log(`Spawning ${name} with ${args}`)
@@ -40,20 +36,30 @@ async function spawnPromise (
 module.exports = async function (filePath) {
   console.log(`Path to file to sign: ${filePath}`)
 
-  const signToolPath = path.join('node_modules', '@electron', 'windows-sign', 'vendor', 'signtool.exe')
+  const signToolPath = path.join(
+    'node_modules',
+    '@electron',
+    'windows-sign',
+    'vendor',
+    'signtool.exe'
+  )
 
   const args = [
     'sign',
-    '/tr', 'http://timestamp.digicert.com',
-    '/td', 'sha256',
-    '/fd', 'sha256',
-    '/sha1', certSha1,
+    '/tr',
+    'http://timestamp.digicert.com',
+    '/td',
+    'sha256',
+    '/fd',
+    'sha256',
+    '/sha1',
+    certSha1
   ]
 
   console.log('Executing signtool with args', { args, filePath })
   const { code, stderr, stdout } = await spawnPromise(signToolPath, [...args, filePath], {
     env: process.env,
-    cwd: process.cwd(),
+    cwd: process.cwd()
   })
 
   if (code !== 0) {

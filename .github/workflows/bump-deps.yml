@@ -5,7 +5,7 @@ on:
     inputs:
       labels:
         type: string
-        description: "labels for the PR"
+        description: 'labels for the PR'
         default: ''
     outputs:
       pull-request-url:

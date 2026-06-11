@@ -3,16 +3,16 @@ name: Bump Deps
 inputs:
   use-create-pr:
     type: boolean
-    description: "create a PR"
+    description: 'create a PR'
     default: false
   GITHUB_TOKEN:
     type: string
-    description: "from secrets.GITHUB"
+    description: 'from secrets.GITHUB'
     required: true
   labels:
     type: string
-    description: "labels for the PR"
-    default: ""
+    description: 'labels for the PR'
+    default: ''
 
 outputs:
   pull-request-url:
@@ -41,6 +41,6 @@ runs:
         author: GitHub Actions Bot <noreply@holepunchto.com>
         branch: bump-deps
         labels: ${{ inputs.labels }}
-        title: "Bump deps"
+        title: 'Bump deps'
         body: |
           Bump all deps

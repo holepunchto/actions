@@ -277,7 +277,7 @@ runs:
       if: ${{ runner.os == 'Linux' }}
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
-        CHANNEL: "${{ inputs.channel }}"
+        CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
         NODE_ENV: production
       run: |
@@ -287,9 +287,9 @@ runs:
       if: ${{ runner.os == 'macOS' }}
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
-        CHANNEL: "${{ inputs.channel }}"
+        CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
-        MAC_CODESIGN_IDENTITY: "${{ inputs.macos_codesign_identity }}"
+        MAC_CODESIGN_IDENTITY: '${{ inputs.macos_codesign_identity }}'
         KEYCHAIN_PROFILE: ${{ steps.keychain_notary_setup.outputs.KEYCHAIN_PROFILE }}
         NODE_ENV: production
       run: |
@@ -299,7 +299,7 @@ runs:
       if: ${{ runner.os == 'Windows' }}
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
-        CHANNEL: "${{ inputs.channel }}"
+        CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
         WINDOWS_CERT_SHA1: "${{ inputs.windows_signing_method == 'windows_cert_pfx' && steps.windows_certificate_setup.outputs.SHA1 || inputs.windows_cert_sha1 }}"
         WINDOWS_SIGN_HOOK: ${{ github.action_path }}/windows-sign.js
@@ -335,13 +335,13 @@ runs:
       name: 'Upload folders as artifacts (Linux/macOS)'
       if: ${{ runner.os != 'Windows' }}
       env:
-        NODE_PATH: "${{ steps.npm-root-bash.outputs.path }}"
+        NODE_PATH: '${{ steps.npm-root-bash.outputs.path }}'
       run: node ${{ github.action_path }}/upload-artifacts.cjs
       shell: bash
     - id: upload-artifacts-pwsh
       name: 'Upload folders as artifacts (Windows)'
       if: ${{ runner.os == 'Windows' }}
       env:
-        NODE_PATH: "${{ steps.npm-root-pwsh.outputs.path }}"
+        NODE_PATH: '${{ steps.npm-root-pwsh.outputs.path }}'
       run: node ${{ github.action_path }}/upload-artifacts.cjs
       shell: pwsh
