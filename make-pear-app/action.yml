@@ -334,14 +334,12 @@ runs:
       if: ${{ runner.os != 'Windows' }}
       env:
         NODE_PATH: "${{ env.NODE_PATH }}"
-        GITHUB_ACTION_PATH: ${{ github.action_path }}
-      run: node $GITHUB_ACTION_PATH/upload-artifacts.cjs
+      run: node ${{ github.action_path }}/upload-artifacts.cjs
       shell: bash
     - id: upload-artifacts-pwsh
       name: 'Upload folders as artifacts (Windows)'
       if: ${{ runner.os == 'Windows' }}
       env:
         NODE_PATH: "${{ env.NODE_PATH }}"
-        GITHUB_ACTION_PATH: ${{ github.action_path }}
-      run: node $env:GITHUB_ACTION_PATH/upload-artifacts.cjs
+      run: node ${{ github.action_path }}/upload-artifacts.cjs
       shell: pwsh
