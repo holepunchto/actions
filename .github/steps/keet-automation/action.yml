@@ -3,39 +3,39 @@ name: Keet Automation
 inputs:
   GITHUB_TOKEN:
     type: string
-    description: "from secrets.GITHUB"
+    description: 'from secrets.GITHUB'
     required: true
   seed:
     type: string
-    description: "seed for the automation"
+    description: 'seed for the automation'
     required: true
   remote:
     type: string
-    description: "remote key for the automation"
+    description: 'remote key for the automation'
     required: true
   job:
     type: string
-    description: "job to run"
+    description: 'job to run'
     required: true
   commit:
     type: string
-    description: "commit"
+    description: 'commit'
     required: false
   channel:
     type: string
-    description: "channel"
+    description: 'channel'
     required: false
   dir:
     type: string
-    description: "dir"
+    description: 'dir'
     required: false
   artifact:
     type: string
-    description: "artifact to download"
+    description: 'artifact to download'
     required: false
   skip-install:
     type: string
-    description: "skip install step"
+    description: 'skip install step'
     required: false
   notify:
     type: string
