@@ -2,6 +2,15 @@ name: 'Make Pear Apps'
 description: 'Action for making Pear apps'
 
 inputs:
+  name:
+    description: 'App name'
+    required: true
+  version:
+    description: 'Version'
+    required: true
+  arch:
+    description: 'Architecture'
+    required: true
   channel:
     description: 'Channel name'
     required: true
@@ -73,7 +82,76 @@ inputs:
 outputs:
   artifact-links:
     description: 'Links to uploaded artifacts'
-    value: ${{ steps.upload-artifacts-bash.outputs.artifact-links || steps.upload-artifacts-pwsh.outputs.artifact-links }}
+    value: >-
+      ${{
+        runner.os == 'Linux' && format(
+          '{0}\n{1}\n{2}',
+          format('<{0}|{1}>',
+            steps.upload-artifacts-appimage.outputs.artifact-url,
+            format(
+              '{0}{1}-{2}-{3}.AppImage',
+              inputs.name,
+              inputs.channel != 'production' && format('-{0}', inputs.channel) || '',
+              inputs.version,
+              inputs.arch
+            )
+          ),
+          format('<{0}|{1}>',
+            steps.upload-artifacts-snap.outputs.artifact-url,
+            format(
+              '{0}{1}_{2}_{3}.snap',
+              inputs.name,
+              inputs.channel != 'production' && format('_{0}', inputs.channel) || '',
+              inputs.version,
+              inputs.arch == 'x64' && 'amd64' || 'arm64'
+            )
+          ),
+          format('<{0}|{1}>',
+            steps.upload-artifacts-flatpak.outputs.artifact-url,
+            format(
+              '{0}{1}_{2}_{3}_flatpak.tar.gz',
+              inputs.name,
+              inputs.channel != 'production' && format('_{0}', inputs.channel) || '',
+              inputs.version,
+              inputs.arch
+            )
+          )
+        ) ||
+        runner.os == 'Windows' && format(
+          '{0}\n{1}',
+          format('<{0}|{1}>',
+            steps.upload-artifacts-msix.outputs.artifact-url,
+            format(
+              '{0}{1}-{2}-{3}.msix',
+              inputs.name,
+              inputs.channel != 'production' && format('-{0}', inputs.channel) || '',
+              inputs.version,
+              inputs.arch
+            )
+          ),
+          format('<{0}|{1}>',
+            steps.upload-artifacts-zip.outputs.artifact-url,
+            format(
+              '{0}{1}-{2}-{3}.zip',
+              inputs.name,
+              inputs.channel != 'production' && format('-{0}', inputs.channel) || '',
+              inputs.version,
+              inputs.arch
+            )
+          )
+        ) ||
+        runner.os == 'macOS' && format(
+          '<{0}|{1}>',
+          steps.upload-artifacts-dmg.outputs.artifact-url,
+          format(
+            '{0}{1}-{2}-{3}.dmg',
+            inputs.name,
+            inputs.channel != 'production' && format('-{0}', inputs.channel) || '',
+            inputs.version,
+            inputs.arch
+          )
+        )
+      }}
 
 runs:
   using: composite
@@ -307,41 +385,87 @@ runs:
       run: |
         npm run make
       shell: pwsh
-    - name: 'Install @actions/artifact module (Linux/macOS)'
-      id: npm-root-bash
-      if: ${{ runner.os != 'Windows' }}
-      run: |
-        npm install @actions/artifact@2.3.2 --global
-        echo "path=$(npm root --quiet -g)" >> $GITHUB_OUTPUT
-      shell: bash
-    - name: 'Install @actions/artifact module (Windows)'
-      id: npm-root-pwsh
-      if: ${{ runner.os == 'Windows' }}
-      run: |
-        npm install @actions/artifact@2.3.2 --global
-        $npmRoot = npm root --quiet -g
-        Add-Content -Path $env:GITHUB_OUTPUT -Value "path=$npmRoot"
-      shell: pwsh
-    - name: 'Extract Actions runtime variables'
-      uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
+    - id: upload-artifacts-appimage
+      name: 'Upload appimage artifact'
+      if: ${{ runner.os == 'Linux' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
-        script: |
-          core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL'])
-          core.exportVariable('ACTIONS_RUNTIME_URL', process.env['ACTIONS_RUNTIME_URL'])
-          core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'])
-    - id: upload-artifacts-bash
-      name: 'Upload folders as artifacts (Linux/macOS)'
-      if: ${{ runner.os != 'Windows' }}
-      env:
-        NODE_PATH: '${{ steps.npm-root-bash.outputs.path }}'
-      run: node ${{ github.action_path }}/upload-artifacts.cjs
-      shell: bash
-    - id: upload-artifacts-pwsh
-      name: 'Upload folders as artifacts (Windows)'
+        name: >-
+          ${{ format(
+            '{0}{1}-{2}-{3}.AppImage',
+            inputs.name,
+            inputs.channel != 'production' && format('-{0}', inputs.channel) || '',
+            inputs.version,
+            inputs.arch
+          ) }}
+        path: out/make/*.AppImage
+    - id: upload-artifacts-snap
+      name: 'Upload snap artifact'
+      if: ${{ runner.os == 'Linux' && inputs.linux_set_up_snapcraft == 'true' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: >-
+          ${{ format(
+            '{0}{1}_{2}_{3}.snap',
+            inputs.name,
+            inputs.channel != 'production' && format('_{0}', inputs.channel) || '',
+            inputs.version,
+            inputs.arch == 'x64' && 'amd64' || 'arm64'
+          ) }}
+        path: out/make/*.snap
+    - id: upload-artifacts-flatpak
+      name: 'Upload flatpak artifact'
+      if: ${{ runner.os == 'Linux' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: >-
+          ${{ format(
+            '{0}{1}_{2}_{3}_flatpak.tar.gz',
+            inputs.name,
+            inputs.channel != 'production' && format('_{0}', inputs.channel) || '',
+            inputs.version,
+            inputs.arch
+          ) }}
+        path: out/make/*_flatpak.tar.gz
+    - id: upload-artifacts-dmg
+      name: 'Upload DMG artifact'
+      if: ${{ runner.os == 'macOS' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: >-
+          ${{ format(
+            '{0}{1}-{2}-{3}.dmg',
+            inputs.name,
+            inputs.channel != 'production' && format('-{0}', inputs.channel) || '',
+            inputs.version,
+            inputs.arch
+          ) }}
+        path: out/make/*.dmg
+    - id: upload-artifacts-msix
+      name: 'Upload MSIX artifact'
       if: ${{ runner.os == 'Windows' }}
-      env:
-        NODE_PATH: '${{ steps.npm-root-pwsh.outputs.path }}'
-      run: node ${{ github.action_path }}/upload-artifacts.cjs
-      shell: pwsh
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: >-
+          ${{ format(
+            '{0}{1}-{2}-{3}.msix',
+            inputs.name,
+            inputs.channel != 'production' && format('-{0}', inputs.channel) || '',
+            inputs.version,
+            inputs.arch
+          ) }}
+        path: out/make/**/*.msix
+    - id: upload-artifacts-zip
+      name: 'Upload MSIX artifact'
+      if: ${{ runner.os == 'Windows' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: >-
+          ${{ format(
+            '{0}{1}-{2}-{3}.zip',
+            inputs.name,
+            inputs.channel != 'production' && format('-{0}', inputs.channel) || '',
+            inputs.version,
+            inputs.arch
+          ) }}
+        path: out/make/**/*.zip
