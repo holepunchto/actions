@@ -1,4 +1,4 @@
-name: Setup zizmor
+name: Audit GitHub Actions
 description: Run zizmor static analysis on current repository
 
 inputs:
