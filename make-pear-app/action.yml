@@ -93,7 +93,7 @@ outputs:
             inputs.version,
             inputs.arch
           )
-        )
+        ) || ''
       }}
       ${{
         runner.os == 'Linux' && format('<{0}|{1}>',
@@ -105,7 +105,7 @@ outputs:
             inputs.version,
             inputs.arch == 'x64' && 'amd64' || 'arm64'
           )
-        )
+        ) || ''
       }}
       ${{
         runner.os == 'Linux' && format('<{0}|{1}>',
@@ -117,7 +117,7 @@ outputs:
             inputs.version,
             inputs.arch
           )
-        )
+        ) || ''
       }}
       ${{
         runner.os == 'Windows' && format('<{0}|{1}>',
@@ -129,7 +129,7 @@ outputs:
             inputs.version,
             inputs.arch
           )
-        )
+        ) || ''
       }}
       ${{
         runner.os == 'Windows' && format('<{0}|{1}>',
@@ -141,7 +141,7 @@ outputs:
             inputs.version,
             inputs.arch
           )
-        )
+        ) || ''
       }}
       ${{
         runner.os == 'macOS' && format('<{0}|{1}>',
@@ -153,7 +153,7 @@ outputs:
             inputs.version,
             inputs.arch
           )
-        )
+        ) || ''
       }}
 
 # outputs:
