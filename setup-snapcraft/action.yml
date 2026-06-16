@@ -1,0 +1,15 @@
+name: Setup Snapcraft
+description: Setup Snapcraft
+
+runs:
+  using: composite
+  steps:
+    - run: |
+        sudo snap install snapcraft --classic
+        sudo snap install lxd
+        sudo usermod -a -G lxd $USER
+        groups $USER
+        sudo iptables -P FORWARD ACCEPT
+        sudo lxd init --auto
+      if: ${{ runner.os == 'Linux' }}
+      shell: bash
