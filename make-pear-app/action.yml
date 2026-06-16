@@ -84,7 +84,7 @@ outputs:
     description: 'Links to uploaded artifacts'
     value: |-
       ${{
-        runner.os == 'Linux' && format('<{0}|{1}>',
+        runner.os == 'Linux' && steps.upload-artifacts-appimage.outputs.artifact-url && format('<{0}|{1}>',
           steps.upload-artifacts-appimage.outputs.artifact-url,
           format(
             '{0}{1}-{2}-{3}.AppImage',
@@ -96,7 +96,7 @@ outputs:
         ) || ''
       }}
       ${{
-        runner.os == 'Linux' && format('<{0}|{1}>',
+        runner.os == 'Linux' && steps.upload-artifacts-snap.outputs.artifact-url && format('<{0}|{1}>',
           steps.upload-artifacts-snap.outputs.artifact-url,
           format(
             '{0}{1}_{2}_{3}.snap',
@@ -108,7 +108,7 @@ outputs:
         ) || ''
       }}
       ${{
-        runner.os == 'Linux' && format('<{0}|{1}>',
+        runner.os == 'Linux' && steps.upload-artifacts-flatpak.outputs.artifact-url && format('<{0}|{1}>',
           steps.upload-artifacts-flatpak.outputs.artifact-url,
           format(
             '{0}{1}_{2}_{3}_flatpak.tar.gz',
@@ -120,7 +120,7 @@ outputs:
         ) || ''
       }}
       ${{
-        runner.os == 'Windows' && format('<{0}|{1}>',
+        runner.os == 'Windows' && steps.upload-artifacts-msix.outputs.artifact-url && format('<{0}|{1}>',
           steps.upload-artifacts-msix.outputs.artifact-url,
           format(
             '{0}{1}-{2}-{3}.msix',
@@ -132,7 +132,7 @@ outputs:
         ) || ''
       }}
       ${{
-        runner.os == 'Windows' && format('<{0}|{1}>',
+        runner.os == 'Windows' && steps.upload-artifacts-zip.outputs.artifact-url && format('<{0}|{1}>',
           steps.upload-artifacts-zip.outputs.artifact-url,
           format(
             '{0}{1}-{2}-{3}.zip',
@@ -144,7 +144,7 @@ outputs:
         ) || ''
       }}
       ${{
-        runner.os == 'macOS' && format('<{0}|{1}>',
+        runner.os == 'macOS' && steps.upload-artifacts-dmg.outputs.artifact-url && format('<{0}|{1}>',
           steps.upload-artifacts-dmg.outputs.artifact-url,
           format(
             '{0}{1}-{2}-{3}.dmg',
@@ -464,7 +464,7 @@ runs:
       shell: pwsh
     - id: upload-artifacts-appimage
       name: 'Upload appimage artifact'
-      if: ${{ runner.os == 'Linux' && hashFiles('out/make/*.AppImage') != '' }}
+      if: ${{ runner.os == 'Linux' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: >-
@@ -478,7 +478,7 @@ runs:
         path: out/make/*.AppImage
     - id: upload-artifacts-snap
       name: 'Upload snap artifact'
-      if: ${{ runner.os == 'Linux' && inputs.linux_set_up_snapcraft == 'true' && hashFiles('out/make/*.snap') != '' }}
+      if: ${{ runner.os == 'Linux' && inputs.linux_set_up_snapcraft == 'true' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: >-
@@ -492,7 +492,7 @@ runs:
         path: out/make/*.snap
     - id: upload-artifacts-flatpak
       name: 'Upload flatpak artifact'
-      if: ${{ runner.os == 'Linux' && hashFiles('out/make/*_flatpak.tar.gz') != '' }}
+      if: ${{ runner.os == 'Linux' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: >-
@@ -506,7 +506,7 @@ runs:
         path: out/make/*_flatpak.tar.gz
     - id: upload-artifacts-dmg
       name: 'Upload DMG artifact'
-      if: ${{ runner.os == 'macOS' && hashFiles('out/make/*.dmg') != '' }}
+      if: ${{ runner.os == 'macOS' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: >-
@@ -520,7 +520,7 @@ runs:
         path: out/make/*.dmg
     - id: upload-artifacts-msix
       name: 'Upload MSIX artifact'
-      if: ${{ runner.os == 'Windows' && hashFiles('out/make/**/*.msix') != '' }}
+      if: ${{ runner.os == 'Windows' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: >-
@@ -534,7 +534,7 @@ runs:
         path: out/make/**/*.msix
     - id: upload-artifacts-zip
       name: 'Upload MSIX artifact'
-      if: ${{ runner.os == 'Windows' && hashFiles('out/make/**/*.zip') != '' }}
+      if: ${{ runner.os == 'Windows' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: >-
