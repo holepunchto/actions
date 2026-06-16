@@ -202,76 +202,22 @@ runs:
       run: |
         npm ci
       shell: pwsh
-    - name: 'Install the Apple certificate and notarytool credentials'
-      id: keychain_notary_setup
-      if: ${{ runner.os == 'macOS' }}
-      env:
-        MACOS_CERTIFICATE_BASE64: ${{ inputs.macos_certificate_base64 }}
-        MACOS_P12_PASSWORD: ${{ inputs.macos_p12_password }}
-        MACOS_NOTARIZATION_METHOD: ${{ inputs.macos_notarization_method }}
-        MACOS_API_KEY_BASE64: ${{ inputs.macos_api_key_base64 }}
-        MACOS_API_KEY_ID: ${{ inputs.macos_api_key_id }}
-        MACOS_API_ISSUER: ${{ inputs.macos_api_issuer }}
-        MACOS_APPLE_ID: ${{ inputs.macos_apple_id }}
-        MACOS_APPLE_PASSWORD: ${{ inputs.macos_apple_password }}
-        MACOS_APPLE_TEAM_ID: ${{ inputs.macos_apple_team_id }}
-      run: |
-        # create variables
-        CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-        KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-        KEYCHAIN_PASSWORD=keychain-password
-        KEYCHAIN_PROFILE=notary
-
-        # import certificate and API key from secrets
-        echo -n "$MACOS_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-        # create temporary keychain
-        security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-        security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-        security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-
-        # import certificate to keychain
-        security import $CERTIFICATE_PATH -P "$MACOS_P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-        security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-        security list-keychain -d user -s $KEYCHAIN_PATH
-
-        # add notarytool credentials
-        if [ "$MACOS_NOTARIZATION_METHOD" = "appstore_connect" ]; then
-          APIKEY_PATH=$RUNNER_TEMP/AuthKey.p8
-
-          echo -n "$MACOS_API_KEY_BASE64" | base64 --decode -o $APIKEY_PATH
-
-          xcrun notarytool store-credentials "$KEYCHAIN_PROFILE" \
-            --key "$APIKEY_PATH" \
-            --key-id "$MACOS_API_KEY_ID" \
-            --issuer "$MACOS_API_ISSUER" \
-            --keychain "$KEYCHAIN_PATH"
-        else
-          xcrun notarytool store-credentials "$KEYCHAIN_PROFILE" \
-            --apple-id "$MACOS_APPLE_ID" \
-            --password "$MACOS_APPLE_PASSWORD" \
-            --team-id "$MACOS_APPLE_TEAM_ID" \
-            --keychain "$KEYCHAIN_PATH"
-        fi
-
-        echo "KEYCHAIN_PROFILE=$KEYCHAIN_PROFILE" >> $GITHUB_OUTPUT
-      shell: bash
-    - name: 'Install the Windows certificate'
-      id: windows_certificate_setup
-      if: ${{ runner.os == 'Windows' && inputs.windows_signing_method == 'windows_cert_pfx' }}
-      env:
-        WINDOWS_CERT_PFX_BASE64: ${{ inputs.windows_cert_pfx_base64 }}
-        WINDOWS_CERT_PASSWORD: ${{ inputs.windows_cert_password }}
-      run: |
-        $certPath = "$env:RUNNER_TEMP\cert.pfx"
-        [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($env:WINDOWS_CERT_PFX_BASE64))
-
-        $importedCert = Import-PfxCertificate `
-          -FilePath $certPath `
-          -CertStoreLocation Cert:\CurrentUser\My `
-          -Password (ConvertTo-SecureString -String $env:WINDOWS_CERT_PASSWORD -Force -AsPlainText)
-
-        echo "SHA1=$($importedCert.Thumbprint)" >> $env:GITHUB_OUTPUT
-      shell: powershell
+    - name: 'Setup certificate'
+      id: setup-certificates
+      uses: RaisinTen/actions/setup-certificates@use-upload-artifacts-in-make-pear-app # TODO
+      with:
+        macos_certificate_base64: ${{ inputs.macos_certificate_base64 }}
+        macos_p12_password: ${{ inputs.macos_p12_password }}
+        macos_notarization_method: ${{ inputs.macos_notarization_method }}
+        macos_apple_id: ${{ inputs.macos_apple_id }}
+        macos_apple_password: ${{ inputs.macos_apple_password }}
+        macos_apple_team_id: ${{ inputs.macos_apple_team_id }}
+        macos_api_key_base64: ${{ inputs.macos_api_key_base64 }}
+        macos_api_key_id: ${{ inputs.macos_api_key_id }}
+        macos_api_issuer: ${{ inputs.macos_api_issuer }}
+        windows_signing_method: ${{ inputs.windows_signing_method }}
+        windows_cert_pfx_base64: ${{ inputs.windows_cert_pfx_base64 }}
+        windows_cert_password: ${{ inputs.windows_cert_password }}
     - name: 'Set up Snapcraft'
       if: ${{ runner.os == 'Linux' && inputs.build_snap == 'true' }}
       uses: RaisinTen/actions/setup-snapcraft@use-upload-artifacts-in-make-pear-app # TODO
@@ -292,7 +238,7 @@ runs:
         CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
         MAC_CODESIGN_IDENTITY: '${{ inputs.macos_codesign_identity }}'
-        KEYCHAIN_PROFILE: ${{ steps.keychain_notary_setup.outputs.KEYCHAIN_PROFILE }}
+        KEYCHAIN_PROFILE: ${{ steps.setup-certificates.outputs.macos-keychain-profile }}
         NODE_ENV: production
       run: |
         npm run make
@@ -303,7 +249,7 @@ runs:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
-        WINDOWS_CERT_SHA1: "${{ inputs.windows_signing_method == 'windows_cert_pfx' && steps.windows_certificate_setup.outputs.SHA1 || inputs.windows_cert_sha1 }}"
+        WINDOWS_CERT_SHA1: "${{ inputs.windows_signing_method == 'windows_cert_pfx' && steps.setup-certificates.outputs.windows-certificate-thumbprint || inputs.windows_cert_sha1 }}"
         WINDOWS_SIGN_HOOK: ${{ github.action_path }}/windows-sign.js
         NODE_ENV: production
       run: |
