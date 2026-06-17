@@ -8,16 +8,16 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 
 | Input         | Description                                                                      | Required |
 | ------------- | -------------------------------------------------------------------------------- | -------- |
-| `name`        | App name                                                                         | Yes      |
-| `version`     | Version                                                                          | Yes      |
-| `arch`        | Architecture                                                                     | Yes      |
 | `channel`     | Channel name (e.g. `preview`, `experimental`, `staging`)                         | Yes      |
 | `upgrade_key` | Upgrade key (e.g. `pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o`) | No       |
+| `standalone`  | Standalone executable to upload                                                  | No       |
 
 ### Windows
 
 | Input                     | Description                                                      | Required                                                               |
 | ------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `windows_msix`            | Windows MSIX to upload                                           | No                                                                     |
+| `windows_zip`             | Windows ZIP to upload                                            | No                                                                     |
 | `windows_signing_method`  | Signing method to use: `windows_cert_sha1` or `windows_cert_pfx` | Required on Windows                                                    |
 | `windows_cert_sha1`       | SHA1 thumbprint of the Windows cert                              | Required on Windows if `windows_signing_method` is `windows_cert_sha1` |
 | `windows_cert_pfx_base64` | Base64-encoded Windows cert pfx file                             | Required on Windows if `windows_signing_method` is `windows_cert_pfx`  |
@@ -27,6 +27,7 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 
 | Input                       | Description                                                                    | Required                                                                |
 | --------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| `macos_dmg`                 | macOS DMG to upload                                                            | No                                                                      |
 | `macos_certificate_base64`  | Base64 Apple development certificate (P12)                                     | Required on macOS                                                       |
 | `macos_p12_password`        | Password for the P12 certificate                                               | Required on macOS                                                       |
 | `macos_codesign_identity`   | Code signing identity                                                          | Required on macOS                                                       |
@@ -40,10 +41,11 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 
 ### Linux
 
-| Input           | Description              | Required            |
-| --------------- | ------------------------ | ------------------- |
-| `build_snap`    | Whether to build Snap    | No, true by default |
-| `build_flatpak` | Whether to build Flatpak | No, true by default |
+| Input            | Description              | Required             |
+| ---------------- | ------------------------ | -------------------- |
+| `linux_appimage` | Linux AppImage to upload | No, false by default |
+| `linux_snap`     | Linux Snap to upload     | No, false by default |
+| `linux_flatpak`  | Linux Flatpak to upload  | No, false by default |
 
 ## Usage
 
@@ -57,11 +59,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: holepunchto/make-pear-app
         with:
-          name: Keet
-          version: 4.18.0
-          arch: x64
           channel: production
           upgrade_key: pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o
+          windows_msix: Keet.msix
+          windows_zip: Keet-win32-x64-4.17.0.zip
           windows_signing_method: windows_cert_sha1
           windows_cert_sha1: ${{ secrets.WINDOWS_CERT_SHA1 }}
 ```
@@ -76,11 +77,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: holepunchto/make-pear-app
         with:
-          name: Keet
-          version: 4.18.0
-          arch: arm64
           channel: production
           upgrade_key: pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o
+          macos_dmg: Keet-4.17.0-arm64.dmg
           macos_certificate_base64: ${{ secrets.CERTIFICATE_P12 }}
           macos_p12_password: ${{ secrets.CERTIFICATE_PASSWORD }}
           macos_codesign_identity: ${{ secrets.MAC_CODESIGN_IDENTITY }}
@@ -100,9 +99,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: holepunchto/make-pear-app
         with:
-          name: Keet
-          version: 4.18.0
-          arch: x64
           channel: production
           upgrade_key: pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o
+          linux_appimage: Keet-4.17.0-x64.AppImage
+          linux_snap: keet_4.17.0_amd64.snap
+          linux_flatpak: keet_4.17.0_x64_flatpak.tar.gz
 ```

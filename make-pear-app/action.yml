@@ -2,20 +2,19 @@ name: 'Make Pear Apps'
 description: 'Action for making Pear apps'
 
 inputs:
-  name:
-    description: 'App name'
-    required: true
-  version:
-    description: 'Version'
-    required: true
-  arch:
-    description: 'Architecture'
-    required: true
   channel:
     description: 'Channel name'
     required: true
   upgrade_key:
     description: 'Upgrade key'
+    required: false
+    default: ''
+  standalone:
+    description: 'Standalone executable to upload'
+    required: false
+    default: ''
+  macos_dmg:
+    description: 'macOS DMG to upload'
     required: false
     default: ''
   macos_certificate_base64:
@@ -58,6 +57,14 @@ inputs:
     description: 'UUID that identifies the API key issuer'
     required: false
     default: ''
+  windows_msix:
+    description: 'Windows MSIX to upload'
+    required: false
+    default: ''
+  windows_zip:
+    description: 'Windows ZIP to upload'
+    required: false
+    default: ''
   windows_signing_method:
     description: 'Signing method to use: windows_cert_sha1 or windows_cert_pfx'
     required: false
@@ -74,14 +81,18 @@ inputs:
     description: 'Password for the Windows certificate'
     required: false
     default: ''
-  build_snap:
-    description: 'Build snap'
+  linux_appimage:
+    description: 'Linux AppImage to upload'
     required: false
-    default: 'true'
-  build_flatpak:
-    description: 'Build flatpak'
+    default: ''
+  linux_snap:
+    description: 'Linux Snap to upload'
     required: false
-    default: 'true'
+    default: ''
+  linux_flatpak:
+    description: 'Linux Flatpak to upload'
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -158,87 +169,45 @@ runs:
       run: |
         npm run make
       shell: pwsh
-    - id: upload-artifacts-appimage
-      name: 'Upload appimage artifact'
-      if: ${{ runner.os == 'Linux' }}
+    - name: 'Upload standalone executable artifact'
+      if: ${{ inputs.standalone != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
-        name: >-
-          ${{ format(
-            '{0}{1}-{2}-{3}.AppImage',
-            inputs.name,
-            inputs.channel != 'production' && format('-{0}', inputs.channel) || '',
-            inputs.version,
-            inputs.arch
-          ) }}
-        path: out/make/*.AppImage
-    - id: upload-artifacts-snap
-      name: 'Upload snap artifact'
-      if: ${{ runner.os == 'Linux' && inputs.build_snap == 'true' }}
+        name: ${{ inputs.standalone }}
+        path: out/make/${{ inputs.standalone }}
+    - name: 'Upload Linux AppImage artifact'
+      if: ${{ runner.os == 'Linux' && inputs.linux_appimage != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
-        name: >-
-          ${{ format(
-            '{0}{1}_{2}_{3}.snap',
-            inputs.name,
-            inputs.channel != 'production' && format('_{0}', inputs.channel) || '',
-            inputs.version,
-            inputs.arch == 'x64' && 'amd64' || 'arm64'
-          ) }}
-        path: out/make/*.snap
-    - id: upload-artifacts-flatpak
-      name: 'Upload flatpak artifact'
-      if: ${{ runner.os == 'Linux' && inputs.build_flatpak == 'true' }}
+        name: ${{ inputs.linux_appimage }}
+        path: out/make/**/${{ inputs.linux_appimage }}
+    - name: 'Upload Linux Snap artifact'
+      if: ${{ runner.os == 'Linux' && inputs.linux_snap != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
-        name: >-
-          ${{ format(
-            '{0}{1}_{2}_{3}_flatpak.tar.gz',
-            inputs.name,
-            inputs.channel != 'production' && format('_{0}', inputs.channel) || '',
-            inputs.version,
-            inputs.arch
-          ) }}
-        path: out/make/*_flatpak.tar.gz
-    - id: upload-artifacts-dmg
-      name: 'Upload DMG artifact'
-      if: ${{ runner.os == 'macOS' }}
+        name: ${{ inputs.linux_snap }}
+        path: out/make/**/${{ inputs.linux_snap }}
+    - name: 'Upload Linux Flatpak artifact'
+      if: ${{ runner.os == 'Linux' && inputs.linux_flatpak != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
-        name: >-
-          ${{ format(
-            '{0}{1}-{2}-{3}.dmg',
-            inputs.name,
-            inputs.channel != 'production' && format('-{0}', inputs.channel) || '',
-            inputs.version,
-            inputs.arch
-          ) }}
-        path: out/make/*.dmg
-    - id: upload-artifacts-msix
-      name: 'Upload MSIX artifact'
-      if: ${{ runner.os == 'Windows' }}
+        name: ${{ inputs.linux_flatpak }}
+        path: out/make/**/${{ inputs.linux_flatpak }}
+    - name: 'Upload macOS DMG artifact'
+      if: ${{ runner.os == 'macOS' && inputs.macos_dmg != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
-        name: >-
-          ${{ format(
-            '{0}{1}-{2}-{3}.msix',
-            inputs.name,
-            inputs.channel != 'production' && format('-{0}', inputs.channel) || '',
-            inputs.version,
-            inputs.arch
-          ) }}
-        path: out/make/**/*.msix
-    - id: upload-artifacts-zip
-      name: 'Upload MSIX artifact'
-      if: ${{ runner.os == 'Windows' }}
+        name: ${{ inputs.macos_dmg }}
+        path: out/make/**/${{ inputs.macos_dmg }}
+    - name: 'Upload Windows MSIX artifact'
+      if: ${{ runner.os == 'Windows' && inputs.windows_msix != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
-        name: >-
-          ${{ format(
-            '{0}{1}-{2}-{3}.zip',
-            inputs.name,
-            inputs.channel != 'production' && format('-{0}', inputs.channel) || '',
-            inputs.version,
-            inputs.arch
-          ) }}
-        path: out/make/**/*.zip
+        name: ${{ inputs.windows_msix }}
+        path: out/make/**/${{ inputs.windows_msix }}
+    - name: 'Upload Windows ZIP artifact'
+      if: ${{ runner.os == 'Windows' && inputs.windows_zip != '' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: ${{ inputs.windows_zip }}
+        path: out/make/**/${{ inputs.windows_zip }}
