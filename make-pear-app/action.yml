@@ -175,7 +175,7 @@ runs:
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: ${{ inputs.standalone }}
-        path: out/make/${{ inputs.standalone }}
+        path: out/make/**/${{ inputs.standalone }}
     - name: 'Upload Linux AppImage artifact'
       if: ${{ runner.os == 'Linux' && inputs.linux_appimage != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
