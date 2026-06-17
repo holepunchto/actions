@@ -118,6 +118,7 @@ runs:
       shell: pwsh
     - name: 'Setup certificate'
       id: setup-certificates
+      if: ${{ runner.os != 'Linux' }}
       uses: RaisinTen/actions/setup-certificates@use-upload-artifacts-in-make-pear-app # TODO
       with:
         macos_certificate_base64: ${{ inputs.macos_certificate_base64 }}
@@ -133,7 +134,7 @@ runs:
         windows_cert_pfx_base64: ${{ inputs.windows_cert_pfx_base64 }}
         windows_cert_password: ${{ inputs.windows_cert_password }}
     - name: 'Set up Snapcraft'
-      if: ${{ runner.os == 'Linux' && inputs.linux_snap == 'true' }}
+      if: ${{ runner.os == 'Linux' && inputs.linux_snap != '' }}
       uses: RaisinTen/actions/setup-snapcraft@use-upload-artifacts-in-make-pear-app # TODO
     - name: 'Build application (Linux)'
       if: ${{ runner.os == 'Linux' }}
