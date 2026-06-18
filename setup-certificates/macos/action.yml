@@ -1,0 +1,99 @@
+name: Setup certificates on macOS
+description: Setup certificates on macOS
+
+inputs:
+  certificate_base64:
+    description: 'Base64-encoded Apple distribution certificate (P12 format)'
+    required: true
+  p12_password:
+    description: 'Password for the P12 certificate'
+    required: true
+  notarization_method:
+    description: 'Notarization method to use: appstore_connect or apple_id_password'
+    required: true
+  apple_id:
+    description: 'Apple ID email for notarization'
+    required: false
+    default: ''
+  apple_password:
+    description: 'Apple app-specific password'
+    required: false
+    default: ''
+  apple_team_id:
+    description: 'Apple Developer Team ID'
+    required: false
+    default: ''
+  api_key_base64:
+    description: 'Base64-encoded App Store Connect API key (like AuthKey_ABCD123456.p8)'
+    required: false
+    default: ''
+  api_key_id:
+    description: '10-character alphanumeric ID string of the App Store Connect (like ABCD123456)'
+    required: false
+    default: ''
+  api_issuer:
+    description: 'UUID that identifies the API key issuer'
+    required: false
+    default: ''
+
+outputs:
+  keychain-profile:
+    description: 'Keychain profile'
+    value: ${{ steps.setup-certificates.outputs.keychain_profile }}
+
+runs:
+  using: composite
+  steps:
+    - name: 'Setup the Apple certificate and notarytool credentials'
+      id: setup-certificates
+      if: ${{ runner.os == 'macOS' }}
+      env:
+        CERTIFICATE_BASE64: ${{ inputs.certificate_base64 }}
+        P12_PASSWORD: ${{ inputs.p12_password }}
+        NOTARIZATION_METHOD: ${{ inputs.notarization_method }}
+        API_KEY_BASE64: ${{ inputs.api_key_base64 }}
+        API_KEY_ID: ${{ inputs.api_key_id }}
+        API_ISSUER: ${{ inputs.api_issuer }}
+        APPLE_ID: ${{ inputs.apple_id }}
+        APPLE_PASSWORD: ${{ inputs.apple_password }}
+        APPLE_TEAM_ID: ${{ inputs.apple_team_id }}
+      run: |
+        # create variables
+        CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+        KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+        KEYCHAIN_PASSWORD=keychain-password
+        KEYCHAIN_PROFILE=notary
+
+        # import certificate and API key from secrets
+        echo -n "$CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+        # create temporary keychain
+        security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+        security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+        security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+        # import certificate to keychain
+        security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+        security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+        security list-keychain -d user -s $KEYCHAIN_PATH
+
+        # add notarytool credentials
+        if [ "$NOTARIZATION_METHOD" = "appstore_connect" ]; then
+          APIKEY_PATH=$RUNNER_TEMP/AuthKey.p8
+
+          echo -n "$API_KEY_BASE64" | base64 --decode -o $APIKEY_PATH
+
+          xcrun notarytool store-credentials "$KEYCHAIN_PROFILE" \
+            --key "$APIKEY_PATH" \
+            --key-id "$API_KEY_ID" \
+            --issuer "$API_ISSUER" \
+            --keychain "$KEYCHAIN_PATH"
+        else
+          xcrun notarytool store-credentials "$KEYCHAIN_PROFILE" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --keychain "$KEYCHAIN_PATH"
+        fi
+
+        echo "keychain_profile=$KEYCHAIN_PROFILE" >> $GITHUB_OUTPUT
+      shell: bash

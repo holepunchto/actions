@@ -1,0 +1,41 @@
+name: Setup certificates on Windows
+description: Setup certificates on Windows
+
+inputs:
+  signing_method:
+    description: 'Signing method to use: cert_sha1 or cert_pfx'
+    required: true
+  cert_pfx_base64:
+    description: 'Base64-encoded cert pfx file'
+    required: false
+    default: ''
+  cert_password:
+    description: 'Password for the certificate'
+    required: false
+    default: ''
+
+outputs:
+  certificate-thumbprint:
+    description: 'Certificate thumbprint'
+    value: ${{ steps.setup-certificates.outputs.thumbprint }}
+
+runs:
+  using: composite
+  steps:
+    - name: 'Setup certificates'
+      id: setup-certificates
+      if: ${{ runner.os == 'Windows' && inputs.signing_method == 'cert_pfx' }}
+      env:
+        CERT_PFX_BASE64: ${{ inputs.cert_pfx_base64 }}
+        CERT_PASSWORD: ${{ inputs.cert_password }}
+      run: |
+        $certPath = "$env:RUNNER_TEMP\cert.pfx"
+        [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($env:CERT_PFX_BASE64))
+
+        $importedCert = Import-PfxCertificate `
+          -FilePath $certPath `
+          -CertStoreLocation Cert:\CurrentUser\My `
+          -Password (ConvertTo-SecureString -String $env:CERT_PASSWORD -Force -AsPlainText)
+
+        echo "thumbprint=$($importedCert.Thumbprint)" >> $env:GITHUB_OUTPUT
+      shell: powershell
