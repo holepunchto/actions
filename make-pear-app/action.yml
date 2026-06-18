@@ -119,7 +119,7 @@ runs:
     - name: 'Setup certificates on macOS'
       id: setup-certificates-macos
       if: ${{ runner.os == 'macOS' }}
-      uses: RaisinTen/actions/setup-certificates/macos@use-upload-artifacts-in-make-pear-app # TODO
+      uses: holepunchto/actions/setup-certificates/macos@v1
       with:
         certificate_base64: ${{ inputs.macos_certificate_base64 }}
         p12_password: ${{ inputs.macos_p12_password }}
@@ -133,14 +133,14 @@ runs:
     - name: 'Setup certificates on Windows'
       id: setup-certificates-windows
       if: ${{ runner.os == 'Windows' }}
-      uses: RaisinTen/actions/setup-certificates/windows@use-upload-artifacts-in-make-pear-app # TODO
+      uses: holepunchto/actions/setup-certificates/windows@v1
       with:
         signing_method: ${{ inputs.windows_signing_method }}
         cert_pfx_base64: ${{ inputs.windows_cert_pfx_base64 }}
         cert_password: ${{ inputs.windows_cert_password }}
     - name: 'Set up Snapcraft'
       if: ${{ runner.os == 'Linux' && inputs.linux_snap != '' }}
-      uses: RaisinTen/actions/setup-snapcraft@use-upload-artifacts-in-make-pear-app # TODO
+      uses: holepunchto/actions/setup-snapcraft@v1
     - name: 'Build application (Linux)'
       if: ${{ runner.os == 'Linux' }}
       env:
