@@ -9,6 +9,14 @@ inputs:
     description: 'Upgrade key'
     required: false
     default: ''
+  standalone:
+    description: 'Standalone executable to upload'
+    required: false
+    default: ''
+  macos_dmg:
+    description: 'macOS DMG to upload'
+    required: false
+    default: ''
   macos_certificate_base64:
     description: 'Base64-encoded Apple distribution certificate (P12 format)'
     required: false
@@ -49,8 +57,16 @@ inputs:
     description: 'UUID that identifies the API key issuer'
     required: false
     default: ''
+  windows_msix:
+    description: 'Windows MSIX to upload'
+    required: false
+    default: ''
+  windows_zip:
+    description: 'Windows ZIP to upload'
+    required: false
+    default: ''
   windows_signing_method:
-    description: 'Signing method to use: windows_cert_sha1 or windows_cert_pfx'
+    description: 'Signing method to use: cert_sha1 or cert_pfx'
     required: false
     default: ''
   windows_cert_sha1:
@@ -65,116 +81,23 @@ inputs:
     description: 'Password for the Windows certificate'
     required: false
     default: ''
-  linux_set_up_snapcraft:
-    description: 'Set up Snapcraft'
+  linux_appimage:
+    description: 'Linux AppImage to upload'
     required: false
-    default: 'true'
-
-outputs:
-  artifact-links:
-    description: 'Links to uploaded artifacts'
-    value: ${{ steps.upload-artifacts-bash.outputs.artifact-links || steps.upload-artifacts-pwsh.outputs.artifact-links }}
+    default: ''
+  linux_snap:
+    description: 'Linux Snap to upload'
+    required: false
+    default: ''
+  linux_flatpak:
+    description: 'Linux Flatpak to upload'
+    required: false
+    default: ''
 
 runs:
   using: composite
   steps:
-    - name: 'Validate macOS inputs'
-      if: ${{ runner.os == 'macOS' }}
-      env:
-        MACOS_CERTIFICATE_BASE64: ${{ inputs.macos_certificate_base64 }}
-        MACOS_P12_PASSWORD: ${{ inputs.macos_p12_password }}
-        MACOS_CODESIGN_IDENTITY: ${{ inputs.macos_codesign_identity }}
-        MACOS_NOTARIZATION_METHOD: ${{ inputs.macos_notarization_method }}
-        MACOS_API_KEY_BASE64: ${{ inputs.macos_api_key_base64 }}
-        MACOS_API_KEY_ID: ${{ inputs.macos_api_key_id }}
-        MACOS_API_ISSUER: ${{ inputs.macos_api_issuer }}
-        MACOS_APPLE_ID: ${{ inputs.macos_apple_id }}
-        MACOS_APPLE_PASSWORD: ${{ inputs.macos_apple_password }}
-        MACOS_APPLE_TEAM_ID: ${{ inputs.macos_apple_team_id }}
-      run: |
-        MISSING=""
-
-        # Always required for signing
-        [ -z "$MACOS_CERTIFICATE_BASE64" ] && MISSING="$MISSING macos_certificate_base64"
-        [ -z "$MACOS_P12_PASSWORD" ] && MISSING="$MISSING macos_p12_password"
-        [ -z "$MACOS_CODESIGN_IDENTITY" ] && MISSING="$MISSING macos_codesign_identity"
-        [ -z "$MACOS_NOTARIZATION_METHOD" ] && MISSING="$MISSING macos_notarization_method"
-
-        # Validate notarization fields based on selected method
-        case "$MACOS_NOTARIZATION_METHOD" in
-          appstore_connect)
-            [ -z "$MACOS_API_KEY_BASE64" ] && MISSING="$MISSING macos_api_key_base64"
-            [ -z "$MACOS_API_KEY_ID" ] && MISSING="$MISSING macos_api_key_id"
-            [ -z "$MACOS_API_ISSUER" ] && MISSING="$MISSING macos_api_issuer"
-            ;;
-          apple_id_password)
-            [ -z "$MACOS_APPLE_ID" ] && MISSING="$MISSING macos_apple_id"
-            [ -z "$MACOS_APPLE_PASSWORD" ] && MISSING="$MISSING macos_apple_password"
-            [ -z "$MACOS_APPLE_TEAM_ID" ] && MISSING="$MISSING macos_apple_team_id"
-            ;;
-          *)
-            INVALID_METHOD="true"
-        esac
-
-        if [ "$INVALID_METHOD" = "true" ]; then
-          echo "Error: Invalid macos_notarization_method '$MACOS_NOTARIZATION_METHOD'. Must be 'appstore_connect' or 'apple_id_password'."
-        fi
-
-        # Fail if any required fields are missing or invalid
-        if [ -n "$MISSING" ] || [ "$INVALID_METHOD" = "true" ]; then
-          if [ -n "$MISSING" ]; then
-            echo "Error: Missing macOS inputs: ${MISSING# }"
-          fi
-          exit 1
-        fi
-      shell: bash
-    - name: 'Validate Windows inputs'
-      if: ${{ runner.os == 'Windows' }}
-      env:
-        WINDOWS_SIGNING_METHOD: ${{ inputs.windows_signing_method }}
-        WINDOWS_CERT_SHA1: ${{ inputs.windows_cert_sha1 }}
-        WINDOWS_CERT_PFX_BASE64: ${{ inputs.windows_cert_pfx_base64 }}
-        WINDOWS_CERT_PASSWORD: ${{ inputs.windows_cert_password }}
-      run: |
-        $missing = @()
-        $invalidMethod = $false
-
-        $method = $env:WINDOWS_SIGNING_METHOD
-
-        if ([string]::IsNullOrEmpty($method)) {
-          $missing += "windows_signing_method"
-        }
-        else {
-          switch ($method) {
-            "windows_cert_sha1" {
-              if ([string]::IsNullOrEmpty($env:WINDOWS_CERT_SHA1)) {
-                $missing += "windows_cert_sha1"
-              }
-            }
-            "windows_cert_pfx" {
-              if ([string]::IsNullOrEmpty($env:WINDOWS_CERT_PFX_BASE64)) {
-                $missing += "windows_cert_pfx_base64"
-              }
-              if ([string]::IsNullOrEmpty($env:WINDOWS_CERT_PASSWORD)) {
-                $missing += "windows_cert_password"
-              }
-            }
-            default {
-              $invalidMethod = $true
-            }
-          }
-        }
-
-        if ($invalidMethod) {
-          Write-Error "Error: Invalid windows_signing_method '$method'. Must be 'windows_cert_sha1' or 'windows_cert_pfx'."
-          exit 1
-        }
-
-        if ($missing.Count -gt 0) {
-          Write-Error "Error: Missing Windows inputs: $($missing -join ', ')"
-          exit 1
-        }
-      shell: pwsh
+    # TODO: Use node-base action
     - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
       with:
         node-version: 20
@@ -193,86 +116,31 @@ runs:
       run: |
         npm ci
       shell: pwsh
-    - name: 'Install the Apple certificate and notarytool credentials'
-      id: keychain_notary_setup
+    - name: 'Setup certificates on macOS'
+      id: setup-certificates-macos
       if: ${{ runner.os == 'macOS' }}
-      env:
-        MACOS_CERTIFICATE_BASE64: ${{ inputs.macos_certificate_base64 }}
-        MACOS_P12_PASSWORD: ${{ inputs.macos_p12_password }}
-        MACOS_NOTARIZATION_METHOD: ${{ inputs.macos_notarization_method }}
-        MACOS_API_KEY_BASE64: ${{ inputs.macos_api_key_base64 }}
-        MACOS_API_KEY_ID: ${{ inputs.macos_api_key_id }}
-        MACOS_API_ISSUER: ${{ inputs.macos_api_issuer }}
-        MACOS_APPLE_ID: ${{ inputs.macos_apple_id }}
-        MACOS_APPLE_PASSWORD: ${{ inputs.macos_apple_password }}
-        MACOS_APPLE_TEAM_ID: ${{ inputs.macos_apple_team_id }}
-      run: |
-        # create variables
-        CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-        KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-        KEYCHAIN_PASSWORD=keychain-password
-        KEYCHAIN_PROFILE=notary
-
-        # import certificate and API key from secrets
-        echo -n "$MACOS_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-        # create temporary keychain
-        security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-        security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-        security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-
-        # import certificate to keychain
-        security import $CERTIFICATE_PATH -P "$MACOS_P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-        security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-        security list-keychain -d user -s $KEYCHAIN_PATH
-
-        # add notarytool credentials
-        if [ "$MACOS_NOTARIZATION_METHOD" = "appstore_connect" ]; then
-          APIKEY_PATH=$RUNNER_TEMP/AuthKey.p8
-
-          echo -n "$MACOS_API_KEY_BASE64" | base64 --decode -o $APIKEY_PATH
-
-          xcrun notarytool store-credentials "$KEYCHAIN_PROFILE" \
-            --key "$APIKEY_PATH" \
-            --key-id "$MACOS_API_KEY_ID" \
-            --issuer "$MACOS_API_ISSUER" \
-            --keychain "$KEYCHAIN_PATH"
-        else
-          xcrun notarytool store-credentials "$KEYCHAIN_PROFILE" \
-            --apple-id "$MACOS_APPLE_ID" \
-            --password "$MACOS_APPLE_PASSWORD" \
-            --team-id "$MACOS_APPLE_TEAM_ID" \
-            --keychain "$KEYCHAIN_PATH"
-        fi
-
-        echo "KEYCHAIN_PROFILE=$KEYCHAIN_PROFILE" >> $GITHUB_OUTPUT
-      shell: bash
-    - name: 'Install the Windows certificate'
-      id: windows_certificate_setup
-      if: ${{ runner.os == 'Windows' && inputs.windows_signing_method == 'windows_cert_pfx' }}
-      env:
-        WINDOWS_CERT_PFX_BASE64: ${{ inputs.windows_cert_pfx_base64 }}
-        WINDOWS_CERT_PASSWORD: ${{ inputs.windows_cert_password }}
-      run: |
-        $certPath = "$env:RUNNER_TEMP\cert.pfx"
-        [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($env:WINDOWS_CERT_PFX_BASE64))
-
-        $importedCert = Import-PfxCertificate `
-          -FilePath $certPath `
-          -CertStoreLocation Cert:\CurrentUser\My `
-          -Password (ConvertTo-SecureString -String $env:WINDOWS_CERT_PASSWORD -Force -AsPlainText)
-
-        echo "SHA1=$($importedCert.Thumbprint)" >> $env:GITHUB_OUTPUT
-      shell: powershell
+      uses: holepunchto/actions/setup-certificates/macos@v1
+      with:
+        certificate_base64: ${{ inputs.macos_certificate_base64 }}
+        p12_password: ${{ inputs.macos_p12_password }}
+        notarization_method: ${{ inputs.macos_notarization_method }}
+        apple_id: ${{ inputs.macos_apple_id }}
+        apple_password: ${{ inputs.macos_apple_password }}
+        apple_team_id: ${{ inputs.macos_apple_team_id }}
+        api_key_base64: ${{ inputs.macos_api_key_base64 }}
+        api_key_id: ${{ inputs.macos_api_key_id }}
+        api_issuer: ${{ inputs.macos_api_issuer }}
+    - name: 'Setup certificates on Windows'
+      id: setup-certificates-windows
+      if: ${{ runner.os == 'Windows' }}
+      uses: holepunchto/actions/setup-certificates/windows@v1
+      with:
+        signing_method: ${{ inputs.windows_signing_method }}
+        cert_pfx_base64: ${{ inputs.windows_cert_pfx_base64 }}
+        cert_password: ${{ inputs.windows_cert_password }}
     - name: 'Set up Snapcraft'
-      if: ${{ runner.os == 'Linux' && inputs.linux_set_up_snapcraft == 'true' }}
-      run: |
-        sudo snap install snapcraft --classic
-        sudo snap install lxd
-        sudo usermod -a -G lxd $USER
-        groups $USER
-        sudo iptables -P FORWARD ACCEPT
-        sudo lxd init --auto
-      shell: bash
+      if: ${{ runner.os == 'Linux' && inputs.linux_snap != '' }}
+      uses: holepunchto/actions/setup-snapcraft@v1
     - name: 'Build application (Linux)'
       if: ${{ runner.os == 'Linux' }}
       env:
@@ -290,7 +158,7 @@ runs:
         CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
         MAC_CODESIGN_IDENTITY: '${{ inputs.macos_codesign_identity }}'
-        KEYCHAIN_PROFILE: ${{ steps.keychain_notary_setup.outputs.KEYCHAIN_PROFILE }}
+        KEYCHAIN_PROFILE: ${{ steps.setup-certificates-macos.outputs.keychain-profile }}
         NODE_ENV: production
       run: |
         npm run make
@@ -301,47 +169,58 @@ runs:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
-        WINDOWS_CERT_SHA1: "${{ inputs.windows_signing_method == 'windows_cert_pfx' && steps.windows_certificate_setup.outputs.SHA1 || inputs.windows_cert_sha1 }}"
+        WINDOWS_CERT_SHA1: "${{ inputs.windows_signing_method == 'cert_pfx' && steps.setup-certificates-windows.outputs.certificate-thumbprint || inputs.windows_cert_sha1 }}"
         WINDOWS_SIGN_HOOK: ${{ github.action_path }}/windows-sign.js
         NODE_ENV: production
       run: |
         npm run make
       shell: pwsh
-    - name: 'Install @actions/artifact module (Linux/macOS)'
-      id: npm-root-bash
-      if: ${{ runner.os != 'Windows' }}
-      run: |
-        npm install @actions/artifact@2.3.2 --global
-        echo "path=$(npm root --quiet -g)" >> $GITHUB_OUTPUT
-      shell: bash
-    - name: 'Install @actions/artifact module (Windows)'
-      id: npm-root-pwsh
-      if: ${{ runner.os == 'Windows' }}
-      run: |
-        npm install @actions/artifact@2.3.2 --global
-        $npmRoot = npm root --quiet -g
-        Add-Content -Path $env:GITHUB_OUTPUT -Value "path=$npmRoot"
-      shell: pwsh
-    - name: 'Extract Actions runtime variables'
-      uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
+    - name: 'Upload standalone executable artifact'
+      if: ${{ inputs.standalone != '' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
-        script: |
-          core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL'])
-          core.exportVariable('ACTIONS_RUNTIME_URL', process.env['ACTIONS_RUNTIME_URL'])
-          core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'])
-    - id: upload-artifacts-bash
-      name: 'Upload folders as artifacts (Linux/macOS)'
-      if: ${{ runner.os != 'Windows' }}
-      env:
-        NODE_PATH: '${{ steps.npm-root-bash.outputs.path }}'
-      run: node ${{ github.action_path }}/upload-artifacts.cjs
-      shell: bash
-    - id: upload-artifacts-pwsh
-      name: 'Upload folders as artifacts (Windows)'
-      if: ${{ runner.os == 'Windows' }}
-      env:
-        NODE_PATH: '${{ steps.npm-root-pwsh.outputs.path }}'
-      run: node ${{ github.action_path }}/upload-artifacts.cjs
-      shell: pwsh
+        name: ${{ inputs.standalone }}
+        path: out/make/**/${{ inputs.standalone }}
+        if-no-files-found: error
+    - name: 'Upload Linux AppImage artifact'
+      if: ${{ runner.os == 'Linux' && inputs.linux_appimage != '' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: ${{ inputs.linux_appimage }}
+        path: out/make/**/${{ inputs.linux_appimage }}
+        if-no-files-found: error
+    - name: 'Upload Linux Snap artifact'
+      if: ${{ runner.os == 'Linux' && inputs.linux_snap != '' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: ${{ inputs.linux_snap }}
+        path: out/make/**/${{ inputs.linux_snap }}
+        if-no-files-found: error
+    - name: 'Upload Linux Flatpak artifact'
+      if: ${{ runner.os == 'Linux' && inputs.linux_flatpak != '' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: ${{ inputs.linux_flatpak }}
+        path: out/make/**/${{ inputs.linux_flatpak }}
+        if-no-files-found: error
+    - name: 'Upload macOS DMG artifact'
+      if: ${{ runner.os == 'macOS' && inputs.macos_dmg != '' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: ${{ inputs.macos_dmg }}
+        path: out/make/**/${{ inputs.macos_dmg }}
+        if-no-files-found: error
+    - name: 'Upload Windows MSIX artifact'
+      if: ${{ runner.os == 'Windows' && inputs.windows_msix != '' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: ${{ inputs.windows_msix }}
+        path: out/make/**/${{ inputs.windows_msix }}
+        if-no-files-found: error
+    - name: 'Upload Windows ZIP artifact'
+      if: ${{ runner.os == 'Windows' && inputs.windows_zip != '' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: ${{ inputs.windows_zip }}
+        path: out/make/**/${{ inputs.windows_zip }}
+        if-no-files-found: error
