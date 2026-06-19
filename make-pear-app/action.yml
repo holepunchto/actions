@@ -33,6 +33,10 @@ inputs:
     description: 'name for the uploaded macos dmg artifact'
     required: false
     default: ''
+  macos_mas_zip:
+    description: 'macOS MAS ZIP to upload'
+    required: false
+    default: ''
   macos_certificate_base64:
     description: 'Base64-encoded Apple distribution certificate (P12 format)'
     required: false
@@ -71,6 +75,10 @@ inputs:
     default: ''
   macos_api_issuer:
     description: 'UUID that identifies the API key issuer'
+    required: false
+    default: ''
+  macos_provisioning_profile_base64:
+    description: 'Base64-encoded Apple provisioning profile for MAS build (mobileprovision)'
     required: false
     default: ''
   windows_msix:
@@ -136,7 +144,7 @@ runs:
     - name: 'Setup certificates on macOS'
       id: setup-certificates-macos
       if: ${{ runner.os == 'macOS' }}
-      uses: holepunchto/actions/setup-certificates/macos@v1
+      uses: RaisinTen/actions/setup-certificates/macos@support-mas-build # TODO
       with:
         certificate_base64: ${{ inputs.macos_certificate_base64 }}
         p12_password: ${{ inputs.macos_p12_password }}
@@ -147,17 +155,18 @@ runs:
         api_key_base64: ${{ inputs.macos_api_key_base64 }}
         api_key_id: ${{ inputs.macos_api_key_id }}
         api_issuer: ${{ inputs.macos_api_issuer }}
+        provisioning_profile_base64: ${{ inputs.macos_provisioning_profile_base64 }}
     - name: 'Setup certificates on Windows'
       id: setup-certificates-windows
       if: ${{ runner.os == 'Windows' }}
-      uses: holepunchto/actions/setup-certificates/windows@v1
+      uses: RaisinTen/actions/setup-certificates/windows@support-mas-build # TODO
       with:
         signing_method: ${{ inputs.windows_signing_method }}
         cert_pfx_base64: ${{ inputs.windows_cert_pfx_base64 }}
         cert_password: ${{ inputs.windows_cert_password }}
     - name: 'Set up Snapcraft'
       if: ${{ runner.os == 'Linux' && inputs.linux_snap != '' }}
-      uses: holepunchto/actions/setup-snapcraft@v1
+      uses: RaisinTen/actions/setup-snapcraft@support-mas-build # TODO
     - name: 'Build application (Linux)'
       if: ${{ runner.os == 'Linux' }}
       uses: holepunchto/actions/run-npm-script@v1
@@ -173,17 +182,20 @@ runs:
         HOST: ${{ inputs.host }}
     - name: 'Build application (macOS)'
       if: ${{ runner.os == 'macOS' }}
-      uses: holepunchto/actions/run-npm-script@v1
-      with:
-        script: make
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
         MAC_CODESIGN_IDENTITY: '${{ inputs.macos_codesign_identity }}'
         KEYCHAIN_PROFILE: ${{ steps.setup-certificates-macos.outputs.keychain-profile }}
+        MAS_PROVISIONING_PROFILE: ${{ steps.setup-certificates-macos.outputs.provisioning-profile }}
         NODE_ENV: production
         HOST: ${{ inputs.host }}
+        DEBUG: 'electron-*'
+      run: |
+        npm run package -- --platform=mas
+        file out/* # TODO
+      shell: bash
     - name: 'Build application (Windows)'
       if: ${{ runner.os == 'Windows' }}
       uses: holepunchto/actions/run-npm-script@v1
@@ -197,6 +209,13 @@ runs:
         WINDOWS_SIGN_HOOK: ${{ github.action_path }}/windows-sign.js
         NODE_ENV: production
         HOST: ${{ inputs.host }}
+    - name: Create MAS ZIP
+      if: ${{ runner.os == 'macOS' }}
+      run: |
+        ditto -c -k --sequesterRsrc --keepParent \
+          out/Keet-Internal-mas-arm64/Keet-Internal.app \
+          out/Keet-Internal-mas-arm64.zip
+      shell: bash
     - name: 'Upload standalone executable artifact'
       if: ${{ inputs.standalone != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
@@ -247,6 +266,13 @@ runs:
       with:
         name: ${{ inputs.macos_app }}
         path: ${{ runner.temp }}/${{ inputs.macos_app }}
+        if-no-files-found: error
+    - name: 'Upload macOS MAS ZIP artifact'
+      if: ${{ runner.os == 'macOS' && inputs.macos_mas_zip != '' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: ${{ inputs.macos_mas_zip }}
+        path: out/${{ inputs.macos_mas_zip }}
         if-no-files-found: error
     - name: 'Upload Windows MSIX artifact'
       if: ${{ runner.os == 'Windows' && inputs.windows_msix != '' }}
