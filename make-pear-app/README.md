@@ -8,6 +8,7 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 
 | Input                      | Description                                                                      | Required |
 | -------------------------- | -------------------------------------------------------------------------------- | -------- |
+| `script`                   | Build script (`make` by default)                                                 | No       |
 | `channel`                  | Channel name (e.g. `preview`, `experimental`, `staging`)                         | Yes      |
 | `upgrade_key`              | Upgrade key (e.g. `pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o`) | No       |
 | `host`                     | Host passed to `npm run make` as environment variable.                           | No       |
@@ -30,21 +31,30 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 
 ### macOS
 
-| Input                       | Description                                                                    | Required                                                                |
-| --------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
-| `macos_app`                 | macOS app bundle ZIP archive to upload                                         | No                                                                      |
-| `macos_dmg`                 | macOS DMG to upload                                                            | No                                                                      |
-| `macos_dmg_artifact_name`   | macOS DMG uploaded artifact name                                               | No                                                                      |
-| `macos_certificate_base64`  | Base64 Apple development certificate (P12)                                     | Required on macOS                                                       |
-| `macos_p12_password`        | Password for the P12 certificate                                               | Required on macOS                                                       |
-| `macos_codesign_identity`   | Code signing identity                                                          | Required on macOS                                                       |
-| `macos_notarization_method` | Notarization method to use: `appstore_connect` or `apple_id_password`          | Required on macOS                                                       |
-| `macos_apple_id`            | Apple ID email for notarization                                                | Required on macOS if `macos_notarization_method` is `apple_id_password` |
-| `macos_apple_password`      | Apple app-specific password                                                    | Required on macOS if `macos_notarization_method` is `apple_id_password` |
-| `macos_apple_team_id`       | Apple Developer Team ID                                                        | Required on macOS if `macos_notarization_method` is `apple_id_password` |
-| `macos_api_key_base64`      | Base64-encoded App Store Connect API key (like AuthKey_ABCD123456.p8)          | Required on macOS if `macos_notarization_method` is `appstore_connect`  |
-| `macos_api_key_id`          | 10-character alphanumeric ID string of the App Store Connect (like ABCD123456) | Required on macOS if `macos_notarization_method` is `appstore_connect`  |
-| `macos_api_issuer`          | UUID that identifies the API key issuer                                        | Required on macOS if `macos_notarization_method` is `appstore_connect`  |
+| Input                                             | Description                                                                             | Required                                                                |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `macos_app`                                       | macOS app bundle ZIP archive to upload                                                  | No                                                                      |
+| `macos_dmg`                                       | macOS DMG to upload                                                                     | No                                                                      |
+| `macos_dmg_artifact_name`                         | macOS DMG uploaded artifact name                                                        | No                                                                      |
+| `macos_mas_pkg`                                   | macOS MAS PKG to upload                                                                 | No                                                                      |
+| `macos_mas_pkg_artifact_name`                     | macOS MAS PKG uploaded artifact name                                                    | No                                                                      |
+| `macos_development_certificate_base64`            | Base64 Apple development certificate (P12)                                              | No                                                                      |
+| `macos_development_password`                      | Password for the P12 certificate                                                        | No                                                                      |
+| `macos_codesign_identity`                         | Code signing identity                                                                   | No                                                                      |
+| `macos_distribution_certificate_base64`           | Base64 Apple distribution certificate (P12)                                             | No                                                                      |
+| `macos_distribution_password`                     | Password for the P12 certificate                                                        | No                                                                      |
+| `macos_distribution_identity`                     | Distribution identity used for macOS App Store builds                                   | Required on macOS                                                       |
+| `macos_installer_distribution_certificate_base64` | Base64 macOS installer distribution certificate (P12)                                   | No                                                                      |
+| `macos_installer_distribution_password`           | Password for the P12 certificate                                                        | No                                                                      |
+| `macos_installer_distribution_identity`           | Distribution identity used for macOS App Store PKG Installer builds                     | No                                                                      |
+| `macos_distribution_provisioning_profile_base64`  | Base64-encoded Apple distribution provisioning profile for MAS build (provisionprofile) | No                                                                      |
+| `macos_notarization_method`                       | Notarization method to use: `appstore_connect` or `apple_id_password`                   | No                                                                      |
+| `macos_apple_id`                                  | Apple ID email for notarization                                                         | Required on macOS if `macos_notarization_method` is `apple_id_password` |
+| `macos_apple_password`                            | Apple app-specific password                                                             | Required on macOS if `macos_notarization_method` is `apple_id_password` |
+| `macos_apple_team_id`                             | Apple Developer Team ID                                                                 | Required on macOS if `macos_notarization_method` is `apple_id_password` |
+| `macos_api_key_base64`                            | Base64-encoded App Store Connect API key (like AuthKey_ABCD123456.p8)                   | Required on macOS if `macos_notarization_method` is `appstore_connect`  |
+| `macos_api_key_id`                                | 10-character alphanumeric ID string of the App Store Connect (like ABCD123456)          | Required on macOS if `macos_notarization_method` is `appstore_connect`  |
+| `macos_api_issuer`                                | UUID that identifies the API key issuer                                                 | Required on macOS if `macos_notarization_method` is `appstore_connect`  |
 
 ### Linux
 
@@ -114,8 +124,8 @@ jobs:
           macos_app: Keet-4.17.0-arm64.app.zip
           macos_dmg: Keet-4.17.0-arm64.dmg
           macos_dmg_artifact_name: Keet-4.17.0-arm64
-          macos_certificate_base64: ${{ secrets.CERTIFICATE_P12 }}
-          macos_p12_password: ${{ secrets.CERTIFICATE_PASSWORD }}
+          macos_development_certificate_base64: ${{ secrets.DEVELOPMENT_CERTIFICATE_BASE64 }}
+          macos_development_password: ${{ secrets.CERTIFICATE_PASSWORD }}
           macos_codesign_identity: ${{ secrets.MAC_CODESIGN_IDENTITY }}
           macos_notarization_method: apple_id_password
           macos_apple_id: ${{ secrets.APPLE_ID }}
