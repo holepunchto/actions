@@ -17,6 +17,10 @@ inputs:
     description: 'macOS DMG to upload'
     required: false
     default: ''
+  macos_app:
+    description: 'macOS app bundle tarball to upload'
+    required: false
+    default: ''
   macos_certificate_base64:
     description: 'Base64-encoded Apple distribution certificate (P12 format)'
     required: false
@@ -209,6 +213,17 @@ runs:
       with:
         name: ${{ inputs.macos_dmg }}
         path: out/make/**/${{ inputs.macos_dmg }}
+        if-no-files-found: error
+    - name: 'Create macOS app bundle artifact'
+      if: ${{ runner.os == 'macOS' && inputs.macos_app != '' }}
+      run: cd out && tar -czf "${{ runner.temp }}/${{ inputs.macos_app }}" *-darwin-*/*.app
+      shell: bash
+    - name: 'Upload macOS app bundle artifact'
+      if: ${{ runner.os == 'macOS' && inputs.macos_app != '' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: ${{ inputs.macos_app }}
+        path: ${{ runner.temp }}/${{ inputs.macos_app }}
         if-no-files-found: error
     - name: 'Upload Windows MSIX artifact'
       if: ${{ runner.os == 'Windows' && inputs.windows_msix != '' }}

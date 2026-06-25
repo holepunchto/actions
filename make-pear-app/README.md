@@ -14,20 +14,21 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 
 ### Windows
 
-| Input                     | Description                                                      | Required                                                               |
-| ------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| `windows_msix`            | Windows MSIX to upload                                           | No                                                                     |
-| `windows_zip`             | Windows ZIP to upload                                            | No                                                                     |
-| `windows_signing_method`  | Signing method to use: `windows_cert_sha1` or `windows_cert_pfx` | Required on Windows                                                    |
-| `windows_cert_sha1`       | SHA1 thumbprint of the Windows cert                              | Required on Windows if `windows_signing_method` is `windows_cert_sha1` |
-| `windows_cert_pfx_base64` | Base64-encoded Windows cert pfx file                             | Required on Windows if `windows_signing_method` is `windows_cert_pfx`  |
-| `windows_cert_password`   | Password for the Windows certificate                             | Required on Windows if `windows_signing_method` is `windows_cert_pfx`  |
+| Input                     | Description                                      | Required                                                       |
+| ------------------------- | ------------------------------------------------ | -------------------------------------------------------------- |
+| `windows_msix`            | Windows MSIX to upload                           | No                                                             |
+| `windows_zip`             | Windows ZIP to upload                            | No                                                             |
+| `windows_signing_method`  | Signing method to use: `cert_sha1` or `cert_pfx` | Required on Windows                                            |
+| `windows_cert_sha1`       | SHA1 thumbprint of the Windows cert              | Required on Windows if `windows_signing_method` is `cert_sha1` |
+| `windows_cert_pfx_base64` | Base64-encoded Windows cert pfx file             | Required on Windows if `windows_signing_method` is `cert_pfx`  |
+| `windows_cert_password`   | Password for the Windows certificate             | Required on Windows if `windows_signing_method` is `cert_pfx`  |
 
 ### macOS
 
 | Input                       | Description                                                                    | Required                                                                |
 | --------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
 | `macos_dmg`                 | macOS DMG to upload                                                            | No                                                                      |
+| `macos_app`                 | macOS app bundle tarball to upload                                             | No                                                                      |
 | `macos_certificate_base64`  | Base64 Apple development certificate (P12)                                     | Required on macOS                                                       |
 | `macos_p12_password`        | Password for the P12 certificate                                               | Required on macOS                                                       |
 | `macos_codesign_identity`   | Code signing identity                                                          | Required on macOS                                                       |
@@ -57,13 +58,13 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: holepunchto/make-pear-app
+      - uses: holepunchto/actions/make-pear-app@v1
         with:
           channel: production
           upgrade_key: pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o
           windows_msix: Keet.msix
           windows_zip: Keet-win32-x64-4.17.0.zip
-          windows_signing_method: windows_cert_sha1
+          windows_signing_method: cert_sha1
           windows_cert_sha1: ${{ secrets.WINDOWS_CERT_SHA1 }}
 ```
 
@@ -75,11 +76,12 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: holepunchto/make-pear-app
+      - uses: holepunchto/actions/make-pear-app@v1
         with:
           channel: production
           upgrade_key: pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o
           macos_dmg: Keet-4.17.0-arm64.dmg
+          macos_app: Keet-4.17.0-arm64.app.tgz
           macos_certificate_base64: ${{ secrets.CERTIFICATE_P12 }}
           macos_p12_password: ${{ secrets.CERTIFICATE_PASSWORD }}
           macos_codesign_identity: ${{ secrets.MAC_CODESIGN_IDENTITY }}
@@ -97,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: holepunchto/make-pear-app
+      - uses: holepunchto/actions/make-pear-app@v1
         with:
           channel: production
           upgrade_key: pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o
