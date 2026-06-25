@@ -216,7 +216,9 @@ runs:
         if-no-files-found: error
     - name: 'Create macOS app bundle artifact'
       if: ${{ runner.os == 'macOS' && inputs.macos_app != '' }}
-      run: cd out && tar -czf "${{ runner.temp }}/${{ inputs.macos_app }}" *-darwin-*/*.app
+      env:
+        MACOS_APP: ${{ inputs.macos_app }}
+      run: cd out && tar -czf "$RUNNER_TEMP/$MACOS_APP" *-darwin-*/*.app
       shell: bash
     - name: 'Upload macOS app bundle artifact'
       if: ${{ runner.os == 'macOS' && inputs.macos_app != '' }}
