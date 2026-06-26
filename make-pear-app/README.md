@@ -6,53 +6,53 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 
 ### Build Inputs
 
-| Input | Description | Required |
-| --- | --- | --- |
-| `channel` | Channel name (e.g. `preview`, `experimental`, `staging`) | Yes |
-| `upgrade_key` | Upgrade key (e.g. `pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o`) | No |
-| `standalone` | Standalone executable to upload | No |
-| `standalone_artifact_name` | Standalone uploaded artifact name | No |
+| Input                      | Description                                                                      | Required |
+| -------------------------- | -------------------------------------------------------------------------------- | -------- |
+| `channel`                  | Channel name (e.g. `preview`, `experimental`, `staging`)                         | Yes      |
+| `upgrade_key`              | Upgrade key (e.g. `pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o`) | No       |
+| `standalone`               | Standalone executable to upload                                                  | No       |
+| `standalone_artifact_name` | Standalone uploaded artifact name                                                | No       |
 
 ### Windows
 
-| Input | Description | Required |
-| --- | --- | --- |
-| `windows_msix` | Windows MSIX to upload | No |
-| `windows_msix_artifact_name` | Windows MSIX uploaded artifact name | No |
-| `windows_zip` | Windows ZIP to upload | No |
-| `windows_zip_artifact_name` | Windows ZIP uploaded artifact name | No |
-| `windows_signing_method` | Signing method to use: `windows_cert_sha1` or `windows_cert_pfx` | Required on Windows |
-| `windows_cert_sha1` | SHA1 thumbprint of the Windows cert | Required on Windows if `windows_signing_method` is `windows_cert_sha1` |
-| `windows_cert_pfx_base64` | Base64-encoded Windows cert pfx file | Required on Windows if `windows_signing_method` is `windows_cert_pfx` |
-| `windows_cert_password` | Password for the Windows certificate | Required on Windows if `windows_signing_method` is `windows_cert_pfx` |
+| Input                        | Description                                                      | Required                                                               |
+| ---------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `windows_msix`               | Windows MSIX to upload                                           | No                                                                     |
+| `windows_msix_artifact_name` | Windows MSIX uploaded artifact name                              | No                                                                     |
+| `windows_zip`                | Windows ZIP to upload                                            | No                                                                     |
+| `windows_zip_artifact_name`  | Windows ZIP uploaded artifact name                               | No                                                                     |
+| `windows_signing_method`     | Signing method to use: `windows_cert_sha1` or `windows_cert_pfx` | Required on Windows                                                    |
+| `windows_cert_sha1`          | SHA1 thumbprint of the Windows cert                              | Required on Windows if `windows_signing_method` is `windows_cert_sha1` |
+| `windows_cert_pfx_base64`    | Base64-encoded Windows cert pfx file                             | Required on Windows if `windows_signing_method` is `windows_cert_pfx`  |
+| `windows_cert_password`      | Password for the Windows certificate                             | Required on Windows if `windows_signing_method` is `windows_cert_pfx`  |
 
 ### macOS
 
-| Input | Description | Required |
-| --- | --- | --- |
-| `macos_dmg` | macOS DMG to upload | No |
-| `macos_dmg_artifact_name` | macOS DMG uploaded artifact name | No |
-| `macos_certificate_base64` | Base64 Apple development certificate (P12) | Required on macOS |
-| `macos_p12_password` | Password for the P12 certificate | Required on macOS |
-| `macos_codesign_identity` | Code signing identity | Required on macOS |
-| `macos_notarization_method` | Notarization method to use: `appstore_connect` or `apple_id_password` | Required on macOS |
-| `macos_apple_id` | Apple ID email for notarization | Required on macOS if `macos_notarization_method` is `apple_id_password` |
-| `macos_apple_password` | Apple app-specific password | Required on macOS if `macos_notarization_method` is `apple_id_password` |
-| `macos_apple_team_id` | Apple Developer Team ID | Required on macOS if `macos_notarization_method` is `apple_id_password` |
-| `macos_api_key_base64` | Base64-encoded App Store Connect API key (like AuthKey_ABCD123456.p8) | Required on macOS if `macos_notarization_method` is `appstore_connect` |
-| `macos_api_key_id` | 10-character alphanumeric ID string of the App Store Connect (like ABCD123456) | Required on macOS if `macos_notarization_method` is `appstore_connect` |
-| `macos_api_issuer` | UUID that identifies the API key issuer | Required on macOS if `macos_notarization_method` is `appstore_connect` |
+| Input                       | Description                                                                    | Required                                                                |
+| --------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| `macos_dmg`                 | macOS DMG to upload                                                            | No                                                                      |
+| `macos_dmg_artifact_name`   | macOS DMG uploaded artifact name                                               | No                                                                      |
+| `macos_certificate_base64`  | Base64 Apple development certificate (P12)                                     | Required on macOS                                                       |
+| `macos_p12_password`        | Password for the P12 certificate                                               | Required on macOS                                                       |
+| `macos_codesign_identity`   | Code signing identity                                                          | Required on macOS                                                       |
+| `macos_notarization_method` | Notarization method to use: `appstore_connect` or `apple_id_password`          | Required on macOS                                                       |
+| `macos_apple_id`            | Apple ID email for notarization                                                | Required on macOS if `macos_notarization_method` is `apple_id_password` |
+| `macos_apple_password`      | Apple app-specific password                                                    | Required on macOS if `macos_notarization_method` is `apple_id_password` |
+| `macos_apple_team_id`       | Apple Developer Team ID                                                        | Required on macOS if `macos_notarization_method` is `apple_id_password` |
+| `macos_api_key_base64`      | Base64-encoded App Store Connect API key (like AuthKey_ABCD123456.p8)          | Required on macOS if `macos_notarization_method` is `appstore_connect`  |
+| `macos_api_key_id`          | 10-character alphanumeric ID string of the App Store Connect (like ABCD123456) | Required on macOS if `macos_notarization_method` is `appstore_connect`  |
+| `macos_api_issuer`          | UUID that identifies the API key issuer                                        | Required on macOS if `macos_notarization_method` is `appstore_connect`  |
 
 ### Linux
 
-| Input | Description | Required |
-| --- | --- | --- |
-| `linux_appimage` | Linux AppImage to upload | No |
-| `linux_appimage_artifact_name` | Linux AppImage uploaded artifact name | No |
-| `linux_snap` | Linux Snap to upload | No |
-| `linux_snap_artifact_name` | Linux Snap uploaded artifact name | No |
-| `linux_flatpak` | Linux Flatpak to upload | No |
-| `linux_flatpak_artifact_name` | Linux Flatpak uploaded artifact name | No |
+| Input                          | Description                           | Required |
+| ------------------------------ | ------------------------------------- | -------- |
+| `linux_appimage`               | Linux AppImage to upload              | No       |
+| `linux_appimage_artifact_name` | Linux AppImage uploaded artifact name | No       |
+| `linux_snap`                   | Linux Snap to upload                  | No       |
+| `linux_snap_artifact_name`     | Linux Snap uploaded artifact name     | No       |
+| `linux_flatpak`                | Linux Flatpak to upload               | No       |
+| `linux_flatpak_artifact_name`  | Linux Flatpak uploaded artifact name  | No       |
 
 ## Usage
 
