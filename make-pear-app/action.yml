@@ -13,8 +13,16 @@ inputs:
     description: 'Standalone executable to upload'
     required: false
     default: ''
+  standalone_artifact_name:
+    description: 'name for the uploaded standalone artifact'
+    required: false
+    default: ''
   macos_dmg:
     description: 'macOS DMG to upload'
+    required: false
+    default: ''
+  macos_dmg_artifact_name:
+    description: 'name for the uploaded macos dmg artifact'
     required: false
     default: ''
   macos_certificate_base64:
@@ -61,8 +69,16 @@ inputs:
     description: 'Windows MSIX to upload'
     required: false
     default: ''
+  windows_msix_artifact_name:
+    description: 'name for the uploaded windows msix artifact'
+    required: false
+    default: ''
   windows_zip:
     description: 'Windows ZIP to upload'
+    required: false
+    default: ''
+  windows_zip_artifact_name:
+    description: 'name for the uploaded windows zip artifact'
     required: false
     default: ''
   windows_signing_method:
@@ -85,12 +101,24 @@ inputs:
     description: 'Linux AppImage to upload'
     required: false
     default: ''
+  linux_appimage_artifact_name:
+    description: 'name for the uploaded linux appimage artifact'
+    required: false
+    default: ''
   linux_snap:
     description: 'Linux Snap to upload'
     required: false
     default: ''
+  linux_snap_artifact_name:
+    description: 'name for the uploaded linux snap artifact'
+    required: false
+    default: ''
   linux_flatpak:
     description: 'Linux Flatpak to upload'
+    required: false
+    default: ''
+  linux_flatpak_artifact_name:
+    description: 'name for the uploaded linux flatpak artifact'
     required: false
     default: ''
 
@@ -179,48 +207,48 @@ runs:
       if: ${{ inputs.standalone != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
-        name: ${{ inputs.standalone }}
+        name: ${{ inputs.standalone_artifact_name || inputs.standalone }}
         path: out/make/**/${{ inputs.standalone }}
         if-no-files-found: error
     - name: 'Upload Linux AppImage artifact'
       if: ${{ runner.os == 'Linux' && inputs.linux_appimage != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
-        name: ${{ inputs.linux_appimage }}
+        name: ${{ inputs.linux_appimage_artifact_name || inputs.linux_appimage }}
         path: out/make/**/${{ inputs.linux_appimage }}
         if-no-files-found: error
     - name: 'Upload Linux Snap artifact'
       if: ${{ runner.os == 'Linux' && inputs.linux_snap != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
-        name: ${{ inputs.linux_snap }}
+        name: ${{ inputs.linux_snap_artifact_name || inputs.linux_snap }}
         path: out/make/**/${{ inputs.linux_snap }}
         if-no-files-found: error
     - name: 'Upload Linux Flatpak artifact'
       if: ${{ runner.os == 'Linux' && inputs.linux_flatpak != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
-        name: ${{ inputs.linux_flatpak }}
+        name: ${{ inputs.linux_flatpak_artifact_name || inputs.linux_flatpak }}
         path: out/make/**/${{ inputs.linux_flatpak }}
         if-no-files-found: error
     - name: 'Upload macOS DMG artifact'
       if: ${{ runner.os == 'macOS' && inputs.macos_dmg != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
-        name: ${{ inputs.macos_dmg }}
+        name: ${{ inputs.macos_dmg_artifact_name || inputs.macos_dmg }}
         path: out/make/**/${{ inputs.macos_dmg }}
         if-no-files-found: error
     - name: 'Upload Windows MSIX artifact'
       if: ${{ runner.os == 'Windows' && inputs.windows_msix != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
-        name: ${{ inputs.windows_msix }}
+        name: ${{ inputs.windows_msix_artifact_name || inputs.windows_msix }}
         path: out/make/**/${{ inputs.windows_msix }}
         if-no-files-found: error
     - name: 'Upload Windows ZIP artifact'
       if: ${{ runner.os == 'Windows' && inputs.windows_zip != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
-        name: ${{ inputs.windows_zip }}
+        name: ${{ inputs.windows_zip_artifact_name || inputs.windows_zip }}
         path: out/make/**/${{ inputs.windows_zip }}
         if-no-files-found: error
