@@ -5,7 +5,10 @@ const includeWorkspaceRoot = process.env.INCLUDE_WORKSPACE_ROOT === 'true'
 const tag = process.env.TAG || 'latest'
 
 const npm = (args, options = {}) => spawnSync('npm', args, { stdio: 'inherit', ...options })
-const query = npm(['query', workspaces ? '.workspace' : '.', '--json'], { encoding: 'utf8', stdio: 'pipe' })
+const query = npm(['query', workspaces ? '.workspace' : '.', '--json'], {
+  encoding: 'utf8',
+  stdio: 'pipe'
+})
 
 if (query.status !== 0) {
   process.stderr.write(query.stderr)
