@@ -17,6 +17,10 @@ inputs:
     description: 'name for the uploaded standalone artifact'
     required: false
     default: ''
+  macos_dmg:
+    description: 'macOS DMG to upload'
+    required: false
+    default: ''
   macos_app:
     description: 'macOS app bundle tarball to upload'
   macos_dmg_artifact_name:
