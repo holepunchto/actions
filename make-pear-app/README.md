@@ -29,7 +29,7 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 ### macOS
 
 | Input                       | Description                                                                    | Required                                                                |
-| --------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |                                                           |
+| --------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
 | `macos_app`                 | macOS app bundle tarball to upload                                             | No                                                                      |
 | `macos_dmg`                 | macOS DMG to upload                                                            | No                                                                      |
 | `macos_dmg_artifact_name`   | macOS DMG uploaded artifact name                                               | No                                                                      |
