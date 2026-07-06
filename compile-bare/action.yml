@@ -27,7 +27,7 @@ runs:
     - id: prefix
       run: echo "path=$(npm prefix --global)" >> "$GITHUB_OUTPUT"
       shell: bash
-    - uses: holepunchto/actions/compile-prebuilds@cf8b3b3538fb70a39659f17e10a1294bf69af7a1
+    - uses: holepunchto/actions/compile-prebuilds@v1
       with:
         flags: ${{ inputs.flags }}
         path: ${{ inputs.path }}
