@@ -15,6 +15,16 @@ inputs:
     description: Optional scope for scoped registries (e.g. @myorg)
   node-auth-token:
     description: npm auth token
+  source:
+    description: Compile Bare from source instead of installing the prebuilt runtime
+    default: false
+  ref:
+    description: The `holepunchto/bare` git ref (branch, tag, or SHA) to compile when building from source
+  flags:
+    description: Additional flags to pass to the build system when compiling from source
+  path:
+    description: The directory to check out and build the Bare source in when compiling from source
+    default: .bare
 
 runs:
   using: composite
@@ -27,3 +37,8 @@ runs:
         scope: ${{ inputs.scope }}
         node-auth-token: ${{ inputs.node-auth-token }}
     - uses: holepunchto/actions/setup-bare@v1
+      with:
+        source: ${{ inputs.source }}
+        ref: ${{ inputs.ref }}
+        flags: ${{ inputs.flags }}
+        path: ${{ inputs.path }}
