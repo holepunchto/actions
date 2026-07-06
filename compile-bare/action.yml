@@ -32,3 +32,8 @@ runs:
         flags: ${{ inputs.flags }}
         path: ${{ inputs.path }}
         prefix: ${{ steps.prefix.outputs.path }}
+    - run: cp "$PREFIX/bin/bare.exe" "$PREFIX/"
+      if: ${{ runner.os == 'Windows' }}
+      env:
+        PREFIX: ${{ steps.prefix.outputs.path }}
+      shell: bash
