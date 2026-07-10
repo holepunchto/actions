@@ -1,5 +1,5 @@
-name: Publish
-description: Publish to npm (alias for publish-npm)
+name: Publish to npm
+description: Create a GitHub release and publish to npm
 
 inputs:
   tag:
@@ -17,9 +17,12 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: holepunchto/actions/publish-npm@v1
+    - run: npm publish --ignore-scripts --tag $TAG ${{ case(inputs.workspaces == 'true', '--workspaces', '') }} ${{ case(inputs.include-workspace-root == 'true', '--include-workspace-root', '') }}
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.node-auth-token || env.NODE_AUTH_TOKEN }}
+        TAG: ${{ inputs.tag }}
+      shell: bash
+    - uses: holepunchto/actions/create-release@v1
       with:
-        tag: ${{ inputs.tag }}
         workspaces: ${{ inputs.workspaces }}
         include-workspace-root: ${{ inputs.include-workspace-root }}
-        node-auth-token: ${{ inputs.node-auth-token || env.NODE_AUTH_TOKEN }}
