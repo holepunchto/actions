@@ -4,10 +4,8 @@ description: Compile and optionally upload native prebuilds
 inputs:
   platform:
     description: The platform to compile for
-    required: true
   arch:
     description: The architecture to compile for
-    required: true
   flags:
     description: Additional flags to apply to the build system
   tags:
@@ -15,6 +13,9 @@ inputs:
   prefix:
     description: The prebuild prefix
     default: prebuilds
+  path:
+    description: The directory containing the source tree to compile
+    default: .
   upload:
     description: Upload the compiled prebuilds
     default: false
@@ -24,17 +25,20 @@ runs:
   steps:
     - run: npm install --global bare-make
       shell: bash
-    - run: bare-make generate --platform $PLATFORM --arch $ARCH $FLAGS
+    - run: bare-make generate ${PLATFORM:+--platform $PLATFORM} ${ARCH:+--arch $ARCH} $FLAGS
       env:
         PLATFORM: ${{ inputs.platform }}
         ARCH: ${{ inputs.arch }}
         FLAGS: ${{ inputs.flags }}
+      working-directory: ${{ inputs.path }}
       shell: bash
     - run: bare-make build
+      working-directory: ${{ inputs.path }}
       shell: bash
     - run: bare-make install --prefix $PREFIX
       env:
         PREFIX: ${{ inputs.prefix }}
+      working-directory: ${{ inputs.path }}
       shell: bash
     - uses: holepunchto/actions/upload-prebuilds@v1
       if: ${{ inputs.upload == 'true' }}
@@ -42,4 +46,4 @@ runs:
         platform: ${{ inputs.platform }}
         arch: ${{ inputs.arch }}
         tags: ${{ inputs.tags }}
-        prefix: ${{ inputs.prefix }}
+        prefix: ${{ format('{0}/{1}', inputs.path, inputs.prefix) }}
