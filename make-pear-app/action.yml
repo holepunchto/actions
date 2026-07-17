@@ -23,6 +23,8 @@ inputs:
     default: ''
   macos_app:
     description: 'macOS app bundle ZIP archive to upload'
+    required: false
+    default: ''
   macos_dmg_artifact_name:
     description: 'name for the uploaded macos dmg artifact'
     required: false
