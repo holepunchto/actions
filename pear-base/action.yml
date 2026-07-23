@@ -1,0 +1,7 @@
+name: Pear base
+description: Configure a Pear project
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/setup-pear@v1
