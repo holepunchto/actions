@@ -4,4 +4,4 @@ description: Configure a Pear project
 runs:
   using: composite
   steps:
-    - uses: holepunchto/actions/setup-pear@v1
+    - uses: RaisinTen/actions/setup-pear@add-pear-base
