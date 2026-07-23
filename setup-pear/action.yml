@@ -10,5 +10,7 @@ runs:
       shell: bash
     - name: 'Install Pear (Windows)'
       if: ${{ runner.os == 'Windows' }}
-      run: irm https://install.pears.com/pear.ps1 | iex
+      run: |
+        irm https://install.pears.com/pear.ps1 | iex
+        "$env:LOCALAPPDATA\Programs\pear" >> $env:GITHUB_PATH
       shell: pwsh
