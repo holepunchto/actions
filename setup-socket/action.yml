@@ -4,7 +4,12 @@ description: Install and configure Socket.dev
 runs:
   using: composite
   steps:
+    # socketdev/action#13 added win32-arm64 to the firewall distributions map in
+    # src/ but never rebuilt the committed dist/ bundle that action.yml runs, so
+    # it throws `Unsupported architecture win32-arm64` on every Windows ARM64
+    # runner. Skip it there until upstream ships the rebuilt bundle.
     - uses: socketdev/action@48bdbd2f664f69025e9cf90b34394d549c1e7c9e
+      if: ${{ runner.os != 'Windows' || runner.arch != 'ARM64' }}
       with:
         mode: firewall
         job-summary: errors
