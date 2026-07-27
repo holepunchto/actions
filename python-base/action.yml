@@ -1,0 +1,18 @@
+name: Python base
+description: Configure a Python project
+
+inputs:
+  python-version:
+    description: Python version to install
+    default: '3.12'
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/checkout@v1
+    - uses: holepunchto/actions/setup-socket@v1
+    - uses: holepunchto/actions/setup-python@v1
+      with:
+        python-version: ${{ inputs.python-version }}
+    - run: sfw pip install -e '.[dev]'
+      shell: bash
