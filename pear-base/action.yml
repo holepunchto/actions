@@ -1,7 +1,21 @@
 name: Pear base
 description: Configure a Pear project
 
+inputs:
+  source:
+    description: Compile Pear from source instead of installing the prebuilt runtime
+    default: false
+  ref:
+    description: The `holepunchto/pear` git ref (branch, tag, or SHA) to compile when building from source
+  path:
+    description: The directory to check out and build the Pear source in when compiling from source
+    default: .pear
+
 runs:
   using: composite
   steps:
     - uses: RaisinTen/actions/setup-pear@add-pear-base
+      with:
+        source: ${{ inputs.source }}
+        ref: ${{ inputs.ref }}
+        path: ${{ inputs.path }}
