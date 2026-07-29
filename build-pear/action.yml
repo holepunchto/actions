@@ -54,19 +54,19 @@ runs:
         npm run make
       working-directory: ${{ inputs.path }}
       shell: pwsh
-    - name: 'Link (Linux/macOS)'
+    - name: 'Install (Linux/macOS)'
       if: ${{ runner.os != 'Windows' }}
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
       run: |
-        npm link
+        npm i -g .
       working-directory: ${{ inputs.path }}
       shell: bash
-    - name: 'Link (Windows)'
+    - name: 'Install (Windows)'
       if: ${{ runner.os == 'Windows' }}
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
       run: |
-        npm link
+        npm i -g .
       working-directory: ${{ inputs.path }}
       shell: pwsh
