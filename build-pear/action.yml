@@ -1,4 +1,4 @@
-name: Build Bare
+name: Build Pear
 description: Check out and build Pear from source, installing it onto PATH
 
 inputs:
@@ -17,11 +17,6 @@ runs:
         ref: ${{ inputs.ref }}
         path: ${{ inputs.path }}
         persist-credentials: false
-    # TODO: Use node-base action
-    - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
-      with:
-        node-version: 20
-        registry-url: 'https://npm.pkg.github.com'
     - name: 'Install dependencies (Linux/macOS)'
       if: ${{ runner.os != 'Windows' }}
       env:

@@ -14,14 +14,18 @@ inputs:
 runs:
   using: composite
   steps:
+    # TODO: Use node-base action
+    - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      with:
+        node-version: 20
+        registry-url: 'https://npm.pkg.github.com'
     - name: 'Install Pear (Linux/macOS)'
       if: ${{ inputs.source != 'true' && runner.os != 'Windows' }}
-      run: curl https://install.pears.com/pear.sh | sh
+      run: npx pear
       shell: bash
     - name: 'Install Pear (Windows)'
       if: ${{ inputs.source != 'true' && runner.os == 'Windows' }}
-      run: |
-        irm https://install.pears.com/pear.ps1 | iex
+      run: npx pear
       shell: pwsh
     - uses: RaisinTen/actions/build-pear@add-pear-base
       if: ${{ inputs.source == 'true' }}
