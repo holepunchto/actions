@@ -22,7 +22,6 @@ runs:
       if: ${{ inputs.source != 'true' && runner.os == 'Windows' }}
       run: |
         irm https://install.pears.com/pear.ps1 | iex
-        "$env:LOCALAPPDATA\Programs\pear" >> $env:GITHUB_PATH
       shell: pwsh
     - uses: RaisinTen/actions/build-pear@add-pear-base
       if: ${{ inputs.source == 'true' }}
