@@ -70,3 +70,19 @@ runs:
         npm i -g .
       working-directory: ${{ inputs.path }}
       shell: pwsh
+    - name: 'Run (Linux/macOS)'
+      if: ${{ runner.os != 'Windows' }}
+      env:
+        NODE_AUTH_TOKEN: ${{ github.token }}
+      run: |
+        npx pear
+      working-directory: ${{ inputs.path }}
+      shell: bash
+    - name: 'Run (Windows)'
+      if: ${{ runner.os == 'Windows' }}
+      env:
+        NODE_AUTH_TOKEN: ${{ github.token }}
+      run: |
+        npx pear
+      working-directory: ${{ inputs.path }}
+      shell: pwsh
