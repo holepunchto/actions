@@ -62,7 +62,7 @@ runs:
       if: ${{ runner.os == 'Windows' }}
       run: Add-Content $env:GITHUB_OUTPUT "path=$(npm prefix --global)"
       shell: pwsh
-    - run: cp out/make/pear "$PREFIX/"
+    - run: cp out/make/pear "$PREFIX/bin"
       if: ${{ runner.os != 'Windows' }}
       env:
         PREFIX: ${{ steps.prefix-bash.outputs.path }}
