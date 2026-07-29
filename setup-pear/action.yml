@@ -21,11 +21,11 @@ runs:
         registry-url: 'https://npm.pkg.github.com'
     - name: 'Install Pear (Linux/macOS)'
       if: ${{ inputs.source != 'true' && runner.os != 'Windows' }}
-      run: npx pear
+      run: npx pear-install
       shell: bash
     - name: 'Install Pear (Windows)'
       if: ${{ inputs.source != 'true' && runner.os == 'Windows' }}
-      run: npx pear
+      run: npx pear-install
       shell: pwsh
     - uses: RaisinTen/actions/build-pear@add-pear-base
       if: ${{ inputs.source == 'true' }}
