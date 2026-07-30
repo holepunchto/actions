@@ -1,0 +1,22 @@
+name: Setup Pear
+description: Install Pear
+
+runs:
+  using: composite
+  steps:
+    - name: 'Install Pear (Linux/macOS)'
+      if: ${{ runner.os != 'Windows' }}
+      run: curl https://install.pears.com/pear.sh | sh
+      shell: bash
+    - name: 'Install Pear (Windows)'
+      if: ${{ runner.os == 'Windows' }}
+      run: irm https://install.pears.com/pear.ps1 | iex
+      shell: pwsh
+    - name: 'Add Pear to PATH (macOS-x64)'
+      if: ${{ runner.os == 'macOS' && runner.arch == 'X64' }}
+      run: echo "$HOME/.local/bin" >> "$GITHUB_PATH" # zizmor: ignore[github-env]
+      shell: bash
+    - name: 'Add Pear to PATH (Windows)'
+      if: ${{ runner.os == 'Windows' }}
+      run: echo "$env:LOCALAPPDATA\Programs\pear" >> $env:GITHUB_PATH # zizmor: ignore[github-env]
+      shell: pwsh
