@@ -1,37 +1,22 @@
 name: Setup Pear
 description: Install Pear
 
-inputs:
-  source:
-    description: Build Pear from source instead of installing the prebuilt runtime
-    default: false
-  ref:
-    description: The `holepunchto/pear` git ref (branch, tag, or SHA) to compile when building from source
-  path:
-    description: The directory to check out and build the Pear source in when compiling from source
-    default: .pear
-
 runs:
   using: composite
   steps:
     - name: 'Install Pear (Linux/macOS)'
-      if: ${{ inputs.source != 'true' && runner.os != 'Windows' }}
+      if: ${{ runner.os != 'Windows' }}
       run: curl https://install.pears.com/pear.sh | sh
       shell: bash
     - name: 'Install Pear (Windows)'
-      if: ${{ inputs.source != 'true' && runner.os == 'Windows' }}
+      if: ${{ runner.os == 'Windows' }}
       run: irm https://install.pears.com/pear.ps1 | iex
       shell: pwsh
     - name: 'Add Pear to PATH (macOS-x64)'
-      if: ${{ inputs.source != 'true' && runner.os == 'macOS' && runner.arch == 'X64' }}
+      if: ${{ runner.os == 'macOS' && runner.arch == 'X64' }}
       run: echo "$HOME/.local/bin" >> "$GITHUB_PATH" # zizmor: ignore[github-env]
       shell: bash
     - name: 'Add Pear to PATH (Windows)'
-      if: ${{ inputs.source != 'true' && runner.os == 'Windows' }}
+      if: ${{ runner.os == 'Windows' }}
       run: echo "$env:LOCALAPPDATA\Programs\pear" >> $env:GITHUB_PATH # zizmor: ignore[github-env]
       shell: pwsh
-    - uses: RaisinTen/actions/build-pear@add-pear-base
-      if: ${{ inputs.source == 'true' }}
-      with:
-        ref: ${{ inputs.ref }}
-        path: ${{ inputs.path }}
