@@ -30,6 +30,7 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 
 | Input                       | Description                                                                    | Required                                                                |
 | --------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| `macos_app`                 | macOS app bundle ZIP archive to upload                                         | No                                                                      |
 | `macos_dmg`                 | macOS DMG to upload                                                            | No                                                                      |
 | `macos_dmg_artifact_name`   | macOS DMG uploaded artifact name                                               | No                                                                      |
 | `macos_certificate_base64`  | Base64 Apple development certificate (P12)                                     | Required on macOS                                                       |
@@ -64,7 +65,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: holepunchto/make-pear-app
+      - uses: holepunchto/actions/make-pear-app@v1
         with:
           channel: production
           upgrade_key: pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o
@@ -84,10 +85,11 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: holepunchto/make-pear-app
+      - uses: holepunchto/actions/make-pear-app@v1
         with:
           channel: production
           upgrade_key: pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o
+          macos_app: Keet-4.17.0-arm64.app.zip
           macos_dmg: Keet-4.17.0-arm64.dmg
           macos_dmg_artifact_name: Keet-4.17.0-arm64
           macos_certificate_base64: ${{ secrets.CERTIFICATE_P12 }}
@@ -107,7 +109,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: holepunchto/make-pear-app
+      - uses: holepunchto/actions/make-pear-app@v1
         with:
           channel: production
           upgrade_key: pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o

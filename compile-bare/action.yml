@@ -1,0 +1,39 @@
+name: Compile Bare
+description: Check out and compile Bare from source, installing it onto PATH
+
+inputs:
+  ref:
+    description: The `holepunchto/bare` git ref (branch, tag, or SHA) to compile
+  flags:
+    description: Additional flags to pass to the build system (e.g. `--sanitize address`)
+  path:
+    description: The directory to check out and build the Bare source in
+    default: .bare
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/setup-llvm@v1
+    - uses: holepunchto/actions/setup-nasm@v1
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        repository: holepunchto/bare
+        ref: ${{ inputs.ref }}
+        path: ${{ inputs.path }}
+        persist-credentials: false
+    - run: npm install --ignore-scripts
+      working-directory: ${{ inputs.path }}
+      shell: bash
+    - id: prefix
+      run: echo "path=$(npm prefix --global)" >> "$GITHUB_OUTPUT"
+      shell: bash
+    - uses: holepunchto/actions/compile-prebuilds@v1
+      with:
+        flags: ${{ inputs.flags }}
+        path: ${{ inputs.path }}
+        prefix: ${{ steps.prefix.outputs.path }}
+    - run: cp "$PREFIX/bin/bare.exe" "$PREFIX/"
+      if: ${{ runner.os == 'Windows' }}
+      env:
+        PREFIX: ${{ steps.prefix.outputs.path }}
+      shell: bash

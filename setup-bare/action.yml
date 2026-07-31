@@ -1,8 +1,27 @@
 name: Setup Bare
-description: Install and configure Bare
+description: Install and configure Bare, optionally compiling a build from source
+
+inputs:
+  source:
+    description: Compile Bare from source instead of installing the prebuilt runtime
+    default: false
+  ref:
+    description: The `holepunchto/bare` git ref (branch, tag, or SHA) to compile when building from source
+  flags:
+    description: Additional flags to pass to the build system when compiling from source
+  path:
+    description: The directory to check out and build the Bare source in when compiling from source
+    default: .bare
 
 runs:
   using: composite
   steps:
     - run: npm install --global bare-runtime
+      if: ${{ inputs.source != 'true' }}
       shell: bash
+    - uses: holepunchto/actions/compile-bare@v1
+      if: ${{ inputs.source == 'true' }}
+      with:
+        ref: ${{ inputs.ref }}
+        flags: ${{ inputs.flags }}
+        path: ${{ inputs.path }}

@@ -21,6 +21,10 @@ inputs:
     description: 'macOS DMG to upload'
     required: false
     default: ''
+  macos_app:
+    description: 'macOS app bundle ZIP archive to upload'
+    required: false
+    default: ''
   macos_dmg_artifact_name:
     description: 'name for the uploaded macos dmg artifact'
     required: false
@@ -237,6 +241,22 @@ runs:
       with:
         name: ${{ inputs.macos_dmg_artifact_name || inputs.macos_dmg }}
         path: out/make/**/${{ inputs.macos_dmg }}
+        if-no-files-found: error
+    - name: 'Create macOS app bundle artifact'
+      if: ${{ runner.os == 'macOS' && inputs.macos_app != '' }}
+      env:
+        MACOS_APP: ${{ inputs.macos_app }}
+      run: |
+        ditto -c -k --sequesterRsrc --keepParent \
+          out/*-darwin-*/*.app \
+          "$RUNNER_TEMP/$MACOS_APP"
+      shell: bash
+    - name: 'Upload macOS app bundle artifact'
+      if: ${{ runner.os == 'macOS' && inputs.macos_app != '' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: ${{ inputs.macos_app }}
+        path: ${{ runner.temp }}/${{ inputs.macos_app }}
         if-no-files-found: error
     - name: 'Upload Windows MSIX artifact'
       if: ${{ runner.os == 'Windows' && inputs.windows_msix != '' }}
