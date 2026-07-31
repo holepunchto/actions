@@ -1,0 +1,64 @@
+name: Publish to PyPI
+description: Create a GitHub release and publish to PyPI
+
+inputs:
+  index:
+    description: Index to publish to, either pypi or testpypi
+    default: pypi
+
+runs:
+  using: composite
+  steps:
+    # setup-socket skips Socket Firewall on runners it has no binary for, so sfw
+    # is not always on PATH; install directly when it is absent.
+    - run: |
+        sfw=$(command -v sfw || true)
+        $sfw pip install build==1.5.0 twine==7.0.0
+      shell: bash
+    - run: python -m build
+      shell: bash
+    - run: twine check --strict dist/*
+      shell: bash
+    # Trusted publishing: exchange this workflow's OIDC identity for an upload
+    # token that expires in minutes. Both exchanges stay inside one step so the
+    # token never reaches the environment, an output, or a later step.
+    - run: |
+        set -euo pipefail
+
+        case $INDEX in
+        pypi)
+          base=https://pypi.org
+          upload=https://upload.pypi.org/legacy/
+          ;;
+        testpypi)
+          base=https://test.pypi.org
+          upload=https://test.pypi.org/legacy/
+          ;;
+        *)
+          echo "index must be pypi or testpypi, got '$INDEX'" >&2
+          exit 1
+          ;;
+        esac
+
+        if [ -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" ]; then
+          echo "no OIDC token available; the calling job needs 'permissions: id-token: write'" >&2
+          exit 1
+        fi
+
+        field() { python -c 'import json, sys; print(json.load(sys.stdin)[sys.argv[1]])' "$1"; }
+
+        audience=$(curl -sSf "$base/_/oidc/audience" | field audience)
+        identity=$(curl -sSf -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=$audience" | field value)
+        echo "::add-mask::$identity"
+        token=$(curl -sSf -X POST -d "{\"token\": \"$identity\"}" "$base/_/oidc/mint-token" | field token)
+        echo "::add-mask::$token"
+
+        TWINE_USERNAME=__token__ TWINE_PASSWORD=$token twine upload --repository-url "$upload" dist/*
+      env:
+        INDEX: ${{ inputs.index }}
+      shell: bash
+    - run: gh release create $REF_NAME dist/*
+      env:
+        GH_TOKEN: ${{ github.token }}
+        REF_NAME: ${{ github.ref_name }}
+      shell: bash
