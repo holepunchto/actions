@@ -20,11 +20,16 @@ runs:
   using: composite
   steps:
     - uses: holepunchto/actions/checkout@v1
+    - uses: holepunchto/actions/setup-socket@v1
     - uses: holepunchto/actions/setup-node@v1
       with:
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}
-    - run: npm install --ignore-scripts --foreground-scripts --allow-git=${{ case(inputs.allow-git == 'root', 'root', inputs.allow-git == 'all', 'all', 'none') }} ${{ case(inputs.force-install == 'true', '--force', '') }}
+    # setup-socket skips Socket Firewall on runners it has no binary for, so sfw
+    # is not always on PATH; install directly when it is absent.
+    - run: |
+        sfw=$(command -v sfw || true)
+        $sfw npm install --ignore-scripts --foreground-scripts --allow-git=${{ case(inputs.allow-git == 'root', 'root', inputs.allow-git == 'all', 'all', 'none') }} ${{ case(inputs.force-install == 'true', '--force', '') }}
       env:
         NODE_AUTH_TOKEN: ${{ inputs.node-auth-token || env.NODE_AUTH_TOKEN }}
       shell: bash

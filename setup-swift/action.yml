@@ -4,4 +4,8 @@ description: Install and configure Swift
 runs:
   using: composite
   steps:
+    # Linux has no system Swift, so install it. macOS ships Swift with Xcode;
+    # installing a separate swift.org toolchain there skews the compiler against
+    # Xcode's SDK (e.g. Swift 6.1 compiler vs an Xcode 26.5 SDK built with 6.3.2).
     - uses: swift-actions/setup-swift@7ca6abe6b3b0e8b5421b88be48feee39cbf52c6a # v2
+      if: ${{ runner.os == 'Linux' }}
