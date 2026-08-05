@@ -9,6 +9,10 @@ inputs:
     description: 'Upgrade key'
     required: false
     default: ''
+  host:
+    description: 'npm run make $HOST environment variable'
+    required: false
+    default: ''
   standalone:
     description: 'Standalone executable to upload'
     required: false
@@ -180,6 +184,7 @@ runs:
         CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
         NODE_ENV: production
+        HOST: ${{ inputs.host }}
       run: |
         npm run make
       shell: bash
@@ -192,6 +197,7 @@ runs:
         MAC_CODESIGN_IDENTITY: '${{ inputs.macos_codesign_identity }}'
         KEYCHAIN_PROFILE: ${{ steps.setup-certificates-macos.outputs.keychain-profile }}
         NODE_ENV: production
+        HOST: ${{ inputs.host }}
       run: |
         npm run make
       shell: bash
@@ -204,6 +210,7 @@ runs:
         WINDOWS_CERT_SHA1: "${{ inputs.windows_signing_method == 'cert_pfx' && steps.setup-certificates-windows.outputs.certificate-thumbprint || inputs.windows_cert_sha1 }}"
         WINDOWS_SIGN_HOOK: ${{ github.action_path }}/windows-sign.js
         NODE_ENV: production
+        HOST: ${{ inputs.host }}
       run: |
         npm run make
       shell: pwsh
