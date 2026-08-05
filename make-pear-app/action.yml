@@ -212,7 +212,7 @@ runs:
         NODE_ENV: production
         HOST: ${{ inputs.host }}
       run: |
-          npm run make
+        npm run make
       shell: pwsh
     - name: 'Upload standalone executable artifact'
       if: ${{ inputs.standalone != '' }}
