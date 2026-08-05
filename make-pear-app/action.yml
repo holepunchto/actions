@@ -10,7 +10,7 @@ inputs:
     required: false
     default: ''
   host:
-    description: 'Host passed to `npm run make` as `--host`'
+    description: 'npm run make $HOST environment variable'
     required: false
     default: ''
   standalone:
