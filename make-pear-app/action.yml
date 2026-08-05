@@ -184,13 +184,9 @@ runs:
         CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
         NODE_ENV: production
-        MAKE_HOST: ${{ inputs.host }}
+        HOST: ${{ inputs.host }}
       run: |
-        if [ -n "$MAKE_HOST" ]; then
-          npm run make -- --host "$MAKE_HOST"
-        else
-          npm run make
-        fi
+        npm run make
       shell: bash
     - name: 'Build application (macOS)'
       if: ${{ runner.os == 'macOS' }}
@@ -201,13 +197,9 @@ runs:
         MAC_CODESIGN_IDENTITY: '${{ inputs.macos_codesign_identity }}'
         KEYCHAIN_PROFILE: ${{ steps.setup-certificates-macos.outputs.keychain-profile }}
         NODE_ENV: production
-        MAKE_HOST: ${{ inputs.host }}
+        HOST: ${{ inputs.host }}
       run: |
-        if [ -n "$MAKE_HOST" ]; then
-          npm run make -- --host "$MAKE_HOST"
-        else
-          npm run make
-        fi
+        npm run make
       shell: bash
     - name: 'Build application (Windows)'
       if: ${{ runner.os == 'Windows' }}
@@ -218,13 +210,9 @@ runs:
         WINDOWS_CERT_SHA1: "${{ inputs.windows_signing_method == 'cert_pfx' && steps.setup-certificates-windows.outputs.certificate-thumbprint || inputs.windows_cert_sha1 }}"
         WINDOWS_SIGN_HOOK: ${{ github.action_path }}/windows-sign.js
         NODE_ENV: production
-        MAKE_HOST: ${{ inputs.host }}
+        HOST: ${{ inputs.host }}
       run: |
-        if ($env:MAKE_HOST) {
-          npm run make -- --host $env:MAKE_HOST
-        } else {
           npm run make
-        }
       shell: pwsh
     - name: 'Upload standalone executable artifact'
       if: ${{ inputs.standalone != '' }}
