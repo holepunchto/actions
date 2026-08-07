@@ -2,6 +2,24 @@ name: 'Make Pear Apps'
 description: 'Action for making Pear apps'
 
 inputs:
+  allow-git:
+    description: 'Allow git dependencies'
+    required: false
+    default: none
+  force-install:
+    description: 'Force install npm packages'
+    required: false
+    default: false
+  registry-url:
+    description: 'npm registry URL to configure for auth'
+    required: false
+    default: 'https://registry.npmjs.org'
+  scope:
+    description: 'Optional scope for scoped registries (e.g. @myorg)'
+    required: false
+  node-auth-token:
+    description: 'npm auth token'
+    required: false
   channel:
     description: 'Channel name'
     required: true
@@ -133,25 +151,13 @@ inputs:
 runs:
   using: composite
   steps:
-    # TODO: Use node-base action
-    - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+    - uses: holepunchto/actions/node-base@v1
       with:
-        node-version: 20
-        registry-url: 'https://npm.pkg.github.com'
-    - name: 'Install dependencies (Linux/macOS)'
-      if: ${{ runner.os != 'Windows' }}
-      env:
-        NODE_AUTH_TOKEN: ${{ github.token }}
-      run: |
-        npm ci
-      shell: bash
-    - name: 'Install dependencies (Windows)'
-      if: ${{ runner.os == 'Windows' }}
-      env:
-        NODE_AUTH_TOKEN: ${{ github.token }}
-      run: |
-        npm ci
-      shell: pwsh
+        allow-git: ${{ inputs.allow-git }}
+        force-install: ${{ inputs.force-install }}
+        registry-url: ${{ inputs.registry-url }}
+        scope: ${{ inputs.scope }}
+        node-auth-token: ${{ inputs.node-auth-token }}
     - name: 'Setup certificates on macOS'
       id: setup-certificates-macos
       if: ${{ runner.os == 'macOS' }}
