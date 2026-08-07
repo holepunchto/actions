@@ -151,7 +151,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: holepunchto/actions/node-base@v1
+    - uses: RaisinTen/actions/node-base@use-node-base-in-make-pear-app
       with:
         allow-git: ${{ inputs.allow-git }}
         force-install: ${{ inputs.force-install }}
