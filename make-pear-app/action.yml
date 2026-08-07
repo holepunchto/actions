@@ -218,8 +218,8 @@ runs:
         NODE_ENV: production
         HOST: ${{ inputs.host }}
       run: |
-        npm run make
-      shell: pwsh
+        npm.cmd run make
+      shell: bash
     - name: 'Upload standalone executable artifact'
       if: ${{ inputs.standalone != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
