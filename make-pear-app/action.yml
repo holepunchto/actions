@@ -192,7 +192,8 @@ runs:
         NODE_ENV: production
         HOST: ${{ inputs.host }}
       run: |
-        npm run make
+        sfw=$(command -v sfw || true)
+        $sfw npm run make
       shell: bash
     - name: 'Build application (macOS)'
       if: ${{ runner.os == 'macOS' }}
@@ -205,7 +206,8 @@ runs:
         NODE_ENV: production
         HOST: ${{ inputs.host }}
       run: |
-        npm run make
+        sfw=$(command -v sfw || true)
+        $sfw npm run make
       shell: bash
     - name: 'Build application (Windows)'
       if: ${{ runner.os == 'Windows' }}
@@ -218,7 +220,8 @@ runs:
         NODE_ENV: production
         HOST: ${{ inputs.host }}
       run: |
-        npm.cmd run make
+        sfw=$(command -v sfw || true)
+        $sfw npm.cmd run make
       shell: bash
     - name: 'Upload standalone executable artifact'
       if: ${{ inputs.standalone != '' }}
