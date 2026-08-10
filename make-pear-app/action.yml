@@ -237,7 +237,8 @@ runs:
         DEBUG: 'electron-*'
       run: |
         sfw=$(command -v sfw || true)
-        $sfw npm.cmd run make
+        # $sfw npm.cmd run make
+        npm.cmd run make
       shell: bash
     - name: 'Upload standalone executable artifact'
       if: ${{ inputs.standalone != '' }}
