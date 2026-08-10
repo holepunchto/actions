@@ -200,10 +200,15 @@ runs:
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
         NODE_ENV: production
         HOST: ${{ inputs.host }}
+        LINUX_SNAP: ${{ inputs.linux_snap != '' }}
       run: |
         sfw=$(command -v sfw || true)
-        # $sfw npm run make
-        npm run make
+        if [[ "$LINUX_SNAP" == "true" ]]; then
+          # Snapcraft's managed LXD build cannot reach SFW's localhost proxy.
+          npm run make
+        else
+          $sfw npm run make
+        fi
       shell: bash
     - name: 'Build application (macOS)'
       if: ${{ runner.os == 'macOS' }}

@@ -25,42 +25,7 @@ runs:
   using: composite
   steps:
     - uses: holepunchto/actions/checkout@v1
-    - name: Test before socket
-      if: ${{ runner.os == 'Linux' }}
-      run: |
-        echo "=== Grep proxy ==="
-        env | grep -i proxy || true
-        echo "=== ss ==="
-        sudo ss -lntp | grep 38877 || true
-        echo "=== curl ==="
-        curl -v --max-time 5 -x http://127.0.0.1:38877 http://ports.ubuntu.com/ubuntu-ports/dists/noble/InRelease || true
-      shell: bash
     - uses: holepunchto/actions/setup-socket@v1
-    - name: Test after socket
-      if: ${{ runner.os == 'Linux' }}
-      run: |
-        echo "=== Grep proxy ==="
-        sfw env | grep -i proxy || true
-        echo "=== ss ==="
-        sudo sfw ss -lntp | grep 38877 || true
-        echo "=== curl ==="
-        sfw curl -v --max-time 5 -x http://127.0.0.1:38877 http://ports.ubuntu.com/ubuntu-ports/dists/noble/InRelease || true
-
-        echo "=== all listening sockets ==="
-        sudo sfw ss -lntp || true
-
-        echo "=== routes ==="
-        sfw ip route || true
-
-        echo "=== nftables ==="
-        sudo sfw nft list ruleset 2>/dev/null || true
-
-        echo "=== iptables ==="
-        sudo sfw iptables -t nat -L -n -v 2>/dev/null || true
-
-        echo "=== LXD networks ==="
-        sudo sfw lxc network list 2>/dev/null || true
-      shell: bash
     - uses: holepunchto/actions/setup-node@v1
       with:
         registry-url: ${{ inputs.registry-url }}
