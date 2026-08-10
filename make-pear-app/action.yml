@@ -202,7 +202,8 @@ runs:
         HOST: ${{ inputs.host }}
       run: |
         sfw=$(command -v sfw || true)
-        $sfw npm run make
+        # $sfw npm run make
+        npm run make
       shell: bash
     - name: 'Build application (macOS)'
       if: ${{ runner.os == 'macOS' }}
