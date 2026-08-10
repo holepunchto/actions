@@ -234,6 +234,7 @@ runs:
         WINDOWS_SIGN_HOOK: ${{ github.action_path }}/windows-sign.js
         NODE_ENV: production
         HOST: ${{ inputs.host }}
+        DEBUG: 'electron-*'
       run: |
         sfw=$(command -v sfw || true)
         $sfw npm.cmd run make
