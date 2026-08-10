@@ -73,5 +73,7 @@ runs:
         if [[ "${RUNNER_OS}" == "Windows" ]]; then
           npm_cmd="npm.cmd"
         fi
-        $sfw $npm_cmd run ${{ inputs.post-install }}
+        $sfw $npm_cmd run $POST_INSTALL
+      env:
+        POST_INSTALL: ${{ inputs.post-install }}
       shell: bash
