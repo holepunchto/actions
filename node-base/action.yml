@@ -2,9 +2,9 @@ name: Node.js base
 description: Configure a Node.js project
 
 inputs:
-  install-command:
-    description: npm install command to use
-    default: install
+  ci:
+    description: Use npm ci
+    default: false
   allow-git:
     description: Allow git dependencies
     default: none
@@ -36,10 +36,12 @@ runs:
       run: |
         sfw=$(command -v sfw || true)
         npm_cmd="npm"
+        # Cannot use npm on Windows as it produces this error:
+        # npm.ps1 cannot be loaded because running scripts is disabled on this system. For more information, see about_Execution_Policies at https:/go.microsoft.com/fwlink/?LinkID=135170.
         if [[ "${RUNNER_OS}" == "Windows" ]]; then
           npm_cmd="npm.cmd"
         fi
-        $sfw $npm_cmd ${{ inputs.install-command }} --ignore-scripts --foreground-scripts --allow-git=${{ case(inputs.allow-git == 'root', 'root', inputs.allow-git == 'all', 'all', 'none') }} ${{ case(inputs.force-install == 'true', '--force', '') }}
+        $sfw $npm_cmd ${{ case(inputs.ci == 'true', 'ci', 'install') }} --ignore-scripts --foreground-scripts --allow-git=${{ case(inputs.allow-git == 'root', 'root', inputs.allow-git == 'all', 'all', 'none') }} ${{ case(inputs.force-install == 'true', '--force', '') }}
       env:
         NODE_AUTH_TOKEN: ${{ inputs.node-auth-token || env.NODE_AUTH_TOKEN }}
       shell: bash

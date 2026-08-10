@@ -2,10 +2,10 @@ name: 'Make Pear Apps'
 description: 'Action for making Pear apps'
 
 inputs:
-  install-command:
-    description: 'npm install command to use'
+  ci:
+    description: 'Use npm ci'
     required: false
-    default: install
+    default: true
   allow-git:
     description: 'Allow git dependencies'
     required: false
