@@ -160,7 +160,7 @@ runs:
   steps:
     - uses: RaisinTen/actions/node-base@use-node-base-in-make-pear-app
       with:
-        install-command: ${{ inputs.install-command }}
+        ci: ${{ inputs.ci }}
         allow-git: ${{ inputs.allow-git }}
         force-install: ${{ inputs.force-install }}
         registry-url: ${{ inputs.registry-url }}
