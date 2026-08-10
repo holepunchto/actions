@@ -8,11 +8,13 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 
 | Input                      | Description                                                                      | Required                                    |
 | -------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------- |
+| `install-command`          | npm install command to use (e.g. `install`, `ci`)                                | No, `install` by default                    |
 | `allow-git`                | Allow git dependencies (e.g. `none`, `all`, `root`)                              | No, `none` by default                       |
 | `force-install`            | Force install npm packages                                                       | No, `false` by default                      |
 | `registry-url`             | NPM registry URL to configure for auth                                           | No, `https://registry.npmjs.org` by default |
 | `scope`                    | Optional scope for scoped registries (e.g. @myorg)                               | No                                          |
 | `node-auth-token`          | npm auth token                                                                   | No                                          |
+| `post-install`             | npm script to run after installing dependencies                                  | No                                          |
 | `channel`                  | Channel name (e.g. `preview`, `experimental`, `staging`)                         | Yes                                         |
 | `upgrade_key`              | Upgrade key (e.g. `pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o`) | No                                          |
 | `host`                     | Host passed to `npm run make` as environment variable.                           | No                                          |

@@ -2,6 +2,9 @@ name: Node.js base
 description: Configure a Node.js project
 
 inputs:
+  install-command:
+    description: npm install command to use
+    default: install
   allow-git:
     description: Allow git dependencies
     default: none
@@ -15,6 +18,8 @@ inputs:
     description: Optional scope for scoped registries (e.g. @myorg)
   node-auth-token:
     description: npm auth token
+  post-install:
+    description: npm script to run after installing dependencies
 
 runs:
   using: composite
@@ -27,13 +32,24 @@ runs:
         scope: ${{ inputs.scope }}
     # setup-socket skips Socket Firewall on runners it has no binary for, so sfw
     # is not always on PATH; install directly when it is absent.
-    - run: |
+    - name: Install npm dependencies
+      run: |
         sfw=$(command -v sfw || true)
         npm_cmd="npm"
         if [[ "${RUNNER_OS}" == "Windows" ]]; then
           npm_cmd="npm.cmd"
         fi
-        $sfw $npm_cmd install --ignore-scripts --foreground-scripts --allow-git=${{ case(inputs.allow-git == 'root', 'root', inputs.allow-git == 'all', 'all', 'none') }} ${{ case(inputs.force-install == 'true', '--force', '') }}
+        $sfw $npm_cmd ${{ inputs.install-command }} --ignore-scripts --foreground-scripts --allow-git=${{ case(inputs.allow-git == 'root', 'root', inputs.allow-git == 'all', 'all', 'none') }} ${{ case(inputs.force-install == 'true', '--force', '') }}
       env:
         NODE_AUTH_TOKEN: ${{ inputs.node-auth-token || env.NODE_AUTH_TOKEN }}
+      shell: bash
+    - name: Run post-install setup
+      if: inputs.post-install != ''
+      run: |
+        sfw=$(command -v sfw || true)
+        npm_cmd="npm"
+        if [[ "${RUNNER_OS}" == "Windows" ]]; then
+          npm_cmd="npm.cmd"
+        fi
+        $sfw $npm_cmd run ${{ inputs.post-install }}
       shell: bash

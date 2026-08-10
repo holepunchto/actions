@@ -2,6 +2,10 @@ name: 'Make Pear Apps'
 description: 'Action for making Pear apps'
 
 inputs:
+  install-command:
+    description: 'npm install command to use'
+    required: false
+    default: install
   allow-git:
     description: 'Allow git dependencies'
     required: false
@@ -19,6 +23,9 @@ inputs:
     required: false
   node-auth-token:
     description: 'npm auth token'
+    required: false
+  post-install:
+    description: 'npm script to run after installing dependencies'
     required: false
   channel:
     description: 'Channel name'
@@ -153,11 +160,13 @@ runs:
   steps:
     - uses: RaisinTen/actions/node-base@use-node-base-in-make-pear-app
       with:
+        install-command: ${{ inputs.install-command }}
         allow-git: ${{ inputs.allow-git }}
         force-install: ${{ inputs.force-install }}
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}
         node-auth-token: ${{ inputs.node-auth-token }}
+        post-install: ${{ inputs.post-install }}
     - name: 'Setup certificates on macOS'
       id: setup-certificates-macos
       if: ${{ runner.os == 'macOS' }}
