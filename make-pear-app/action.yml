@@ -159,6 +159,7 @@ runs:
   using: composite
   steps:
     - uses: RaisinTen/actions/node-base@use-node-base-in-make-pear-app
+      if: ${{ runner.os != 'Windows' }}
       with:
         ci: ${{ inputs.ci }}
         allow-git: ${{ inputs.allow-git }}
@@ -167,6 +168,18 @@ runs:
         scope: ${{ inputs.scope }}
         node-auth-token: ${{ inputs.node-auth-token }}
         post-install: ${{ inputs.post-install }}
+    - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      if: ${{ runner.os == 'Windows' }}
+      with:
+        node-version: 20
+        registry-url: 'https://npm.pkg.github.com'
+    - name: 'Install dependencies (Windows)'
+      if: ${{ runner.os == 'Windows' }}
+      env:
+        NODE_AUTH_TOKEN: ${{ github.token }}
+      run: |
+        npm ci
+      shell: pwsh
     - name: 'Setup certificates on macOS'
       id: setup-certificates-macos
       if: ${{ runner.os == 'macOS' }}
