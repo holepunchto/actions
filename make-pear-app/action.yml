@@ -178,7 +178,7 @@ runs:
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
       run: |
-        npm ci
+        npm ci --ignore-scripts --foreground-scripts --allow-git=root
       shell: pwsh
     - name: 'Setup certificates on macOS'
       id: setup-certificates-macos
