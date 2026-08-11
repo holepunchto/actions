@@ -236,10 +236,11 @@ runs:
         HOST: ${{ inputs.host }}
         DEBUG: 'electron-*'
       run: |
-        sfw=$(command -v sfw || true)
-        # $sfw npm.cmd run make
-        npm.cmd run make
-      shell: bash
+        # sfw=$(command -v sfw || true)
+        # # $sfw npm.cmd run make
+        # npm.cmd run make
+        npm run make
+      shell: pwsh
     - name: 'Upload standalone executable artifact'
       if: ${{ inputs.standalone != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
