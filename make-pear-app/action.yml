@@ -253,6 +253,9 @@ runs:
         # # $sfw npm.cmd run make
         # npm.cmd run make
         npm run make
+        echo "=== Before extraction ==="
+        node extract.js
+        echo "=== After extraction ==="
       shell: pwsh
     - name: 'Upload standalone executable artifact'
       if: ${{ inputs.standalone != '' }}
