@@ -159,7 +159,6 @@ runs:
   using: composite
   steps:
     - uses: RaisinTen/actions/node-base@use-node-base-in-make-pear-app
-      # if: ${{ runner.os != 'Windows' }}
       with:
         ci: ${{ inputs.ci }}
         allow-git: ${{ inputs.allow-git }}
@@ -168,18 +167,6 @@ runs:
         scope: ${{ inputs.scope }}
         node-auth-token: ${{ inputs.node-auth-token }}
         post-install: ${{ inputs.post-install }}
-    # - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
-    #   if: ${{ runner.os == 'Windows' }}
-    #   with:
-    #     node-version: 20
-    #     registry-url: 'https://npm.pkg.github.com'
-    # - name: 'Install dependencies (Windows)'
-    #   if: ${{ runner.os == 'Windows' }}
-    #   env:
-    #     NODE_AUTH_TOKEN: ${{ github.token }}
-    #   run: |
-    #     npm ci --ignore-scripts --foreground-scripts --allow-git=root
-    #   shell: pwsh
     - name: 'Setup certificates on macOS'
       id: setup-certificates-macos
       if: ${{ runner.os == 'macOS' }}
@@ -249,14 +236,9 @@ runs:
         HOST: ${{ inputs.host }}
         DEBUG: 'electron-*'
       run: |
-        # sfw=$(command -v sfw || true)
-        # # $sfw npm.cmd run make
-        # npm.cmd run make
-        npm run make
-        echo "=== Before extraction ==="
-        node extract.js
-        echo "=== After extraction ==="
-      shell: pwsh
+        sfw=$(command -v sfw || true)
+        $sfw npm.cmd run make
+      shell: bash
     - name: 'Upload standalone executable artifact'
       if: ${{ inputs.standalone != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
