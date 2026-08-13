@@ -28,7 +28,7 @@ runs:
     - uses: holepunchto/actions/setup-socket@v1
     - name: Test node -v on Windows pwsh before setting up node
       if: ${{ runner.os == 'Windows' }}
-      run:
+      run: |
         if (Get-Command node -ErrorAction SilentlyContinue) {
             node -v
             npm -v
@@ -38,7 +38,7 @@ runs:
       shell: pwsh
     - name: Test node -v on Windows bash before setting up node
       if: ${{ runner.os == 'Windows' }}
-      run:
+      run: |
         if command -v node >/dev/null 2>&1; then
             node -v
             npm -v
@@ -52,7 +52,7 @@ runs:
         scope: ${{ inputs.scope }}
     - name: Test node -v on Windows pwsh after setting up node
       if: ${{ runner.os == 'Windows' }}
-      run:
+      run: |
         if (Get-Command node -ErrorAction SilentlyContinue) {
             node -v
             npm -v
@@ -62,7 +62,7 @@ runs:
       shell: pwsh
     - name: Test node -v on Windows bash after setting up node
       if: ${{ runner.os == 'Windows' }}
-      run:
+      run: |
         if command -v node >/dev/null 2>&1; then
             node -v
             npm -v
