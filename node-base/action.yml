@@ -26,10 +26,50 @@ runs:
   steps:
     - uses: holepunchto/actions/checkout@v1
     - uses: holepunchto/actions/setup-socket@v1
+    - name: Test node -v on Windows pwsh before setting up node
+      if: ${{ runner.os == 'Windows' }}
+      run:
+        if (Get-Command node -ErrorAction SilentlyContinue) {
+            node -v
+            npm -v
+        } else {
+            Write-Host "Node.js is not installed"
+        }
+      shell: pwsh
+    - name: Test node -v on Windows bash before setting up node
+      if: ${{ runner.os == 'Windows' }}
+      run:
+        if command -v node >/dev/null 2>&1; then
+            node -v
+            npm -v
+        else
+            echo "Node.js is not installed"
+        fi
+      shell: bash
     - uses: holepunchto/actions/setup-node@v1
       with:
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}
+    - name: Test node -v on Windows pwsh after setting up node
+      if: ${{ runner.os == 'Windows' }}
+      run:
+        if (Get-Command node -ErrorAction SilentlyContinue) {
+            node -v
+            npm -v
+        } else {
+            Write-Host "Node.js is not installed"
+        }
+      shell: pwsh
+    - name: Test node -v on Windows bash after setting up node
+      if: ${{ runner.os == 'Windows' }}
+      run:
+        if command -v node >/dev/null 2>&1; then
+            node -v
+            npm -v
+        else
+            echo "Node.js is not installed"
+        fi
+      shell: bash
     # setup-socket skips Socket Firewall on runners it has no binary for, so sfw
     # is not always on PATH; install directly when it is absent.
     - name: Install npm dependencies
