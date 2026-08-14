@@ -2,14 +2,14 @@ name: 'Make Pear Apps'
 description: 'Action for making Pear apps'
 
 inputs:
-  ci:
-    description: 'Use npm ci'
-    required: false
-    default: true
   allow-git:
     description: 'Allow git dependencies'
     required: false
     default: none
+  clean-install:
+    description: 'Use npm ci'
+    required: false
+    default: true
   force-install:
     description: 'Force install npm packages'
     required: false
@@ -163,7 +163,7 @@ runs:
   steps:
     - uses: RaisinTen/actions/node-base@use-node-base-in-make-pear-app
       with:
-        ci: ${{ inputs.ci }}
+        clean-install: ${{ inputs.clean-install }}
         allow-git: ${{ inputs.allow-git }}
         force-install: ${{ inputs.force-install }}
         version: ${{ inputs.node-version }}

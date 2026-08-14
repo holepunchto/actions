@@ -8,8 +8,8 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 
 | Input                      | Description                                                                      | Required                                    |
 | -------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------- |
-| `ci`                       | Use npm ci                                                                       | No, `true` by default                       |
 | `allow-git`                | Allow git dependencies (e.g. `none`, `all`, `root`)                              | No, `none` by default                       |
+| `clean-install`            | Use npm ci                                                                       | No, `true` by default                       |
 | `force-install`            | Force install npm packages                                                       | No, `false` by default                      |
 | `node-version`             | Node.js version                                                                  | No, `lts/*` by default                      |
 | `registry-url`             | NPM registry URL to configure for auth                                           | No, `https://registry.npmjs.org` by default |
