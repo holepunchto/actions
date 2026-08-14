@@ -49,7 +49,7 @@ runs:
             echo "Node.js is not installed"
         fi
       shell: bash
-    - uses: holepunchto/actions/setup-node@v1
+    - uses: RaisinTen/actions/setup-node@use-node-base-in-make-pear-app
       with:
         node-version: ${{ inputs.node-version }}
         registry-url: ${{ inputs.registry-url }}
