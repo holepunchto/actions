@@ -166,7 +166,7 @@ runs:
         ci: ${{ inputs.ci }}
         allow-git: ${{ inputs.allow-git }}
         force-install: ${{ inputs.force-install }}
-        node-version: ${{ inputs.node-version }}
+        version: ${{ inputs.node-version }}
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}
         node-auth-token: ${{ inputs.node-auth-token }}
