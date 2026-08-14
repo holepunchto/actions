@@ -14,6 +14,9 @@ inputs:
     description: 'Force install npm packages'
     required: false
     default: false
+  node-version:
+    description: Node.js version
+    default: lts/*
   registry-url:
     description: 'npm registry URL to configure for auth'
     required: false
@@ -163,6 +166,7 @@ runs:
         ci: ${{ inputs.ci }}
         allow-git: ${{ inputs.allow-git }}
         force-install: ${{ inputs.force-install }}
+        node-version: ${{ inputs.node-version }}
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}
         node-auth-token: ${{ inputs.node-auth-token }}

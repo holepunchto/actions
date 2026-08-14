@@ -11,6 +11,9 @@ inputs:
   force-install:
     description: Force install npm packages
     default: false
+  node-version:
+    description: Node.js version
+    default: lts/*
   registry-url:
     description: npm registry URL to configure for auth
     default: https://registry.npmjs.org
@@ -48,6 +51,7 @@ runs:
       shell: bash
     - uses: holepunchto/actions/setup-node@v1
       with:
+        node-version: ${{ inputs.node-version }}
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}
     - name: Test node -v on Windows pwsh after setting up node
