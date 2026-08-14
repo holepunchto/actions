@@ -161,16 +161,23 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: RaisinTen/actions/node-base@use-node-base-in-make-pear-app
+    - uses: RaisinTen/actions/setup-node@use-node-base-in-make-pear-app
       with:
-        clean-install: ${{ inputs.clean-install }}
-        allow-git: ${{ inputs.allow-git }}
-        force-install: ${{ inputs.force-install }}
         version: ${{ inputs.node-version }}
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}
-        node-auth-token: ${{ inputs.node-auth-token }}
-        post-install: ${{ inputs.post-install }}
+    - name: Run script
+      if: inputs.post-install != ''
+      run: |
+        sfw=$(command -v sfw || true)
+        npm_cmd="npm"
+        if [[ "${RUNNER_OS}" == "Windows" ]]; then
+          npm_cmd="npm.cmd"
+        fi
+        $sfw $npm_cmd run $POST_INSTALL
+      env:
+        POST_INSTALL: ${{ inputs.post-install }}
+      shell: bash
     - name: 'Setup certificates on macOS'
       id: setup-certificates-macos
       if: ${{ runner.os == 'macOS' }}
