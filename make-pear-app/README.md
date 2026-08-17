@@ -6,21 +6,21 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 
 ### Build Inputs
 
-| Input                      | Description                                                                      | Required                                    |
-| -------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------- |
-| `allow-git`                | Allow git dependencies (e.g. `none`, `all`, `root`)                              | No, `none` by default                       |
-| `clean-install`            | Use npm ci                                                                       | No, `true` by default                       |
-| `force-install`            | Force install npm packages                                                       | No, `false` by default                      |
-| `node-version`             | Node.js version                                                                  | No, `lts/*` by default                      |
-| `registry-url`             | NPM registry URL to configure for auth                                           | No, `https://registry.npmjs.org` by default |
-| `scope`                    | Optional scope for scoped registries (e.g. @myorg)                               | No                                          |
-| `node-auth-token`          | npm auth token                                                                   | No                                          |
-| `post-install`             | npm script to run after installing dependencies                                  | No                                          |
-| `channel`                  | Channel name (e.g. `preview`, `experimental`, `staging`)                         | Yes                                         |
-| `upgrade_key`              | Upgrade key (e.g. `pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o`) | No                                          |
-| `host`                     | Host passed to `npm run make` as environment variable.                           | No                                          |
-| `standalone`               | Standalone executable to upload                                                  | No                                          |
-| `standalone_artifact_name` | Standalone uploaded artifact name                                                | No                                          |
+| Input                      | Description                                                                                                                                   | Required                                    |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| `allow-git`                | Allow git dependencies (e.g. `none`, `all`, `root`)                                                                                           | No, `none` by default                       |
+| `clean-install`            | Use npm ci                                                                                                                                    | No, `true` by default                       |
+| `force-install`            | Force install npm packages                                                                                                                    | No, `false` by default                      |
+| `node-version`             | Node.js version                                                                                                                               | No, `lts/*` by default                      |
+| `registry-url`             | NPM registry URL to configure for auth                                                                                                        | No, `https://registry.npmjs.org` by default |
+| `scope`                    | Optional scope for scoped registries (e.g. @myorg)                                                                                            | No                                          |
+| `node-auth-token`          | npm auth token                                                                                                                                | No                                          |
+| `setup-script`             | npm script to explicitly run for project setup after installing dependencies with lifecycle scripts disabled (e.g. install Electron binaries) | No                                          |
+| `channel`                  | Channel name (e.g. `preview`, `experimental`, `staging`)                                                                                      | Yes                                         |
+| `upgrade_key`              | Upgrade key (e.g. `pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o`)                                                              | No                                          |
+| `host`                     | Host passed to `npm run make` as environment variable.                                                                                        | No                                          |
+| `standalone`               | Standalone executable to upload                                                                                                               | No                                          |
+| `standalone_artifact_name` | Standalone uploaded artifact name                                                                                                             | No                                          |
 
 ### Windows
 

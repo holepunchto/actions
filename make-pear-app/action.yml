@@ -22,13 +22,13 @@ inputs:
     required: false
     default: 'https://registry.npmjs.org'
   scope:
-    description: 'Optional scope for scoped registries (e.g. @myorg)'
+    description: 'Scope for scoped registries (e.g. @myorg)'
     required: false
   node-auth-token:
     description: 'npm auth token'
     required: false
-  post-install:
-    description: 'npm script to run after installing dependencies'
+  setup-script:
+    description: 'npm script to explicitly run for project setup after installing dependencies with lifecycle scripts disabled (e.g. install Electron binaries)'
     required: false
   channel:
     description: 'Channel name'
@@ -172,7 +172,7 @@ runs:
         node-auth-token: ${{ inputs.node-auth-token }}
     - uses: RaisinTen/actions/run-npm-script@use-node-base-in-make-pear-app
       with:
-        script: ${{ inputs.post-install }}
+        script: ${{ inputs.setup-script }}
     - name: 'Setup certificates on macOS'
       id: setup-certificates-macos
       if: ${{ runner.os == 'macOS' }}
