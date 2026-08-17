@@ -20,7 +20,8 @@ runs:
           npm_cmd="npm.cmd"
         fi
         if [[ "${SFW}" == "true" ]]; then
-          sfw "${npm_cmd}" run "${SCRIPT}"
+          sfw="$(command -v sfw || true)"
+          "${sfw}" "${npm_cmd}" run "${SCRIPT}"
         else
           "${npm_cmd}" run "${SCRIPT}"
         fi
