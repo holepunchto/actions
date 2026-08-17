@@ -34,8 +34,7 @@ runs:
         scope: ${{ inputs.scope }}
     # setup-socket skips Socket Firewall on runners it has no binary for, so sfw
     # is not always on PATH; install directly when it is absent.
-    - name: Install npm dependencies
-      run: |
+    - run: |
         sfw=$(command -v sfw || true)
         npm_cmd="npm"
         # Cannot use npm on Windows as it produces this error:
