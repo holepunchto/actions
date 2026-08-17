@@ -6,14 +6,13 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 
 ### Build Inputs
 
-| Input                      | Description                                                                                                                                   | Required                                    |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| `setup-script`             | npm script to explicitly run for project setup after installing dependencies with lifecycle scripts disabled (e.g. install Electron binaries) | No                                          |
-| `channel`                  | Channel name (e.g. `preview`, `experimental`, `staging`)                                                                                      | Yes                                         |
-| `upgrade_key`              | Upgrade key (e.g. `pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o`)                                                              | No                                          |
-| `host`                     | Host passed to `npm run make` as environment variable.                                                                                        | No                                          |
-| `standalone`               | Standalone executable to upload                                                                                                               | No                                          |
-| `standalone_artifact_name` | Standalone uploaded artifact name                                                                                                             | No                                          |
+| Input                      | Description                                                                      | Required |
+| -------------------------- | -------------------------------------------------------------------------------- | -------- |
+| `channel`                  | Channel name (e.g. `preview`, `experimental`, `staging`)                         | Yes      |
+| `upgrade_key`              | Upgrade key (e.g. `pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o`) | No       |
+| `host`                     | Host passed to `npm run make` as environment variable.                           | No       |
+| `standalone`               | Standalone executable to upload                                                  | No       |
+| `standalone_artifact_name` | Standalone uploaded artifact name                                                | No       |
 
 ### Windows
 

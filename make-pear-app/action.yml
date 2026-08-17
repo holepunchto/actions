@@ -2,9 +2,6 @@ name: 'Make Pear Apps'
 description: 'Action for making Pear apps'
 
 inputs:
-  setup-script:
-    description: 'npm script to explicitly run for project setup after installing dependencies with lifecycle scripts disabled (e.g. install Electron binaries)'
-    required: false
   channel:
     description: 'Channel name'
     required: true
@@ -136,9 +133,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: RaisinTen/actions/run-npm-script@use-node-base-in-make-pear-app
-      with:
-        script: ${{ inputs.setup-script }}
     - name: 'Setup certificates on macOS'
       id: setup-certificates-macos
       if: ${{ runner.os == 'macOS' }}
