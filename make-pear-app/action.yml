@@ -2,31 +2,6 @@ name: 'Make Pear Apps'
 description: 'Action for making Pear apps'
 
 inputs:
-  allow-git:
-    description: 'Allow git dependencies'
-    required: false
-    default: none
-  clean-install:
-    description: 'Use npm ci'
-    required: false
-    default: true
-  force-install:
-    description: 'Force install npm packages'
-    required: false
-    default: false
-  node-version:
-    description: Node.js version
-    default: lts/*
-  registry-url:
-    description: 'npm registry URL to configure for auth'
-    required: false
-    default: 'https://registry.npmjs.org'
-  scope:
-    description: 'Scope for scoped registries (e.g. @myorg)'
-    required: false
-  node-auth-token:
-    description: 'npm auth token'
-    required: false
   setup-script:
     description: 'npm script to explicitly run for project setup after installing dependencies with lifecycle scripts disabled (e.g. install Electron binaries)'
     required: false
@@ -161,15 +136,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: RaisinTen/actions/node-base@use-node-base-in-make-pear-app
-      with:
-        clean-install: ${{ inputs.clean-install }}
-        allow-git: ${{ inputs.allow-git }}
-        force-install: ${{ inputs.force-install }}
-        version: ${{ inputs.node-version }}
-        registry-url: ${{ inputs.registry-url }}
-        scope: ${{ inputs.scope }}
-        node-auth-token: ${{ inputs.node-auth-token }}
     - uses: RaisinTen/actions/run-npm-script@use-node-base-in-make-pear-app
       with:
         script: ${{ inputs.setup-script }}
