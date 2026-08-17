@@ -1,5 +1,5 @@
 name: Setup Node.js
-description: Install and configure Node.js LTS
+description: Install and configure Node.js
 
 inputs:
   version:
