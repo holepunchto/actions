@@ -21,8 +21,6 @@ inputs:
     description: Optional scope for scoped registries (e.g. @myorg)
   node-auth-token:
     description: npm auth token
-  post-install:
-    description: npm script to run after installing dependencies
 
 runs:
   using: composite
@@ -48,16 +46,4 @@ runs:
         $npm_cmd ${{ case(inputs.clean-install == 'true', 'ci', 'install') }} --ignore-scripts --foreground-scripts --allow-git=${{ case(inputs.allow-git == 'root', 'root', inputs.allow-git == 'all', 'all', 'none') }} ${{ case(inputs.force-install == 'true', '--force', '') }}
       env:
         NODE_AUTH_TOKEN: ${{ inputs.node-auth-token || env.NODE_AUTH_TOKEN }}
-      shell: bash
-    - name: Run post-install setup
-      if: inputs.post-install != ''
-      run: |
-        sfw=$(command -v sfw || true)
-        npm_cmd="npm"
-        if [[ "${RUNNER_OS}" == "Windows" ]]; then
-          npm_cmd="npm.cmd"
-        fi
-        $sfw $npm_cmd run $POST_INSTALL
-      env:
-        POST_INSTALL: ${{ inputs.post-install }}
       shell: bash
