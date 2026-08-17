@@ -2,6 +2,9 @@ name: Node.js base
 description: Configure a Node.js project
 
 inputs:
+  checkout:
+    description: Run checkout
+    default: true
   allow-git:
     description: Allow git dependencies
     default: none
@@ -26,6 +29,7 @@ runs:
   using: composite
   steps:
     - uses: holepunchto/actions/checkout@v1
+      if: ${{ inputs.checkout != 'false' }}
     - uses: holepunchto/actions/setup-socket@v1
     - uses: RaisinTen/actions/setup-node@use-node-base-in-make-pear-app
       with:

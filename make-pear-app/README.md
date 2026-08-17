@@ -65,7 +65,6 @@ jobs:
   build-win32:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
       - uses: holepunchto/actions/node-base@v1
         with:
           allow-git: root
@@ -95,7 +94,6 @@ jobs:
   build-macos:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
       - uses: holepunchto/actions/node-base@v1
         with:
           allow-git: root
@@ -129,7 +127,6 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
       - uses: holepunchto/actions/node-base@v1
         with:
           allow-git: root
