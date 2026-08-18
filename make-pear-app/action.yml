@@ -160,7 +160,7 @@ runs:
       uses: holepunchto/actions/setup-snapcraft@v1
     - name: 'Build application (Linux)'
       if: ${{ runner.os == 'Linux' }}
-      uses: RaisinTen/actions/run-npm-script@use-node-base-in-make-pear-app
+      uses: holepunchto/actions/run-npm-script@v1
       with:
         script: make
         # Snapcraft's managed LXD build cannot reach SFW's localhost proxy.
@@ -173,7 +173,7 @@ runs:
         HOST: ${{ inputs.host }}
     - name: 'Build application (macOS)'
       if: ${{ runner.os == 'macOS' }}
-      uses: RaisinTen/actions/run-npm-script@use-node-base-in-make-pear-app
+      uses: holepunchto/actions/run-npm-script@v1
       with:
         script: make
       env:
@@ -186,7 +186,7 @@ runs:
         HOST: ${{ inputs.host }}
     - name: 'Build application (Windows)'
       if: ${{ runner.os == 'Windows' }}
-      uses: RaisinTen/actions/run-npm-script@use-node-base-in-make-pear-app
+      uses: holepunchto/actions/run-npm-script@v1
       with:
         script: make
       env:
