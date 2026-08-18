@@ -1,5 +1,5 @@
 name: Node.js base extended
-description: Configure a Node.js project with a selectable Node.js version, npm ci support, and compatibility with custom Windows runners
+description: Configure a Node.js project with a selectable Node.js version, npm ci support and compatibility with our custom Windows runners
 
 # TODO: Merge with node-base.
 
