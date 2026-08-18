@@ -28,7 +28,7 @@ runs:
   using: composite
   steps:
     - uses: holepunchto/actions/setup-socket@v1
-    - uses: RaisinTen/actions/setup-node@use-node-base-in-make-pear-app
+    - uses: holepunchto/actions/setup-node@v1
       with:
         version: ${{ inputs.version }}
         registry-url: ${{ inputs.registry-url }}
