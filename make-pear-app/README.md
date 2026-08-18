@@ -65,7 +65,8 @@ jobs:
   build-win32:
     runs-on: windows-latest
     steps:
-      - uses: holepunchto/actions/node-base@v1
+      - uses: actions/checkout@v4
+      - uses: holepunchto/actions/node-base-extended@v1
         with:
           allow-git: root
           clean-install: true
@@ -94,7 +95,8 @@ jobs:
   build-macos:
     runs-on: macos-latest
     steps:
-      - uses: holepunchto/actions/node-base@v1
+      - uses: actions/checkout@v4
+      - uses: holepunchto/actions/node-base-extended@v1
         with:
           allow-git: root
           clean-install: true
@@ -127,7 +129,8 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: holepunchto/actions/node-base@v1
+      - uses: actions/checkout@v4
+      - uses: holepunchto/actions/node-base-extended@v1
         with:
           allow-git: root
           clean-install: true
