@@ -66,6 +66,16 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: holepunchto/actions/node-base-extended@v1
+        with:
+          allow-git: root
+          clean-install: true
+          version: 20
+          registry-url: 'https://npm.pkg.github.com'
+          node-auth-token: ${{ github.token }}
+      - uses: holepunchto/actions/run-npm-script@v1
+        with:
+          script: postinstall:all
       - uses: holepunchto/actions/make-pear-app@v1
         with:
           channel: production
@@ -86,6 +96,16 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: holepunchto/actions/node-base-extended@v1
+        with:
+          allow-git: root
+          clean-install: true
+          version: 20
+          registry-url: 'https://npm.pkg.github.com'
+          node-auth-token: ${{ github.token }}
+      - uses: holepunchto/actions/run-npm-script@v1
+        with:
+          script: postinstall:mac
       - uses: holepunchto/actions/make-pear-app@v1
         with:
           channel: production
@@ -110,6 +130,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: holepunchto/actions/node-base-extended@v1
+        with:
+          allow-git: root
+          clean-install: true
+          version: 20
+          registry-url: 'https://npm.pkg.github.com'
+          node-auth-token: ${{ github.token }}
+      - uses: holepunchto/actions/run-npm-script@v1
+        with:
+          script: postinstall:all
       - uses: holepunchto/actions/make-pear-app@v1
         with:
           channel: production

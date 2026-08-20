@@ -133,25 +133,6 @@ inputs:
 runs:
   using: composite
   steps:
-    # TODO: Use node-base action
-    - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
-      with:
-        node-version: 20
-        registry-url: 'https://npm.pkg.github.com'
-    - name: 'Install dependencies (Linux/macOS)'
-      if: ${{ runner.os != 'Windows' }}
-      env:
-        NODE_AUTH_TOKEN: ${{ github.token }}
-      run: |
-        npm ci
-      shell: bash
-    - name: 'Install dependencies (Windows)'
-      if: ${{ runner.os == 'Windows' }}
-      env:
-        NODE_AUTH_TOKEN: ${{ github.token }}
-      run: |
-        npm ci
-      shell: pwsh
     - name: 'Setup certificates on macOS'
       id: setup-certificates-macos
       if: ${{ runner.os == 'macOS' }}
@@ -179,17 +160,22 @@ runs:
       uses: holepunchto/actions/setup-snapcraft@v1
     - name: 'Build application (Linux)'
       if: ${{ runner.os == 'Linux' }}
+      uses: holepunchto/actions/run-npm-script@v1
+      with:
+        script: make
+        # Snapcraft's managed LXD build cannot reach SFW's localhost proxy.
+        sfw: ${{ inputs.linux_snap == '' }}
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
         NODE_ENV: production
         HOST: ${{ inputs.host }}
-      run: |
-        npm run make
-      shell: bash
     - name: 'Build application (macOS)'
       if: ${{ runner.os == 'macOS' }}
+      uses: holepunchto/actions/run-npm-script@v1
+      with:
+        script: make
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: '${{ inputs.channel }}'
@@ -198,11 +184,11 @@ runs:
         KEYCHAIN_PROFILE: ${{ steps.setup-certificates-macos.outputs.keychain-profile }}
         NODE_ENV: production
         HOST: ${{ inputs.host }}
-      run: |
-        npm run make
-      shell: bash
     - name: 'Build application (Windows)'
       if: ${{ runner.os == 'Windows' }}
+      uses: holepunchto/actions/run-npm-script@v1
+      with:
+        script: make
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: '${{ inputs.channel }}'
@@ -211,9 +197,6 @@ runs:
         WINDOWS_SIGN_HOOK: ${{ github.action_path }}/windows-sign.js
         NODE_ENV: production
         HOST: ${{ inputs.host }}
-      run: |
-        npm run make
-      shell: pwsh
     - name: 'Upload standalone executable artifact'
       if: ${{ inputs.standalone != '' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
