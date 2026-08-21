@@ -37,6 +37,14 @@ inputs:
     description: 'macOS MAS ZIP to upload'
     required: false
     default: ''
+  macos_development_certificate:
+    description: 'Base64-encoded Apple distribution certificate (P12 format)'
+    required: false
+    default: ''
+  macos_development_password:
+    description: 'Password for the P12 certificate'
+    required: false
+    default: ''
   macos_certificate_base64:
     description: 'Base64-encoded Apple distribution certificate (P12 format)'
     required: false
@@ -146,6 +154,8 @@ runs:
       if: ${{ runner.os == 'macOS' }}
       uses: RaisinTen/actions/setup-certificates/macos@support-mas-build # TODO
       with:
+        development_certificate: ${{ inputs.macos_development_certificate }}
+        development_password: ${{ inputs.macos_development_password }}
         certificate_base64: ${{ inputs.macos_certificate_base64 }}
         p12_password: ${{ inputs.macos_p12_password }}
         notarization_method: ${{ inputs.macos_notarization_method }}
