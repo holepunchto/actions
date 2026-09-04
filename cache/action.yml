@@ -1,0 +1,42 @@
+name: Cache
+description: Cache artifacts like dependencies and build outputs
+
+inputs:
+  path:
+    description: A list of files, directories, and wildcard patterns to cache and restore
+    required: true
+  key:
+    description: An explicit key for restoring and saving the cache
+    required: true
+  restore-keys:
+    description: Ordered multiline prefix-matched keys used to restore a stale cache on a primary key miss
+  upload-chunk-size:
+    description: Chunk size used to split up large files during upload, in bytes
+  enableCrossOsArchive:
+    description: Allow Windows runners to save or restore caches that can be used on other platforms
+    default: 'false'
+  fail-on-cache-miss:
+    description: Fail the workflow if a cache entry is not found
+    default: 'false'
+  lookup-only:
+    description: Check if a cache entry exists without downloading it
+    default: 'false'
+
+outputs:
+  cache-hit:
+    description: Whether an exact match was found for the primary key
+    value: ${{ steps.cache.outputs.cache-hit }}
+
+runs:
+  using: composite
+  steps:
+    - id: cache
+      uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+      with:
+        path: ${{ inputs.path }}
+        key: ${{ inputs.key }}
+        restore-keys: ${{ inputs.restore-keys }}
+        upload-chunk-size: ${{ inputs.upload-chunk-size }}
+        enableCrossOsArchive: ${{ inputs.enableCrossOsArchive }}
+        fail-on-cache-miss: ${{ inputs.fail-on-cache-miss }}
+        lookup-only: ${{ inputs.lookup-only }}
