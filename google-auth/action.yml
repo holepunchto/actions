@@ -1,0 +1,86 @@
+name: Authenticate to Google Cloud
+description: Authenticate to Google Cloud via Workload Identity Federation or service account keys
+
+inputs:
+  project_id:
+    description: ID of the default project to use for future API calls
+  workload_identity_provider:
+    description: Full identifier of the Workload Identity Provider
+  service_account:
+    description: Email address or unique identifier of the Google Cloud service account
+  audience:
+    description: Audience (aud) parameter in GitHub's generated OIDC token
+  credentials_json:
+    description: Google Cloud JSON service account key. Mutually exclusive with workload_identity_provider
+  create_credentials_file:
+    description: Generate a credentials file for gcloud and Google Cloud SDKs
+    default: 'true'
+  export_environment_variables:
+    description: Export common Google Cloud environment variables for downstream tools
+    default: 'true'
+  token_format:
+    description: Output format for the generated authentication token (access_token or id_token)
+  delegates:
+    description: Additional service account emails or unique identities to use for impersonation
+  universe:
+    description: Google Cloud universe to use for constructing API endpoints
+    default: googleapis.com
+  request_reason:
+    description: Reason Request System Parameter for API calls made by this action
+  cleanup_credentials:
+    description: Remove created credentials from the filesystem upon completion
+    default: 'true'
+  access_token_lifetime:
+    description: Desired lifetime duration of the access token (e.g. 3600s)
+    default: 3600s
+  access_token_scopes:
+    description: OAuth 2.0 access scopes to include in the generated token
+    default: https://www.googleapis.com/auth/cloud-platform
+  access_token_subject:
+    description: Email address of a user to impersonate for Domain-Wide Delegation
+  id_token_audience:
+    description: Audience (aud) for the generated Google Cloud ID token
+  id_token_include_email:
+    description: Include the service account email in the generated ID token
+    default: 'false'
+
+outputs:
+  project_id:
+    description: Provided or extracted Google Cloud project ID
+    value: ${{ steps.auth.outputs.project_id }}
+  credentials_file_path:
+    description: Path on the local filesystem of the generated credentials file
+    value: ${{ steps.auth.outputs.credentials_file_path }}
+  auth_token:
+    description: Intermediate authentication token
+    value: ${{ steps.auth.outputs.auth_token }}
+  access_token:
+    description: Google Cloud access token. Only set when token_format is access_token
+    value: ${{ steps.auth.outputs.access_token }}
+  id_token:
+    description: Google Cloud ID token. Only set when token_format is id_token
+    value: ${{ steps.auth.outputs.id_token }}
+
+runs:
+  using: composite
+  steps:
+    - id: auth
+      uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
+      with:
+        project_id: ${{ inputs.project_id }}
+        workload_identity_provider: ${{ inputs.workload_identity_provider }}
+        service_account: ${{ inputs.service_account }}
+        audience: ${{ inputs.audience }}
+        credentials_json: ${{ inputs.credentials_json }}
+        create_credentials_file: ${{ inputs.create_credentials_file }}
+        export_environment_variables: ${{ inputs.export_environment_variables }}
+        token_format: ${{ inputs.token_format }}
+        delegates: ${{ inputs.delegates }}
+        universe: ${{ inputs.universe }}
+        request_reason: ${{ inputs.request_reason }}
+        cleanup_credentials: ${{ inputs.cleanup_credentials }}
+        access_token_lifetime: ${{ inputs.access_token_lifetime }}
+        access_token_scopes: ${{ inputs.access_token_scopes }}
+        access_token_subject: ${{ inputs.access_token_subject }}
+        id_token_audience: ${{ inputs.id_token_audience }}
+        id_token_include_email: ${{ inputs.id_token_include_email }}
