@@ -1,0 +1,46 @@
+name: GitHub Script
+description: Run simple scripts using the GitHub client
+
+inputs:
+  script:
+    description: The script to run
+    required: true
+  github-token:
+    description: GitHub token used to create an authenticated client
+    default: ${{ github.token }}
+  user-agent:
+    description: An optional user-agent string
+    default: actions/github-script
+  previews:
+    description: A comma-separated list of GraphQL API previews to accept
+  result-encoding:
+    description: How the result is encoded, string or json
+    default: json
+  retries:
+    description: The number of times to retry a request
+    default: '0'
+  retry-exempt-status-codes:
+    description: Comma-separated list of status codes that will not be retried
+    default: 400,401,403,404,422
+  base-url:
+    description: GitHub REST API URL for a different GitHub instance
+
+outputs:
+  result:
+    description: The return value of the script, stringified with JSON.stringify
+    value: ${{ steps.script.outputs.result }}
+
+runs:
+  using: composite
+  steps:
+    - id: script
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+      with:
+        script: ${{ inputs.script }}
+        github-token: ${{ inputs.github-token }}
+        user-agent: ${{ inputs.user-agent }}
+        previews: ${{ inputs.previews }}
+        result-encoding: ${{ inputs.result-encoding }}
+        retries: ${{ inputs.retries }}
+        retry-exempt-status-codes: ${{ inputs.retry-exempt-status-codes }}
+        base-url: ${{ inputs.base-url }}

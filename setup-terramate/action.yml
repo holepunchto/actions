@@ -1,0 +1,29 @@
+name: Setup Terramate
+description: Install Terramate CLI
+
+inputs:
+  version:
+    description: Terramate version to install. Use detect to read .tool-versions
+    default: detect
+  bindir:
+    description: Destination directory of the installed terramate executable
+    default: /usr/local/bin
+  use_wrapper:
+    description: Install the Terramate wrapper script
+    default: 'true'
+  cloud_organization:
+    description: Terramate Cloud organization to use by default
+  use_catalyst:
+    description: Install Terramate Catalyst instead of Terramate CE
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - uses: terramate-io/terramate-action@1cc78a548efefaab7762f4d06f51aa6de06ce201 # v3.3.0
+      with:
+        version: ${{ inputs.version }}
+        bindir: ${{ inputs.bindir }}
+        use_wrapper: ${{ inputs.use_wrapper }}
+        cloud_organization: ${{ inputs.cloud_organization }}
+        use_catalyst: ${{ inputs.use_catalyst }}

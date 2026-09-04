@@ -1,0 +1,47 @@
+name: Setup OpenTofu
+description: Install OpenTofu CLI
+
+inputs:
+  tofu_version:
+    description: OpenTofu CLI version to install
+    default: latest
+  tofu_version_file:
+    description: Path to a file containing the OpenTofu version to install. Takes precedence over tofu_version
+  tofu_wrapper:
+    description: Install a wrapper that exposes tofu stdout, stderr, and exit code as outputs
+    default: 'true'
+  cache:
+    description: Cache downloaded OpenTofu binaries with the GitHub Actions tool-cache
+    default: 'false'
+  cli_config_credentials_hostname:
+    description: Hostname of a Terraform Cloud/Enterprise instance for the OpenTofu CLI credentials block
+    default: app.terraform.io
+  cli_config_credentials_token:
+    description: API token for a Terraform Cloud/Enterprise instance
+  github_token:
+    description: GitHub API token used to increase the rate limit
+
+outputs:
+  stdout:
+    description: The STDOUT stream of the call to the tofu binary
+    value: ${{ steps.setup.outputs.stdout }}
+  stderr:
+    description: The STDERR stream of the call to the tofu binary
+    value: ${{ steps.setup.outputs.stderr }}
+  exitcode:
+    description: The exit code of the call to the tofu binary
+    value: ${{ steps.setup.outputs.exitcode }}
+
+runs:
+  using: composite
+  steps:
+    - id: setup
+      uses: opentofu/setup-opentofu@9d84900f3238fab8cd84ce47d658d25dd008be2f # v1.0.8
+      with:
+        tofu_version: ${{ inputs.tofu_version }}
+        tofu_version_file: ${{ inputs.tofu_version_file }}
+        tofu_wrapper: ${{ inputs.tofu_wrapper }}
+        cache: ${{ inputs.cache }}
+        cli_config_credentials_hostname: ${{ inputs.cli_config_credentials_hostname }}
+        cli_config_credentials_token: ${{ inputs.cli_config_credentials_token }}
+        github_token: ${{ inputs.github_token }}
