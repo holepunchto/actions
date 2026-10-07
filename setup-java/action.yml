@@ -1,0 +1,15 @@
+name: Setup Java
+description: Install and configure a Java JDK
+
+inputs:
+  java-version:
+    description: Java version to install
+    default: '21'
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+      with:
+        distribution: temurin
+        java-version: ${{ inputs.java-version }}
