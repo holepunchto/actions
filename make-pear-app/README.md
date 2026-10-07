@@ -10,6 +10,8 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 | -------------------------- | -------------------------------------------------------------------------------- | -------- |
 | `channel`                  | Channel name (e.g. `preview`, `experimental`, `staging`)                         | Yes      |
 | `upgrade_key`              | Upgrade key (e.g. `pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o`) | No       |
+| `host`                     | Host passed to `npm run make` as environment variable.                           | No       |
+| `sfw`                      | Enable Socket Firewall. (`true` by default)                                      | No       |
 | `standalone`               | Standalone executable to upload                                                  | No       |
 | `standalone_artifact_name` | Standalone uploaded artifact name                                                | No       |
 
@@ -65,6 +67,16 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: holepunchto/actions/node-base-extended@v1
+        with:
+          allow-git: root
+          clean-install: true
+          version: 20
+          registry-url: 'https://npm.pkg.github.com'
+          node-auth-token: ${{ github.token }}
+      - uses: holepunchto/actions/run-npm-script@v1
+        with:
+          script: postinstall:all
       - uses: holepunchto/actions/make-pear-app@v1
         with:
           channel: production
@@ -85,6 +97,16 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: holepunchto/actions/node-base-extended@v1
+        with:
+          allow-git: root
+          clean-install: true
+          version: 20
+          registry-url: 'https://npm.pkg.github.com'
+          node-auth-token: ${{ github.token }}
+      - uses: holepunchto/actions/run-npm-script@v1
+        with:
+          script: postinstall:mac
       - uses: holepunchto/actions/make-pear-app@v1
         with:
           channel: production
@@ -109,6 +131,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: holepunchto/actions/node-base-extended@v1
+        with:
+          allow-git: root
+          clean-install: true
+          version: 20
+          registry-url: 'https://npm.pkg.github.com'
+          node-auth-token: ${{ github.token }}
+      - uses: holepunchto/actions/run-npm-script@v1
+        with:
+          script: postinstall:all
       - uses: holepunchto/actions/make-pear-app@v1
         with:
           channel: production

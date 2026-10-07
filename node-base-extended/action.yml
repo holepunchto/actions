@@ -1,0 +1,49 @@
+name: Node.js base extended
+description: Configure a Node.js project with a selectable Node.js version, npm ci support and compatibility with our custom Windows runners
+
+# TODO: Merge with node-base.
+
+inputs:
+  allow-git:
+    description: Allow git dependencies
+    default: none
+  clean-install:
+    description: Use npm ci
+    default: false
+  force-install:
+    description: Force install npm packages
+    default: false
+  version:
+    description: Node.js version
+    default: lts/*
+  registry-url:
+    description: npm registry URL to configure for auth
+    default: https://registry.npmjs.org
+  scope:
+    description: Optional scope for scoped registries (e.g. @myorg)
+  node-auth-token:
+    description: npm auth token
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/setup-socket@v1
+    - uses: holepunchto/actions/setup-node@v1
+      with:
+        version: ${{ inputs.version }}
+        registry-url: ${{ inputs.registry-url }}
+        scope: ${{ inputs.scope }}
+    # setup-socket skips Socket Firewall on runners it has no binary for, so sfw
+    # is not always on PATH; install directly when it is absent.
+    - run: |
+        sfw=$(command -v sfw || true)
+        npm_cmd="npm"
+        # On Windows, `npm` resolves to npm.ps1 on our custom runners, which fails
+        # when PowerShell script execution is disabled. Use npm.cmd instead.
+        if [[ "${RUNNER_OS}" == "Windows" ]]; then
+          npm_cmd="npm.cmd"
+        fi
+        $sfw $npm_cmd ${{ case(inputs.clean-install == 'true', 'ci', 'install') }} --ignore-scripts --foreground-scripts --allow-git=${{ case(inputs.allow-git == 'root', 'root', inputs.allow-git == 'all', 'all', 'none') }} ${{ case(inputs.force-install == 'true', '--force', '') }}
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.node-auth-token || env.NODE_AUTH_TOKEN }}
+      shell: bash

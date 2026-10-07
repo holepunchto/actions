@@ -2,6 +2,9 @@ name: Create release
 description: Create a GitHub release
 
 inputs:
+  ref-name:
+    description: Git tag and GitHub release name. Defaults to github.ref_name.
+    required: false
   workspaces:
     description: Pack all workspace packages
     default: false
@@ -20,6 +23,6 @@ runs:
     - run: gh release create $REF_NAME $PACKAGES
       env:
         GH_TOKEN: ${{ github.token }}
-        REF_NAME: ${{ github.ref_name }}
+        REF_NAME: ${{ inputs.ref-name || github.ref_name }}
         PACKAGES: ${{ steps.pack.outputs.packages }}
       shell: bash

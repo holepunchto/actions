@@ -15,7 +15,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+    - uses: holepunchto/actions/cache/save@v1
       if: always()
       with:
         path: ${{ inputs.path }}

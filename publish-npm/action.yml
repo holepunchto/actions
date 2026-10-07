@@ -5,6 +5,9 @@ inputs:
   tag:
     description: npm dist-tag to publish under
     default: latest
+  ref-name:
+    description: Git tag and GitHub release name. Defaults to github.ref_name.
+    required: false
   workspaces:
     description: Publish all workspace packages
     default: false
@@ -24,5 +27,6 @@ runs:
       shell: bash
     - uses: holepunchto/actions/create-release@v1
       with:
+        ref-name: ${{ inputs.ref-name }}
         workspaces: ${{ inputs.workspaces }}
         include-workspace-root: ${{ inputs.include-workspace-root }}

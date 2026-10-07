@@ -1,0 +1,30 @@
+name: Setup GTK
+description: Install GTK and, optionally, WebKitGTK
+
+inputs:
+  dev:
+    description: Install the development packages for building against the libraries
+    default: false
+  webkit:
+    description: Also install WebKitGTK
+    default: false
+
+runs:
+  using: composite
+  steps:
+    - run: |
+        if [ "$DEV" = "true" ]; then
+          packages="libgtk-4-dev"
+          if [ "$WEBKIT" = "true" ]; then packages="$packages libwebkitgtk-6.0-dev"; fi
+        else
+          packages="libgtk-4-1"
+          if [ "$WEBKIT" = "true" ]; then packages="$packages libwebkitgtk-6.0-4"; fi
+        fi
+
+        sudo apt-get update -y
+        sudo apt-get install -y $packages
+      if: ${{ runner.os == 'Linux' }}
+      shell: bash
+      env:
+        DEV: ${{ inputs.dev }}
+        WEBKIT: ${{ inputs.webkit }}

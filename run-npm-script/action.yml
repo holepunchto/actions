@@ -1,0 +1,31 @@
+name: Run npm script
+description: Run npm script
+
+inputs:
+  script:
+    description: npm script to run
+    required: true
+  sfw:
+    description: Enable Socket Firewall
+    default: true
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Run npm script
+      run: |
+        npm_cmd="npm"
+        if [[ "${RUNNER_OS}" == "Windows" ]]; then
+          npm_cmd="npm.cmd"
+        fi
+        if [[ "${SFW}" == "true" ]]; then
+          sfw="$(command -v sfw || true)"
+          "${sfw}" "${npm_cmd}" run "${SCRIPT}"
+        else
+          "${npm_cmd}" run "${SCRIPT}"
+        fi
+      env:
+        SCRIPT: ${{ inputs.script }}
+        SFW: ${{ inputs.sfw }}
+      shell: bash
