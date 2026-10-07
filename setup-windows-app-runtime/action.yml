@@ -1,0 +1,31 @@
+name: Setup Windows App Runtime
+description: Install the Windows App SDK runtime that unpackaged WinUI apps load when they start
+
+inputs:
+  version:
+    description: The major and minor version of the Windows App SDK to install the latest runtime for
+    default: 1.8
+
+runs:
+  using: composite
+  steps:
+    - run: |
+        $arch = @{ X64 = 'x64'; ARM64 = 'arm64' }[$env:ARCH]
+
+        if ($null -eq $arch) {
+          Write-Error "Unsupported architecture '$env:ARCH'"
+          exit 1
+        }
+
+        $installer = Join-Path $env:RUNNER_TEMP "windowsappruntimeinstall-$arch.exe"
+
+        Invoke-WebRequest -Uri "https://aka.ms/windowsappsdk/$env:VERSION/latest/windowsappruntimeinstall-$arch.exe" -OutFile $installer
+
+        & $installer --quiet
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      if: ${{ runner.os == 'Windows' }}
+      shell: pwsh
+      env:
+        VERSION: ${{ inputs.version }}
+        ARCH: ${{ runner.arch }}

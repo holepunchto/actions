@@ -13,6 +13,10 @@ inputs:
     description: 'npm run make $HOST environment variable'
     required: false
     default: ''
+  sfw:
+    description: 'Enable Socket Firewall'
+    default: true
+    required: false
   standalone:
     description: 'Standalone executable to upload'
     required: false
@@ -163,8 +167,7 @@ runs:
       uses: holepunchto/actions/run-npm-script@v1
       with:
         script: make
-        # Snapcraft's managed LXD build cannot reach SFW's localhost proxy.
-        sfw: ${{ inputs.linux_snap == '' }}
+        sfw: ${{ inputs.sfw }}
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: '${{ inputs.channel }}'
@@ -176,6 +179,7 @@ runs:
       uses: holepunchto/actions/run-npm-script@v1
       with:
         script: make
+        sfw: ${{ inputs.sfw }}
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: '${{ inputs.channel }}'
@@ -189,6 +193,7 @@ runs:
       uses: holepunchto/actions/run-npm-script@v1
       with:
         script: make
+        sfw: ${{ inputs.sfw }}
       env:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: '${{ inputs.channel }}'
