@@ -6,7 +6,7 @@ inputs:
     description: Install the development packages for building against the libraries
     default: false
   webkit:
-    description: Also install WebKitGTK
+    description: Also install WebKitGTK, and allow the sandbox it runs web content in
     default: false
 
 runs:
@@ -28,3 +28,9 @@ runs:
       env:
         DEV: ${{ inputs.dev }}
         WEBKIT: ${{ inputs.webkit }}
+    - run: |
+        if [ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+        fi
+      if: ${{ runner.os == 'Linux' && inputs.webkit == 'true' }}
+      shell: bash
