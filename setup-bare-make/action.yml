@@ -1,0 +1,24 @@
+name: Setup bare-make
+description: Install bare-make and, optionally, the WASI and musl sysroots
+
+inputs:
+  wasi:
+    description: Also install the WASI sysroot for targeting WASI
+    default: false
+  musl:
+    description: Also install the musl sysroot for targeting musl
+    default: false
+
+runs:
+  using: composite
+  steps:
+    - run: |
+        packages="bare-make"
+        if [ "$WASI" = "true" ]; then packages="$packages wasi-sysroot"; fi
+        if [ "$MUSL" = "true" ]; then packages="$packages musl-sysroot"; fi
+
+        npm install --global $packages
+      shell: bash
+      env:
+        WASI: ${{ inputs.wasi }}
+        MUSL: ${{ inputs.musl }}
