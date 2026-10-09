@@ -19,12 +19,20 @@ inputs:
   upload:
     description: Upload the compiled prebuilds
     default: false
+  wasi:
+    description: Install the WASI sysroot for targeting WASI
+    default: false
+  musl:
+    description: Install the musl sysroot for targeting musl
+    default: false
 
 runs:
   using: composite
   steps:
-    - run: npm install --global bare-make
-      shell: bash
+    - uses: holepunchto/actions/setup-bare-make@v1
+      with:
+        wasi: ${{ inputs.wasi }}
+        musl: ${{ inputs.musl }}
     - run: bare-make generate ${PLATFORM:+--platform $PLATFORM} ${ARCH:+--arch $ARCH} $FLAGS
       env:
         PLATFORM: ${{ inputs.platform }}
