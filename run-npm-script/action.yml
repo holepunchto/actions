@@ -5,6 +5,12 @@ inputs:
   script:
     description: npm script to run
     required: true
+  workspaces:
+    description: Run the script in all workspace packages
+    default: false
+  include-workspace-root:
+    description: Also run the script in the workspace root
+    default: false
   sfw:
     description: Enable Socket Firewall
     default: true
@@ -19,13 +25,22 @@ runs:
         if [[ "${RUNNER_OS}" == "Windows" ]]; then
           npm_cmd="npm.cmd"
         fi
+        args=(run "${SCRIPT}" --if-present)
+        if [[ "${WORKSPACES}" == "true" ]]; then
+          args+=(--workspaces)
+        fi
+        if [[ "${INCLUDE_WORKSPACE_ROOT}" == "true" ]]; then
+          args+=(--include-workspace-root)
+        fi
         if [[ "${SFW}" == "true" ]]; then
           sfw="$(command -v sfw || true)"
-          "${sfw}" "${npm_cmd}" run "${SCRIPT}"
+          "${sfw}" "${npm_cmd}" "${args[@]}"
         else
-          "${npm_cmd}" run "${SCRIPT}"
+          "${npm_cmd}" "${args[@]}"
         fi
       env:
         SCRIPT: ${{ inputs.script }}
+        WORKSPACES: ${{ inputs.workspaces }}
+        INCLUDE_WORKSPACE_ROOT: ${{ inputs.include-workspace-root }}
         SFW: ${{ inputs.sfw }}
       shell: bash
