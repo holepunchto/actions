@@ -1,0 +1,7 @@
+name: Validate Gradle
+description: Validate the Gradle wrapper against Gradle's published checksums
+
+runs:
+  using: composite
+  steps:
+    - uses: gradle/actions/wrapper-validation@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0

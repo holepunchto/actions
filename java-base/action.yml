@@ -1,0 +1,16 @@
+name: Java base
+description: Configure a Java or Kotlin project built with Gradle
+
+inputs:
+  version:
+    description: Java version to install
+    default: '21'
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/checkout@v1
+    - uses: holepunchto/actions/validate-gradle@v1
+    - uses: holepunchto/actions/setup-java@v1
+      with:
+        version: ${{ inputs.version }}
