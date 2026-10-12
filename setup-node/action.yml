@@ -10,6 +10,9 @@ inputs:
     default: https://registry.npmjs.org
   scope:
     description: Optional scope for scoped registries (e.g. @myorg)
+  package-manager-cache:
+    description: Cache the package manager's global directory
+    default: false
 
 runs:
   using: composite
@@ -19,3 +22,4 @@ runs:
         node-version: ${{ inputs.version }}
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}
+        package-manager-cache: ${{ inputs.package-manager-cache }}
