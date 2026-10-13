@@ -6,7 +6,7 @@ inputs:
     description: Java version to install
     default: '21'
   cache:
-    description: Dependency manager whose downloads to cache (gradle, maven or sbt)
+    description: Build tool whose dependencies to cache, such as `gradle`
 
 runs:
   using: composite
