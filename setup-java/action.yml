@@ -5,6 +5,8 @@ inputs:
   version:
     description: Java version to install
     default: '21'
+  cache:
+    description: Build tool whose dependencies to cache, such as `gradle`
 
 runs:
   using: composite
@@ -13,3 +15,4 @@ runs:
       with:
         distribution: temurin
         java-version: ${{ inputs.version }}
+        cache: ${{ inputs.cache }}
