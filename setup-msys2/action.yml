@@ -1,0 +1,23 @@
+name: Setup MSYS2
+description: Install and configure MSYS2 on Windows, optionally installing packages through pacman
+
+inputs:
+  install:
+    description: Whitespace-separated packages to install through pacman
+  msystem:
+    description: The MSYS2 environment to use by default
+    default: MSYS
+  cache:
+    description: Cache the pacman package directory
+    default: false
+
+runs:
+  using: composite
+  steps:
+    - uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
+      if: ${{ runner.os == 'Windows' }}
+      with:
+        location: C:\tools
+        install: ${{ inputs.install }}
+        msystem: ${{ inputs.msystem }}
+        cache: ${{ inputs.cache }}
