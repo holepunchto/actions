@@ -2,15 +2,38 @@ name: Setup certificates on macOS
 description: Setup certificates on macOS
 
 inputs:
-  certificate_base64:
-    description: 'Base64-encoded Apple distribution certificate (P12 format)'
-    required: true
-  p12_password:
+  development_certificate_base64:
+    description: 'Base64-encoded Apple development certificate (P12 format)'
+    required: false
+    default: ''
+  development_password:
     description: 'Password for the P12 certificate'
-    required: true
+    required: false
+    default: ''
+  distribution_certificate_base64:
+    description: 'Base64-encoded Apple distribution certificate (P12 format)'
+    required: false
+    default: ''
+  distribution_password:
+    description: 'Password for the P12 certificate'
+    required: false
+    default: ''
+  installer_distribution_certificate_base64:
+    description: 'Base64-encoded macOS installer distribution certificate (P12 format)'
+    required: false
+    default: ''
+  installer_distribution_password:
+    description: 'Password for the P12 certificate'
+    required: false
+    default: ''
+  distribution_provisioning_profile_base64:
+    description: 'Base64-encoded Apple distribution provisioning profile for MAS build (provisionprofile)'
+    required: false
+    default: ''
   notarization_method:
     description: 'Notarization method to use: appstore_connect or apple_id_password'
-    required: true
+    required: false
+    default: ''
   apple_id:
     description: 'Apple ID email for notarization'
     required: false
@@ -40,6 +63,9 @@ outputs:
   keychain-profile:
     description: 'Keychain profile'
     value: ${{ steps.setup-certificates.outputs.keychain_profile }}
+  provisioning-profile:
+    description: 'Provisioning profile'
+    value: ${{ steps.setup-certificates.outputs.provisioning_profile }}
 
 runs:
   using: composite
@@ -48,8 +74,13 @@ runs:
       id: setup-certificates
       if: ${{ runner.os == 'macOS' }}
       env:
-        CERTIFICATE_BASE64: ${{ inputs.certificate_base64 }}
-        P12_PASSWORD: ${{ inputs.p12_password }}
+        DEVELOPMENT_CERTIFICATE_BASE64: ${{ inputs.development_certificate_base64 }}
+        DEVELOPMENT_PASSWORD: ${{ inputs.development_password }}
+        DISTRIBUTION_CERTIFICATE_BASE64: ${{ inputs.distribution_certificate_base64 }}
+        DISTRIBUTION_PASSWORD: ${{ inputs.distribution_password }}
+        INSTALLER_DISTRIBUTION_CERTIFICATE_BASE64: ${{ inputs.installer_distribution_certificate_base64 }}
+        INSTALLER_DISTRIBUTION_PASSWORD: ${{ inputs.installer_distribution_password }}
+        DISTRIBUTION_PROVISIONING_PROFILE_BASE64: ${{ inputs.distribution_provisioning_profile_base64 }}
         NOTARIZATION_METHOD: ${{ inputs.notarization_method }}
         API_KEY_BASE64: ${{ inputs.api_key_base64 }}
         API_KEY_ID: ${{ inputs.api_key_id }}
@@ -58,21 +89,47 @@ runs:
         APPLE_PASSWORD: ${{ inputs.apple_password }}
         APPLE_TEAM_ID: ${{ inputs.apple_team_id }}
       run: |
+        echo "keychain_profile=" >> $GITHUB_OUTPUT
+        echo "provisioning_profile=" >> $GITHUB_OUTPUT
+
         # create variables
-        CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+        DEVELOPMENT_CERTIFICATE_PATH=$RUNNER_TEMP/development_certificate.p12
+        DISTRIBUTION_CERTIFICATE_PATH=$RUNNER_TEMP/distribution_certificate.p12
+        INSTALLER_DISTRIBUTION_CERTIFICATE_PATH=$RUNNER_TEMP/installer_distribution_certificate.p12
+        DISTRIBUTION_PROVISIONING_PROFILE_PATH=$RUNNER_TEMP/mas_distribution.provisionprofile
         KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
         KEYCHAIN_PASSWORD=keychain-password
         KEYCHAIN_PROFILE=notary
 
-        # import certificate and API key from secrets
-        echo -n "$CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
         # create temporary keychain
         security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
         security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
         security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-        # import certificate to keychain
-        security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+        # import certificate to keychain and provisioning profile
+        if [ "$DEVELOPMENT_CERTIFICATE_BASE64" ]; then
+          echo -n "$DEVELOPMENT_CERTIFICATE_BASE64" | base64 --decode -o $DEVELOPMENT_CERTIFICATE_PATH
+          security import $DEVELOPMENT_CERTIFICATE_PATH -P "$DEVELOPMENT_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          echo "Development certificate set"
+        fi
+        if [ "$DISTRIBUTION_CERTIFICATE_BASE64" ]; then
+          echo -n "$DISTRIBUTION_CERTIFICATE_BASE64" | base64 --decode -o $DISTRIBUTION_CERTIFICATE_PATH
+          security import $DISTRIBUTION_CERTIFICATE_PATH -P "$DISTRIBUTION_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          echo "Distribution certificate set"
+        fi
+        if [ "$INSTALLER_DISTRIBUTION_CERTIFICATE_BASE64" ]; then
+          echo -n "$INSTALLER_DISTRIBUTION_CERTIFICATE_BASE64" | base64 --decode -o $INSTALLER_DISTRIBUTION_CERTIFICATE_PATH
+          security import $INSTALLER_DISTRIBUTION_CERTIFICATE_PATH -P "$INSTALLER_DISTRIBUTION_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          echo "Installer distribution certificate set"
+        fi
+        if [ "$DISTRIBUTION_PROVISIONING_PROFILE_BASE64" ]; then
+          echo -n "$DISTRIBUTION_PROVISIONING_PROFILE_BASE64" | base64 --decode -o $DISTRIBUTION_PROVISIONING_PROFILE_PATH
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp "$DISTRIBUTION_PROVISIONING_PROFILE_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/app.mas.provisionprofile
+          echo "Distribution provisioning profile set"
+          echo "provisioning_profile=$DISTRIBUTION_PROVISIONING_PROFILE_PATH" >> $GITHUB_OUTPUT
+        fi
+
         security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
         security list-keychain -d user -s $KEYCHAIN_PATH
 
@@ -87,12 +144,16 @@ runs:
             --key-id "$API_KEY_ID" \
             --issuer "$API_ISSUER" \
             --keychain "$KEYCHAIN_PATH"
-        else
+
+          echo "notarytool credentials added using appstore_connect"
+        elif [ "$NOTARIZATION_METHOD" = "apple_id_password" ]; then
           xcrun notarytool store-credentials "$KEYCHAIN_PROFILE" \
             --apple-id "$APPLE_ID" \
             --password "$APPLE_PASSWORD" \
             --team-id "$APPLE_TEAM_ID" \
             --keychain "$KEYCHAIN_PATH"
+
+          echo "notarytool credentials added using apple_id_password"
         fi
 
         echo "keychain_profile=$KEYCHAIN_PROFILE" >> $GITHUB_OUTPUT
