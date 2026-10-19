@@ -14,3 +14,4 @@ runs:
     - uses: holepunchto/actions/setup-java@v1
       with:
         version: ${{ inputs.version }}
+        cache: gradle
