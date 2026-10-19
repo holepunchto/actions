@@ -1,0 +1,19 @@
+name: Setup Meson
+description: Install and configure Meson
+
+inputs:
+  version:
+    description: The Meson version to install
+    default: latest
+
+runs:
+  using: composite
+  steps:
+    - run: |
+        package="meson"
+        if [ "$VERSION" != "latest" ]; then package="meson==$VERSION"; fi
+
+        pip install "$package"
+      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
