@@ -22,6 +22,9 @@ inputs:
     description: 'App slug'
     required: false
 outputs:
+  length:
+    description: 'Drive length'
+    value: ${{ steps.stage.outputs.length }}
   pr-url:
     description: 'URL of the PR created if direct push to main failed (empty otherwise)'
     value: ${{ steps.commit.outputs.pr-url }}
@@ -78,6 +81,7 @@ runs:
           "/repos/${GITHUB_REPOSITORY}/contents/ci/snapshot.json?ref=main" > ci/snapshot.json
 
     - name: Stage
+      id: stage
       shell: bash
       env:
         INPUT_PRIMARY_KEY: ${{ inputs.primary-key }}
@@ -91,11 +95,16 @@ runs:
           --target "$INPUT_TARGET"
           --snapshot ci/snapshot.json
           --storage /tmp/store
+          --output "$RUNNER_TEMP/pear-ci-stage.json"
         )
         if [ "$INPUT_DRY_RUN" = "true" ]; then
           ARGS+=(--dry-run)
         fi
         pear-ci "${ARGS[@]}"
+        if [ "$INPUT_DRY_RUN" != "true" ]; then
+          length=$(jq -r '.length' "$RUNNER_TEMP/pear-ci-stage.json")
+          echo "length=$length" >> "$GITHUB_OUTPUT"
+        fi
 
     - name: Commit snapshot to main
       id: commit
