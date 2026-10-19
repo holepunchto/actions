@@ -1,19 +1,15 @@
 name: Setup LLVM
 description: Install and configure LLVM
 
+inputs:
+  version:
+    description: The `llvm-runtime` version to install
+    default: latest
+
 runs:
   using: composite
   steps:
-    - run: |
-        wget https://apt.llvm.org/llvm.sh
-        chmod +x llvm.sh
-        sudo ./llvm.sh 22
-        rm llvm.sh
-      if: ${{ runner.os == 'Linux' }}
+    - run: npm install --global "llvm-runtime@$VERSION"
       shell: bash
-    - run: brew install llvm@20
-      if: ${{ runner.os == 'macOS' }}
-      shell: bash
-    - run: choco install llvm --version 22.1.8 --force
-      if: ${{ runner.os == 'Windows' }}
-      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}

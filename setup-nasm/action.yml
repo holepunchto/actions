@@ -1,15 +1,15 @@
 name: Setup NASM
 description: Install and configure NASM
 
+inputs:
+  version:
+    description: The `nasm-runtime` version to install
+    default: latest
+
 runs:
   using: composite
   steps:
-    - run: sudo apt install -y nasm
-      if: ${{ runner.os == 'Linux' }}
+    - run: npm install --global "nasm-runtime@$VERSION"
       shell: bash
-    - run: brew install nasm
-      if: ${{ runner.os == 'macOS' }}
-      shell: bash
-    - run: choco install nasm
-      if: ${{ runner.os == 'Windows' }}
-      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
