@@ -66,7 +66,7 @@ runs:
 
     - name: Install pear-ci
       shell: bash
-      run: npm install -g --ignore-scripts --allow-git=root github:holepunchto/pear-ci#28ad60b3f1d8131c461f298494a6d3242afc27e8
+      run: npm install -g --ignore-scripts pear-ci
 
     - name: Fetch snapshot from main
       shell: bash
