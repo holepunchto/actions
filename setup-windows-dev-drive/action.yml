@@ -7,8 +7,7 @@ runs:
     - name: Configure Dev Drive
       if: runner.os == 'Windows'
       shell: pwsh
-      # zizmor: ignore[github-env] - Drive letter is machine-generated; no untrusted input
-      run: |
+      run: | # zizmor: ignore[github-env] - Drive letter is machine-generated; no untrusted input
         $vhd = Join-Path $env:RUNNER_TEMP 'dev-drive.vhdx'
         $volume = New-VHD -Path $vhd -SizeBytes 50GB -Dynamic |
           Mount-VHD -Passthru |
