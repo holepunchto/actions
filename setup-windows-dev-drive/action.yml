@@ -1,0 +1,20 @@
+name: 'Setup Windows Dev Drive'
+description: 'Mounts an ReFS Dev Drive for TMP to enable Defender performance mode and faster file I/O'
+
+runs:
+  using: composite
+  steps:
+    - name: Configure Dev Drive
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        $vhd = Join-Path $env:RUNNER_TEMP 'dev-drive.vhdx'
+        $volume = New-VHD -Path $vhd -SizeBytes 50GB -Dynamic |
+          Mount-VHD -Passthru |
+          Initialize-Disk -PartitionStyle GPT -PassThru |
+          New-Partition -AssignDriveLetter -UseMaximumSize |
+          Format-Volume -DevDrive -Confirm:$false -Force
+        $tmp = "$($volume.DriveLetter):\tmp"
+        New-Item -ItemType Directory -Path $tmp -Force | Out-Null
+        "TMP=$tmp" >> $env:GITHUB_ENV
+        "TEMP=$tmp" >> $env:GITHUB_ENV
