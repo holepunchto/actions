@@ -1,0 +1,21 @@
+name: Upload wheels
+description: Upload Python wheels built for one platform
+
+inputs:
+  platform:
+    description: The platform built for
+    required: true
+  arch:
+    description: The architecture built for
+    required: true
+  path:
+    description: The directory containing the wheels
+    default: dist
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      with:
+        name: wheels-${{ inputs.platform }}-${{ inputs.arch }}
+        path: ${{ inputs.path }}/*.whl

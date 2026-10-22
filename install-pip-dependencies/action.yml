@@ -1,0 +1,18 @@
+name: Install pip dependencies
+description: Install pip dependencies through Socket Firewall when available
+
+inputs:
+  packages:
+    description: The packages to install, as passed to pip install
+    default: -e .[dev]
+
+runs:
+  using: composite
+  steps:
+    - run: |
+        set -f
+        sfw=$(command -v sfw || true)
+        $sfw pip install $PACKAGES
+      env:
+        PACKAGES: ${{ inputs.packages }}
+      shell: bash
