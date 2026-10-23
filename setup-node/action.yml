@@ -13,6 +13,9 @@ inputs:
   package-manager-cache:
     description: Cache the package manager's global directory
     default: false
+  check-latest:
+    description: Resolve the version against the latest Node.js releases instead of the runner tool cache
+    default: true
 
 runs:
   using: composite
@@ -23,3 +26,4 @@ runs:
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}
         package-manager-cache: ${{ inputs.package-manager-cache }}
+        check-latest: ${{ inputs.check-latest }}
