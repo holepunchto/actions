@@ -1,0 +1,59 @@
+name: Create XCFramework
+description: Merge per-target framework prebuilds into an archived XCFramework for publishing
+
+inputs:
+  name:
+    description: The name of the framework, such that each target directory of the prefix contains <name>.framework
+    required: true
+  prefix:
+    description: The prebuild prefix, with a directory per target such as darwin-arm64 or ios-x64-simulator
+    default: prebuilds
+  path:
+    description: The XCFramework directory to create, relative to the working directory. Defaults to <name>.xcframework.
+    required: false
+
+outputs:
+  path:
+    description: The path of the archived XCFramework
+    value: ${{ inputs.path || format('{0}.xcframework', inputs.name) }}.zip
+
+runs:
+  using: composite
+  steps:
+    - run: |
+        args=()
+
+        for group in $(ls "$PREFIX" | sed -E 's/-(arm64|x64)//' | sort -u); do
+          framework="$RUNNER_TEMP/xcframework/$group/$NAME.framework"
+          binaries=()
+
+          for target in $(ls "$PREFIX"); do
+            if [ "$(echo "$target" | sed -E 's/-(arm64|x64)//')" = "$group" ]; then
+              if [ ! -d "$framework" ]; then
+                mkdir -p "$(dirname "$framework")"
+                cp -R "$PREFIX/$target/$NAME.framework" "$framework"
+              fi
+
+              binaries+=("$PREFIX/$target/$NAME.framework/$NAME")
+            fi
+          done
+
+          if [ -d "$framework/Versions" ]; then
+            binary="$framework/Versions/Current/$NAME"
+          else
+            binary="$framework/$NAME"
+          fi
+
+          lipo -create -output "$binary" "${binaries[@]}"
+
+          args+=(-framework "$framework")
+        done
+
+        xcodebuild -create-xcframework -output "$OUTPUT" "${args[@]}"
+
+        zip -qry "$OUTPUT.zip" "$OUTPUT"
+      env:
+        NAME: ${{ inputs.name }}
+        PREFIX: ${{ inputs.prefix }}
+        OUTPUT: ${{ inputs.path || format('{0}.xcframework', inputs.name) }}
+      shell: bash
