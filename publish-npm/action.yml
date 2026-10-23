@@ -25,8 +25,9 @@ runs:
         NODE_AUTH_TOKEN: ${{ inputs.node-auth-token || env.NODE_AUTH_TOKEN }}
         TAG: ${{ inputs.tag }}
       shell: bash
-    - uses: holepunchto/actions/create-release@v1
+    - run: npm pack --ignore-scripts ${{ case(inputs.workspaces == 'true', '--workspaces', '') }} ${{ case(inputs.include-workspace-root == 'true', '--include-workspace-root', '') }}
+      shell: bash
+    - uses: holepunchto/actions/create-github-release@v1
       with:
-        ref-name: ${{ inputs.ref-name }}
-        workspaces: ${{ inputs.workspaces }}
-        include-workspace-root: ${{ inputs.include-workspace-root }}
+        tag: ${{ inputs.ref-name }}
+        files: '*.tgz'

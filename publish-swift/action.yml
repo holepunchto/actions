@@ -1,0 +1,31 @@
+name: Publish Swift package
+description: Create the GitHub release of a Swift package, or publish its draft release once Package.swift declares the checksum of its binary target
+
+inputs:
+  asset:
+    description: The asset of the draft release whose checksum Package.swift must declare
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/create-github-release@v1
+      if: ${{ !inputs.asset }}
+    - run: gh release download $TAG --pattern $ASSET --dir $RUNNER_TEMP
+      if: ${{ inputs.asset }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ github.ref_name }}
+        ASSET: ${{ inputs.asset }}
+      shell: bash
+    - run: 'grep -qF "checksum: \"$(swift package compute-checksum $RUNNER_TEMP/$ASSET)\"" Package.swift'
+      if: ${{ inputs.asset }}
+      env:
+        ASSET: ${{ inputs.asset }}
+      shell: bash
+    - run: gh release edit $TAG --draft=false
+      if: ${{ inputs.asset }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ github.ref_name }}
+      shell: bash
