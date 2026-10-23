@@ -14,9 +14,4 @@ runs:
     - uses: holepunchto/actions/setup-python@v1
       with:
         version: ${{ inputs.version }}
-    # setup-socket skips Socket Firewall on runners it has no binary for, so sfw
-    # is not always on PATH; install directly when it is absent.
-    - run: |
-        sfw=$(command -v sfw || true)
-        $sfw pip install -e '.[dev]'
-      shell: bash
+    - uses: holepunchto/actions/install-pip-dependencies@v1
