@@ -1,0 +1,20 @@
+name: Create artifact bundle
+description: Archive a SwiftPM artifact bundle for publishing
+
+inputs:
+  path:
+    description: The artifact bundle directory, relative to the working directory
+    required: true
+
+outputs:
+  path:
+    description: The path of the archived artifact bundle
+    value: ${{ inputs.path }}.zip
+
+runs:
+  using: composite
+  steps:
+    - run: zip -qry $BUNDLE.zip $BUNDLE
+      env:
+        BUNDLE: ${{ inputs.path }}
+      shell: bash

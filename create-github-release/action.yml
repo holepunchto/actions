@@ -1,0 +1,23 @@
+name: Create GitHub release
+description: Create a GitHub release with assets
+
+inputs:
+  tag:
+    description: The tag the release is published under. Defaults to github.ref_name.
+    required: false
+  files:
+    description: The files to attach to the release, separated by spaces and expanded as globs
+    required: false
+  draft:
+    description: Create the release as a draft
+    default: false
+
+runs:
+  using: composite
+  steps:
+    - run: gh release create $TAG ${{ case(inputs.draft == 'true', '--draft', '') }} $FILES
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ inputs.tag || github.ref_name }}
+        FILES: ${{ inputs.files }}
+      shell: bash

@@ -22,8 +22,6 @@ runs:
     - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
       with:
         repository-url: ${{ case(inputs.index == 'testpypi', 'https://test.pypi.org/legacy/', 'https://upload.pypi.org/legacy/') }}
-    - run: gh release create $REF_NAME dist/*
-      env:
-        GH_TOKEN: ${{ github.token }}
-        REF_NAME: ${{ github.ref_name }}
-      shell: bash
+    - uses: holepunchto/actions/create-github-release@v1
+      with:
+        files: dist/*
