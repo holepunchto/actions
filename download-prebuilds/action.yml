@@ -5,6 +5,9 @@ inputs:
   prefix:
     description: The prebuild prefix
     default: prebuilds
+  archive:
+    description: Extract prebuilds uploaded as tarballs
+    default: false
 
 runs:
   using: composite
@@ -13,3 +16,8 @@ runs:
       with:
         path: ${{ inputs.prefix }}
         merge-multiple: true
+    - run: for archive in $PREFIX/*.tar; do tar -xf $archive -C $PREFIX && rm $archive; done
+      if: ${{ inputs.archive == 'true' }}
+      env:
+        PREFIX: ${{ inputs.prefix }}
+      shell: bash
