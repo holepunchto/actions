@@ -1,5 +1,5 @@
 name: Create XCFramework
-description: Merge per-target framework prebuilds into an archived XCFramework for publishing
+description: Merge per-target framework prebuilds into an XCFramework, optionally archived for publishing
 
 inputs:
   name:
@@ -11,11 +11,14 @@ inputs:
   path:
     description: The XCFramework directory to create, relative to the working directory. Defaults to <name>.xcframework.
     required: false
+  archive:
+    description: Archive the XCFramework as <path>.zip, such as for a SwiftPM binary target
+    default: false
 
 outputs:
   path:
-    description: The path of the archived XCFramework
-    value: ${{ inputs.path || format('{0}.xcframework', inputs.name) }}.zip
+    description: The path of the XCFramework, or of its archive if archived
+    value: ${{ format(inputs.archive == 'true' && '{0}.zip' || '{0}', inputs.path || format('{0}.xcframework', inputs.name)) }}
 
 runs:
   using: composite
@@ -50,10 +53,13 @@ runs:
         done
 
         xcodebuild -create-xcframework -output "$OUTPUT" "${args[@]}"
-
-        zip -qry "$OUTPUT.zip" "$OUTPUT"
       env:
         NAME: ${{ inputs.name }}
         PREFIX: ${{ inputs.prefix }}
+        OUTPUT: ${{ inputs.path || format('{0}.xcframework', inputs.name) }}
+      shell: bash
+    - run: zip -qry $OUTPUT.zip $OUTPUT
+      if: ${{ inputs.archive == 'true' }}
+      env:
         OUTPUT: ${{ inputs.path || format('{0}.xcframework', inputs.name) }}
       shell: bash
