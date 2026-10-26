@@ -13,11 +13,20 @@ inputs:
   prefix:
     description: The prebuild prefix
     default: prebuilds
+  archive:
+    description: Upload the prebuilds as a tarball, which preserves symlinks such as those of a macOS framework
+    default: false
 
 runs:
   using: composite
   steps:
+    - run: tar -cf $RUNNER_TEMP/$NAME.tar -C $PREFIX .
+      if: ${{ inputs.archive == 'true' }}
+      env:
+        NAME: ${{ inputs.platform }}-${{ inputs.arch }}${{ inputs.tags }}
+        PREFIX: ${{ inputs.prefix }}
+      shell: bash
     - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: ${{ inputs.platform }}-${{ inputs.arch }}${{ inputs.tags }}
-        path: ${{ inputs.prefix }}/*
+        path: ${{ inputs.archive == 'true' && format('{0}/{1}-{2}{3}.tar', runner.temp, inputs.platform, inputs.arch, inputs.tags) || format('{0}/*', inputs.prefix) }}

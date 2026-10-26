@@ -19,6 +19,9 @@ inputs:
   upload:
     description: Upload the compiled prebuilds
     default: false
+  archive:
+    description: Upload the prebuilds as a tarball, which preserves symlinks such as those of a macOS framework
+    default: false
   wasi:
     description: Install the WASI sysroot for targeting WASI
     default: false
@@ -55,3 +58,4 @@ runs:
         arch: ${{ inputs.arch }}
         tags: ${{ inputs.tags }}
         prefix: ${{ format('{0}/{1}', inputs.path, inputs.prefix) }}
+        archive: ${{ inputs.archive }}
