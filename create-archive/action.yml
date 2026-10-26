@@ -1,0 +1,20 @@
+name: Create archive
+description: Archive a directory as a zip for publishing, such as for a release asset
+
+inputs:
+  path:
+    description: The directory to archive, relative to the working directory
+    required: true
+
+outputs:
+  path:
+    description: The path of the archive
+    value: ${{ inputs.path }}.zip
+
+runs:
+  using: composite
+  steps:
+    - run: zip -qry $DIRECTORY.zip $DIRECTORY
+      env:
+        DIRECTORY: ${{ inputs.path }}
+      shell: bash

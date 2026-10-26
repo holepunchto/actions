@@ -1,0 +1,36 @@
+name: Publish JitPack package
+description: Create the GitHub release of a JitPack package, or publish its draft release once gradle.properties declares the checksum of its asset, and build the release on JitPack
+
+inputs:
+  asset:
+    description: The asset of the draft release whose checksum gradle.properties must declare
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/create-github-release@v1
+      if: ${{ !inputs.asset }}
+    - run: gh release download $TAG --pattern $ASSET --dir $RUNNER_TEMP
+      if: ${{ inputs.asset }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ github.ref_name }}
+        ASSET: ${{ inputs.asset }}
+      shell: bash
+    - run: grep -qF "$(sha256sum $RUNNER_TEMP/$ASSET | cut -d ' ' -f 1)" gradle.properties
+      if: ${{ inputs.asset }}
+      env:
+        ASSET: ${{ inputs.asset }}
+      shell: bash
+    - run: gh release edit $TAG --draft=false
+      if: ${{ inputs.asset }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ github.ref_name }}
+      shell: bash
+    - run: curl -fsS --max-time 1200 -o /dev/null https://jitpack.io/com/github/$REPOSITORY/$TAG/${REPOSITORY#*/}-$TAG.pom
+      env:
+        REPOSITORY: ${{ github.repository }}
+        TAG: ${{ github.ref_name }}
+      shell: bash

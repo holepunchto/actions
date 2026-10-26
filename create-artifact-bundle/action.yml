@@ -9,12 +9,12 @@ inputs:
 outputs:
   path:
     description: The path of the archived artifact bundle
-    value: ${{ inputs.path }}.zip
+    value: ${{ steps.archive.outputs.path }}
 
 runs:
   using: composite
   steps:
-    - run: zip -qry $BUNDLE.zip $BUNDLE
-      env:
-        BUNDLE: ${{ inputs.path }}
-      shell: bash
+    - id: archive
+      uses: holepunchto/actions/create-archive@v1
+      with:
+        path: ${{ inputs.path }}
