@@ -13,15 +13,17 @@ runs:
   using: composite
   steps:
     - uses: holepunchto/actions/install-pip-dependencies@v1
-      if: ${{ inputs.build != 'none' }}
       with:
-        packages: build==1.5.0
+        packages: ${{ case(inputs.build != 'none', 'build==1.5.0 twine==7.0.0', 'twine==7.0.0') }}
     - run: python -m build ${{ case(inputs.build == 'sdist', '--sdist', '') }}
       if: ${{ inputs.build != 'none' }}
       shell: bash
-    - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
-      with:
-        repository-url: ${{ case(inputs.index == 'testpypi', 'https://test.pypi.org/legacy/', 'https://upload.pypi.org/legacy/') }}
+    - run: twine check --strict dist/*
+      shell: bash
+    - run: twine upload --non-interactive --repository $INDEX dist/*
+      env:
+        INDEX: ${{ inputs.index }}
+      shell: bash
     - uses: holepunchto/actions/create-github-release@v1
       with:
         files: dist/*
