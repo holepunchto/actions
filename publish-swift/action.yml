@@ -18,7 +18,7 @@ runs:
         TAG: ${{ github.ref_name }}
         ASSET: ${{ inputs.asset }}
       shell: bash
-    - run: 'grep -qF "checksum: \"$(swift package compute-checksum $RUNNER_TEMP/$ASSET)\"" Package.swift'
+    - run: grep -qF "$(sha256sum $RUNNER_TEMP/$ASSET | cut -d ' ' -f 1)" Package.swift
       if: ${{ inputs.asset }}
       env:
         ASSET: ${{ inputs.asset }}
