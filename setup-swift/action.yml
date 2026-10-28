@@ -1,11 +1,63 @@
 name: Setup Swift
 description: Install and configure Swift
 
+inputs:
+  version:
+    description: The Swift version to install
+    default: latest
+
 runs:
   using: composite
   steps:
-    # Linux has no system Swift, so install it. macOS ships Swift with Xcode;
-    # installing a separate swift.org toolchain there skews the compiler against
-    # Xcode's SDK (e.g. Swift 6.1 compiler vs an Xcode 26.5 SDK built with 6.3.2).
-    - uses: swift-actions/setup-swift@7ca6abe6b3b0e8b5421b88be48feee39cbf52c6a # v2
-      if: ${{ runner.os == 'Linux' }}
+    - run: | # zizmor: ignore[github-env] - Paths are fixed by Swiftly; no untrusted input
+        swift_version() {
+          "$@" --version 2>&1 | sed -n 's/.*Swift version \([^ ]*\).*/\1/p'
+        }
+
+        cd "$RUNNER_TEMP"
+
+        if [ "$RUNNER_OS" = "macOS" ]; then
+          xcode_version="$(swift_version xcrun swift)"
+
+          curl -fsSLO "https://download.swift.org/swiftly/darwin/swiftly.pkg"
+          installer -pkg swiftly.pkg -target CurrentUserHomeDirectory
+
+          swiftly="$HOME/.swiftly/bin/swiftly"
+          env="$HOME/.swiftly/env.sh"
+        else
+          curl -fsSLO "https://download.swift.org/swiftly/linux/swiftly-$(uname -m).tar.gz"
+          tar -xzf "swiftly-$(uname -m).tar.gz"
+
+          swiftly="./swiftly"
+          env="$HOME/.local/share/swiftly/env.sh"
+        fi
+
+        "$swiftly" init --assume-yes --no-modify-profile --quiet-shell-followup --skip-install
+
+        . "$env"
+
+        swiftly install "$VERSION" --use --assume-yes --post-install-file swiftly-post-install.sh
+
+        if [ -s swiftly-post-install.sh ]; then sudo bash swiftly-post-install.sh; fi
+
+        echo "SWIFTLY_HOME_DIR=$SWIFTLY_HOME_DIR" >> "$GITHUB_ENV"
+        echo "SWIFTLY_BIN_DIR=$SWIFTLY_BIN_DIR" >> "$GITHUB_ENV"
+        echo "$SWIFTLY_BIN_DIR" >> "$GITHUB_PATH"
+
+        if [ "$RUNNER_OS" = "macOS" ]; then
+          toolchain="$(swiftly use --print-location)"
+          version="$(swift_version "$toolchain/usr/bin/swift")"
+
+          if [ "$(printf '%s\n' "$version" "$xcode_version" | sort -V | head -1)" != "$xcode_version" ]; then
+            echo "::error::Swift $version is older than the Swift $xcode_version that ships with Xcode"
+            exit 1
+          fi
+
+          echo "TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw "$toolchain/Info.plist")" >> "$GITHUB_ENV"
+        fi
+
+        swift --version
+      if: ${{ runner.os == 'Linux' || (runner.os == 'macOS' && inputs.version != 'latest') }}
+      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
