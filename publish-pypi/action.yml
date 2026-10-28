@@ -14,13 +14,15 @@ runs:
   steps:
     - uses: holepunchto/actions/install-pip-dependencies@v1
       with:
-        packages: ${{ case(inputs.build != 'none', 'build==1.5.0 twine==7.0.0', 'twine==7.0.0') }}
+        packages: ${{ format('twine==7.0.0 pypi-attestations==0.0.30 {0}', case(inputs.build != 'none', 'build==1.5.0', '')) }}
     - run: python -m build ${{ case(inputs.build == 'sdist', '--sdist', '') }}
       if: ${{ inputs.build != 'none' }}
       shell: bash
     - run: twine check --strict dist/*
       shell: bash
-    - run: twine upload --non-interactive --repository $INDEX dist/*
+    - run: python -m pypi_attestations sign dist/*
+      shell: bash
+    - run: twine upload --non-interactive --attestations --repository $INDEX dist/*
       env:
         INDEX: ${{ inputs.index }}
       shell: bash
