@@ -29,7 +29,7 @@ runs:
         GH_TOKEN: ${{ github.token }}
         TAG: ${{ github.ref_name }}
       shell: bash
-    - run: curl -fsS --max-time 1200 -o /dev/null https://jitpack.io/com/github/$REPOSITORY/$TAG/${REPOSITORY#*/}-$TAG.pom
+    - run: curl -fsS --max-time 1200 --retry 10 --retry-delay 30 --retry-all-errors -o /dev/null https://jitpack.io/com/github/$REPOSITORY/$TAG/${REPOSITORY#*/}-$TAG.pom
       env:
         REPOSITORY: ${{ github.repository }}
         TAG: ${{ github.ref_name }}
