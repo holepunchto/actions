@@ -14,6 +14,15 @@ inputs:
   archive:
     description: Archive the XCFramework as <path>.zip, such as for a SwiftPM binary target
     default: false
+  sign:
+    description: Code sign the XCFramework with the given identity, such that Xcode verifies its signer
+    default: false
+  identity:
+    description: The code signing identity in the keychain, required if signing
+    required: false
+  attest:
+    description: Attest the build provenance of the XCFramework archive, which requires archiving and the id-token and attestations write permissions
+    default: false
 
 outputs:
   path:
@@ -58,8 +67,14 @@ runs:
         PREFIX: ${{ inputs.prefix }}
         OUTPUT: ${{ inputs.path || format('{0}.xcframework', inputs.name) }}
       shell: bash
-    - run: zip -qry $OUTPUT.zip $OUTPUT
-      if: ${{ inputs.archive == 'true' }}
+    - run: codesign --timestamp --sign "$IDENTITY" "$OUTPUT"
+      if: ${{ inputs.sign == 'true' }}
       env:
+        IDENTITY: ${{ inputs.identity }}
         OUTPUT: ${{ inputs.path || format('{0}.xcframework', inputs.name) }}
       shell: bash
+    - uses: holepunchto/actions/create-archive@v1
+      if: ${{ inputs.archive == 'true' }}
+      with:
+        path: ${{ inputs.path || format('{0}.xcframework', inputs.name) }}
+        attest: ${{ inputs.attest }}

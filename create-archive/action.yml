@@ -5,6 +5,9 @@ inputs:
   path:
     description: The directory to archive, relative to the working directory
     required: true
+  attest:
+    description: Attest the build provenance of the archive, which requires the id-token and attestations write permissions
+    default: false
 
 outputs:
   path:
@@ -18,3 +21,7 @@ runs:
       env:
         DIRECTORY: ${{ inputs.path }}
       shell: bash
+    - uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+      if: ${{ inputs.attest == 'true' }}
+      with:
+        subject-path: ${{ inputs.path }}.zip
