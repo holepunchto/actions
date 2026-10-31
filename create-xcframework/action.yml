@@ -73,12 +73,8 @@ runs:
         IDENTITY: ${{ inputs.identity }}
         OUTPUT: ${{ inputs.path || format('{0}.xcframework', inputs.name) }}
       shell: bash
-    - run: zip -qry $OUTPUT.zip $OUTPUT
+    - uses: holepunchto/actions/create-archive@v1
       if: ${{ inputs.archive == 'true' }}
-      env:
-        OUTPUT: ${{ inputs.path || format('{0}.xcframework', inputs.name) }}
-      shell: bash
-    - uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
-      if: ${{ inputs.attest == 'true' }}
       with:
-        subject-path: ${{ format('{0}.zip', inputs.path || format('{0}.xcframework', inputs.name)) }}
+        path: ${{ inputs.path || format('{0}.xcframework', inputs.name) }}
+        attest: ${{ inputs.attest }}

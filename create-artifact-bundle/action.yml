@@ -21,7 +21,4 @@ runs:
       uses: holepunchto/actions/create-archive@v1
       with:
         path: ${{ inputs.path }}
-    - uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
-      if: ${{ inputs.attest == 'true' }}
-      with:
-        subject-path: ${{ steps.archive.outputs.path }}
+        attest: ${{ inputs.attest }}
