@@ -5,6 +5,9 @@ inputs:
   path:
     description: The artifact bundle directory, relative to the working directory
     required: true
+  attest:
+    description: Attest the build provenance of the archived artifact bundle, which requires the id-token and attestations write permissions
+    default: false
 
 outputs:
   path:
@@ -18,3 +21,4 @@ runs:
       uses: holepunchto/actions/create-archive@v1
       with:
         path: ${{ inputs.path }}
+        attest: ${{ inputs.attest }}
