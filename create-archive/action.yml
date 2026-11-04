@@ -1,27 +1,49 @@
 name: Create archive
-description: Archive a directory as a zip for publishing, such as for a release asset
+description: Archive directories for publishing, such as for release assets
 
 inputs:
-  path:
-    description: The directory to archive, relative to the working directory
+  paths:
+    description: The directories to archive, relative to the working directory, separated by spaces and expanded as globs. Each is archived on its own.
     required: true
+  format:
+    description: The format of the archives, either zip or tar.gz
+    default: zip
   attest:
-    description: Attest the build provenance of the archive, which requires the id-token and attestations write permissions
+    description: Attest the build provenance of the archives, which requires the id-token and attestations write permissions
     default: false
 
 outputs:
-  path:
-    description: The path of the archive
-    value: ${{ inputs.path }}.zip
+  paths:
+    description: The paths of the archives, separated by spaces
+    value: ${{ steps.archive.outputs.paths }}
 
 runs:
   using: composite
   steps:
-    - run: zip -qry $DIRECTORY.zip $DIRECTORY
+    - id: archive
+      run: |
+        archives=()
+
+        for directory in $DIRECTORIES; do
+          case $FORMAT in
+            zip) zip -qry $directory.zip $directory ;;
+            tar.gz) tar -czf $directory.tar.gz $directory ;;
+            *)
+              echo "::error::Unknown archive format $FORMAT"
+              exit 1
+              ;;
+          esac
+
+          archives+=($directory.$FORMAT)
+        done
+
+        echo "paths=${archives[*]}" >> $GITHUB_OUTPUT
+        echo "subjects=$(IFS=,; echo "${archives[*]}")" >> $GITHUB_OUTPUT
       env:
-        DIRECTORY: ${{ inputs.path }}
+        DIRECTORIES: ${{ inputs.paths }}
+        FORMAT: ${{ inputs.format }}
       shell: bash
     - uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
       if: ${{ inputs.attest == 'true' }}
       with:
-        subject-path: ${{ inputs.path }}.zip
+        subject-path: ${{ steps.archive.outputs.subjects }}

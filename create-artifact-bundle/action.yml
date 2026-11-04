@@ -12,7 +12,7 @@ inputs:
 outputs:
   path:
     description: The path of the archived artifact bundle
-    value: ${{ steps.archive.outputs.path }}
+    value: ${{ steps.archive.outputs.paths }}
 
 runs:
   using: composite
@@ -20,5 +20,5 @@ runs:
     - id: archive
       uses: holepunchto/actions/create-archive@v1
       with:
-        path: ${{ inputs.path }}
+        paths: ${{ inputs.path }}
         attest: ${{ inputs.attest }}
