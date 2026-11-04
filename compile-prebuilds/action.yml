@@ -16,6 +16,9 @@ inputs:
   path:
     description: The directory containing the source tree to compile
     default: .
+  build:
+    description: The build tree, relative to the source tree, such as to compile the same source tree more than once
+    default: build
   upload:
     description: Upload the compiled prebuilds
     default: false
@@ -36,18 +39,22 @@ runs:
       with:
         wasi: ${{ inputs.wasi }}
         musl: ${{ inputs.musl }}
-    - run: bare-make generate ${PLATFORM:+--platform $PLATFORM} ${ARCH:+--arch $ARCH} $FLAGS
+    - run: bare-make generate --build $BUILD ${PLATFORM:+--platform $PLATFORM} ${ARCH:+--arch $ARCH} $FLAGS
       env:
+        BUILD: ${{ inputs.build }}
         PLATFORM: ${{ inputs.platform }}
         ARCH: ${{ inputs.arch }}
         FLAGS: ${{ inputs.flags }}
       working-directory: ${{ inputs.path }}
       shell: bash
-    - run: bare-make build
+    - run: bare-make build --build $BUILD
+      env:
+        BUILD: ${{ inputs.build }}
       working-directory: ${{ inputs.path }}
       shell: bash
-    - run: bare-make install --prefix $PREFIX
+    - run: bare-make install --build $BUILD --prefix $PREFIX
       env:
+        BUILD: ${{ inputs.build }}
         PREFIX: ${{ inputs.prefix }}
       working-directory: ${{ inputs.path }}
       shell: bash
