@@ -3,7 +3,7 @@ description: Create the GitHub release of a Swift package, or publish its draft 
 
 inputs:
   assets:
-    description: The assets of the draft release whose checksums Package.swift must declare, separated by spaces
+    description: The assets of the draft release whose checksums Package.swift must declare, as names or globs separated by spaces
     required: false
 
 runs:
@@ -11,17 +11,26 @@ runs:
   steps:
     - uses: holepunchto/actions/create-github-release@v1
       if: ${{ !inputs.assets }}
-    - run: for asset in $ASSETS; do gh release download $TAG --pattern $asset --dir $RUNNER_TEMP; done
+    - run: |
+        set -f
+
+        for asset in $ASSETS; do
+          gh release download $TAG --pattern "$asset" --dir $RUNNER_TEMP/assets
+        done
       if: ${{ inputs.assets }}
       env:
         GH_TOKEN: ${{ github.token }}
         TAG: ${{ github.ref_name }}
         ASSETS: ${{ inputs.assets }}
       shell: bash
-    - run: for asset in $ASSETS; do grep -qF "$(sha256sum $RUNNER_TEMP/$asset | cut -d ' ' -f 1)" Package.swift; done
+    - run: |
+        for asset in $RUNNER_TEMP/assets/*; do
+          if ! grep -qF "$(sha256sum $asset | cut -d ' ' -f 1)" Package.swift; then
+            echo "::error::Package.swift does not declare the checksum of $(basename $asset)"
+            exit 1
+          fi
+        done
       if: ${{ inputs.assets }}
-      env:
-        ASSETS: ${{ inputs.assets }}
       shell: bash
     - run: gh release edit $TAG --draft=false
       if: ${{ inputs.assets }}
