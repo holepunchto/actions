@@ -8,6 +8,9 @@ inputs:
   archive:
     description: Extract prebuilds uploaded as tarballs
     default: false
+  pattern:
+    description: The names of the prebuild artifacts to download, as a glob. Defaults to all of them.
+    required: false
 
 runs:
   using: composite
@@ -15,6 +18,7 @@ runs:
     - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 #v8.0.2
       with:
         path: ${{ inputs.prefix }}
+        pattern: ${{ inputs.pattern }}
         merge-multiple: true
     - run: for archive in $PREFIX/*.tar; do tar -xf $archive -C $PREFIX && rm $archive; done
       if: ${{ inputs.archive == 'true' }}
