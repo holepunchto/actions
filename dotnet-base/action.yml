@@ -1,0 +1,15 @@
+name: .NET base
+description: Configure a .NET project
+
+inputs:
+  version:
+    description: The .NET SDK to install
+    default: 10.0.x
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/checkout@v1
+    - uses: holepunchto/actions/setup-dotnet@v1
+      with:
+        version: ${{ inputs.version }}

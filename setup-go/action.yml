@@ -1,0 +1,15 @@
+name: Setup Go
+description: Install and configure a Go toolchain
+
+inputs:
+  version:
+    description: The Go toolchain to install
+    default: stable
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      with:
+        go-version: ${{ inputs.version }}
+        cache: false

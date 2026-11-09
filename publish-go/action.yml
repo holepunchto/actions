@@ -1,0 +1,52 @@
+name: Publish Go module
+description: Create the GitHub release of a Go module, or publish its draft release once the module declares the checksums of its assets, and make the release known to the Go module proxy
+
+inputs:
+  assets:
+    description: The assets of the draft release whose checksums the module must declare, as names or globs separated by spaces
+    required: false
+  checksums:
+    description: The file of the module that declares the checksums of the assets
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/create-github-release@v1
+      if: ${{ !inputs.assets }}
+    - run: |
+        set -f
+
+        for asset in $ASSETS; do
+          gh release download $TAG --pattern "$asset" --dir $RUNNER_TEMP/assets
+        done
+      if: ${{ inputs.assets }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ github.ref_name }}
+        ASSETS: ${{ inputs.assets }}
+      shell: bash
+    - run: |
+        for asset in $RUNNER_TEMP/assets/*; do
+          if ! grep -qF "$(sha256sum $asset | cut -d ' ' -f 1)" $CHECKSUMS; then
+            echo "::error::$CHECKSUMS does not declare the checksum of $(basename $asset)"
+            exit 1
+          fi
+        done
+      if: ${{ inputs.assets }}
+      env:
+        CHECKSUMS: ${{ inputs.checksums }}
+      shell: bash
+    - run: gh release edit $TAG --draft=false
+      if: ${{ inputs.assets }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ github.ref_name }}
+      shell: bash
+    - run: |
+        module=$(go list -m)
+        cd $RUNNER_TEMP
+        go list -m $module@$TAG
+      env:
+        TAG: ${{ github.ref_name }}
+      shell: bash

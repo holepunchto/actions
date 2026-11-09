@@ -1,0 +1,17 @@
+name: Dart base
+description: Configure a Dart project
+
+inputs:
+  version:
+    description: The Dart SDK to install
+    default: stable
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/checkout@v1
+    - uses: holepunchto/actions/setup-dart@v1
+      with:
+        version: ${{ inputs.version }}
+    - run: dart pub get
+      shell: bash

@@ -1,0 +1,25 @@
+name: Setup Rust
+description: Install and configure a Rust toolchain
+
+inputs:
+  version:
+    description: The Rust toolchain to install
+    default: stable
+  components:
+    description: Additional components to install, separated by spaces
+    default: rustfmt clippy
+  targets:
+    description: Additional targets to install, separated by spaces
+
+runs:
+  using: composite
+  steps:
+    - run: |
+        rustup toolchain install $VERSION --profile minimal ${COMPONENTS:+--component ${COMPONENTS// /,}} ${TARGETS:+--target ${TARGETS// /,}}
+        rustup default $VERSION
+        cargo --version
+      env:
+        VERSION: ${{ inputs.version }}
+        COMPONENTS: ${{ inputs.components }}
+        TARGETS: ${{ inputs.targets }}
+      shell: bash
