@@ -1,0 +1,15 @@
+name: Rust base
+description: Configure a Rust project
+
+inputs:
+  version:
+    description: The Rust toolchain to install
+    default: stable
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/checkout@v1
+    - uses: holepunchto/actions/setup-rust@v1
+      with:
+        version: ${{ inputs.version }}

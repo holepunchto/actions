@@ -1,0 +1,26 @@
+name: Publish to NuGet
+description: Pack the packages of a .NET project with the version of the tag, publish them to NuGet, and create a GitHub release
+
+inputs:
+  user:
+    description: The NuGet account that owns the trusted publishing policy
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - run: dotnet pack --configuration Release --output nupkgs -p:Version=${TAG#v}
+      env:
+        TAG: ${{ github.ref_name }}
+      shell: bash
+    - id: login
+      uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+      with:
+        user: ${{ inputs.user }}
+    - run: dotnet nuget push 'nupkgs/*.nupkg' --api-key $API_KEY --source https://api.nuget.org/v3/index.json
+      env:
+        API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+      shell: bash
+    - uses: holepunchto/actions/create-github-release@v1
+      with:
+        files: nupkgs/*.nupkg

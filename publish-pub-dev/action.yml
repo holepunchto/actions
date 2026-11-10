@@ -1,0 +1,47 @@
+name: Publish to pub.dev
+description: Create the GitHub release of a package, or publish its draft release once the package declares the checksums of its assets, and publish the package to pub.dev
+
+inputs:
+  assets:
+    description: The assets of the draft release whose checksums the package must declare, as names or globs separated by spaces
+    required: false
+  checksums:
+    description: The file of the package that declares the checksums of the assets
+    default: hook/build.dart
+
+runs:
+  using: composite
+  steps:
+    - uses: holepunchto/actions/create-github-release@v1
+      if: ${{ !inputs.assets }}
+    - run: |
+        set -f
+
+        for asset in $ASSETS; do
+          gh release download $TAG --pattern "$asset" --dir $RUNNER_TEMP/assets
+        done
+      if: ${{ inputs.assets }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ github.ref_name }}
+        ASSETS: ${{ inputs.assets }}
+      shell: bash
+    - run: |
+        for asset in $RUNNER_TEMP/assets/*; do
+          if ! grep -qF "$(sha256sum $asset | cut -d ' ' -f 1)" $CHECKSUMS; then
+            echo "::error::$CHECKSUMS does not declare the checksum of $(basename $asset)"
+            exit 1
+          fi
+        done
+      if: ${{ inputs.assets }}
+      env:
+        CHECKSUMS: ${{ inputs.checksums }}
+      shell: bash
+    - run: gh release edit $TAG --draft=false
+      if: ${{ inputs.assets }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ github.ref_name }}
+      shell: bash
+    - run: dart pub publish --force
+      shell: bash

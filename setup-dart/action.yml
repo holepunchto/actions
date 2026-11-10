@@ -1,0 +1,14 @@
+name: Setup Dart
+description: Install and configure a Dart SDK, which authenticates to pub.dev when the job may mint an OIDC token
+
+inputs:
+  version:
+    description: The Dart SDK to install
+    default: stable
+
+runs:
+  using: composite
+  steps:
+    - uses: dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d # v1.8.1
+      with:
+        sdk: ${{ inputs.version }}

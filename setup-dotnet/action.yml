@@ -1,0 +1,14 @@
+name: Setup .NET
+description: Install and configure a .NET SDK
+
+inputs:
+  version:
+    description: The .NET SDK to install
+    default: 10.0.x
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      with:
+        dotnet-version: ${{ inputs.version }}
