@@ -1,30 +1,39 @@
 name: Publish JitPack package
-description: Create the GitHub release of a JitPack package, or publish its draft release once gradle.properties declares the checksum of its asset, and build the release on JitPack
+description: Create the GitHub release of a JitPack package, or publish its draft release once gradle.properties declares the checksums of its assets, and build the release on JitPack
 
 inputs:
-  asset:
-    description: The asset of the draft release whose checksum gradle.properties must declare
+  assets:
+    description: The assets of the draft release whose checksums gradle.properties must declare, as names or globs separated by spaces
     required: false
 
 runs:
   using: composite
   steps:
     - uses: holepunchto/actions/create-github-release@v1
-      if: ${{ !inputs.asset }}
-    - run: gh release download $TAG --pattern $ASSET --dir $RUNNER_TEMP
-      if: ${{ inputs.asset }}
+      if: ${{ !inputs.assets }}
+    - run: |
+        set -f
+
+        for asset in $ASSETS; do
+          gh release download $TAG --pattern "$asset" --dir $RUNNER_TEMP/assets
+        done
+      if: ${{ inputs.assets }}
       env:
         GH_TOKEN: ${{ github.token }}
         TAG: ${{ github.ref_name }}
-        ASSET: ${{ inputs.asset }}
+        ASSETS: ${{ inputs.assets }}
       shell: bash
-    - run: grep -qF "$(sha256sum $RUNNER_TEMP/$ASSET | cut -d ' ' -f 1)" gradle.properties
-      if: ${{ inputs.asset }}
-      env:
-        ASSET: ${{ inputs.asset }}
+    - run: |
+        for asset in $RUNNER_TEMP/assets/*; do
+          if ! grep -qF "$(sha256sum $asset | cut -d ' ' -f 1)" gradle.properties; then
+            echo "::error::gradle.properties does not declare the checksum of $(basename $asset)"
+            exit 1
+          fi
+        done
+      if: ${{ inputs.assets }}
       shell: bash
     - run: gh release edit $TAG --draft=false
-      if: ${{ inputs.asset }}
+      if: ${{ inputs.assets }}
       env:
         GH_TOKEN: ${{ github.token }}
         TAG: ${{ github.ref_name }}

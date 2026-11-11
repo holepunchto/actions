@@ -1,10 +1,16 @@
 name: Create archive
-description: Archive a directory as a zip for publishing, such as for a release asset
+description: Archive files and directories as a single archive for publishing, such as for a release asset
 
 inputs:
-  path:
-    description: The directory to archive, relative to the working directory
+  paths:
+    description: The files and directories to archive, relative to the working directory, separated by spaces and expanded as globs
     required: true
+  name:
+    description: The path of the archive without its extension, relative to the working directory. Defaults to the path to archive if only one is given.
+    required: false
+  format:
+    description: The format of the archive, either zip or tar.gz
+    default: zip
   attest:
     description: Attest the build provenance of the archive, which requires the id-token and attestations write permissions
     default: false
@@ -12,16 +18,40 @@ inputs:
 outputs:
   path:
     description: The path of the archive
-    value: ${{ inputs.path }}.zip
+    value: ${{ steps.archive.outputs.path }}
 
 runs:
   using: composite
   steps:
-    - run: zip -qry $DIRECTORY.zip $DIRECTORY
+    - id: archive
+      run: |
+        paths=($PATHS)
+
+        if [ -n "$NAME" ]; then
+          name=$NAME
+        elif [ ${#paths[@]} -eq 1 ]; then
+          name=${paths[0]}
+        else
+          echo "::error::A name is required to archive more than one path"
+          exit 1
+        fi
+
+        case $FORMAT in
+          zip) zip -qry "$name.zip" "${paths[@]}" ;;
+          tar.gz) tar -czf "$name.tar.gz" "${paths[@]}" ;;
+          *)
+            echo "::error::Unknown archive format $FORMAT"
+            exit 1
+            ;;
+        esac
+
+        echo "path=$name.$FORMAT" >> $GITHUB_OUTPUT
       env:
-        DIRECTORY: ${{ inputs.path }}
+        PATHS: ${{ inputs.paths }}
+        NAME: ${{ inputs.name }}
+        FORMAT: ${{ inputs.format }}
       shell: bash
     - uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
       if: ${{ inputs.attest == 'true' }}
       with:
-        subject-path: ${{ inputs.path }}.zip
+        subject-path: ${{ steps.archive.outputs.path }}
