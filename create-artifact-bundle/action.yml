@@ -20,5 +20,5 @@ runs:
     - id: archive
       uses: holepunchto/actions/create-archive@v1
       with:
-        path: ${{ inputs.path }}
+        paths: ${{ inputs.path }}
         attest: ${{ inputs.attest }}

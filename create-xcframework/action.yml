@@ -34,11 +34,12 @@ runs:
   steps:
     - run: |
         args=()
+        work=$(mktemp -d)
 
         arch='s/-(arm64-32|arm64|x64)//'
 
         for group in $(ls "$PREFIX" | sed -E "$arch" | sort -u); do
-          framework="$RUNNER_TEMP/xcframework/$group/$NAME.framework"
+          framework="$work/$group/$NAME.framework"
           binaries=()
 
           for target in $(ls "$PREFIX"); do
@@ -78,5 +79,5 @@ runs:
     - uses: holepunchto/actions/create-archive@v1
       if: ${{ inputs.archive == 'true' }}
       with:
-        path: ${{ inputs.path || format('{0}.xcframework', inputs.name) }}
+        paths: ${{ inputs.path || format('{0}.xcframework', inputs.name) }}
         attest: ${{ inputs.attest }}
