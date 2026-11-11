@@ -36,12 +36,14 @@ runs:
         args=()
         work=$(mktemp -d)
 
-        for group in $(ls "$PREFIX" | sed -E 's/-(arm64|x64)//' | sort -u); do
+        arch='s/-(arm64-32|arm64|x64)//'
+
+        for group in $(ls "$PREFIX" | sed -E "$arch" | sort -u); do
           framework="$work/$group/$NAME.framework"
           binaries=()
 
           for target in $(ls "$PREFIX"); do
-            if [ "$(echo "$target" | sed -E 's/-(arm64|x64)//')" = "$group" ]; then
+            if [ "$(echo "$target" | sed -E "$arch")" = "$group" ]; then
               if [ ! -d "$framework" ]; then
                 mkdir -p "$(dirname "$framework")"
                 cp -R "$PREFIX/$target/$NAME.framework" "$framework"
