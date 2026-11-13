@@ -31,6 +31,9 @@ inputs:
   musl:
     description: Install the musl sysroot for targeting musl
     default: false
+  picolibc:
+    description: Install the picolibc sysroot for targeting FreeRTOS
+    default: false
 
 runs:
   using: composite
@@ -39,6 +42,7 @@ runs:
       with:
         wasi: ${{ inputs.wasi }}
         musl: ${{ inputs.musl }}
+        picolibc: ${{ inputs.picolibc }}
     - run: bare-make generate --build $BUILD ${PLATFORM:+--platform $PLATFORM} ${ARCH:+--arch $ARCH} $FLAGS
       env:
         BUILD: ${{ inputs.build }}
