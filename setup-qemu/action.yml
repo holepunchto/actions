@@ -1,0 +1,14 @@
+name: Setup QEMU
+description: Install the QEMU system emulators
+
+runs:
+  using: composite
+  steps:
+    - run: |
+        sudo apt-get update -y
+        sudo apt-get install -y qemu-system
+      if: ${{ runner.os == 'Linux' }}
+      shell: bash
+    - run: brew install qemu
+      if: ${{ runner.os == 'macOS' }}
+      shell: bash
