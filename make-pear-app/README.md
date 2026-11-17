@@ -2,7 +2,7 @@
 
 GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing and artifact upload.
 
-Signing is enabled by default on macOS and Windows; missing required certificate inputs fail before the build. For unsigned builds, explicitly set `unsigned: true`, omit signing credentials, and configure the app's build to skip signing when no identity or hook is supplied. Linux builds are unchanged.
+Signing is enabled by default on macOS and Windows; missing required certificate inputs fail before the build. For unsigned builds, explicitly set `signed: false`, omit signing credentials, and configure the app's build to skip signing when no identity or hook is supplied. Linux builds are unchanged.
 
 ## Inputs
 
@@ -15,7 +15,7 @@ Signing is enabled by default on macOS and Windows; missing required certificate
 | `upgrade_key`              | Upgrade key (e.g. `pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o`) | No       |
 | `host`                     | Host passed to `npm run make` as environment variable.                           | No       |
 | `sfw`                      | Enable Socket Firewall. (`true` by default)                                      | No       |
-| `unsigned`                 | Skip macOS and Windows signing setup (`false` by default)                        | No       |
+| `signed`                   | Enable macOS and Windows signing (`true` by default)                             | No       |
 | `standalone`               | Standalone executable to upload                                                  | No       |
 | `standalone_artifact_name` | Standalone uploaded artifact name                                                | No       |
 
@@ -34,7 +34,7 @@ Signing is enabled by default on macOS and Windows; missing required certificate
 
 ### macOS
 
-Unless `unsigned: true`, provide at least one of the three certificate inputs below. Signing identities can be supplied explicitly or selected by the app's build configuration.
+Unless `signed: false`, provide at least one of the three certificate inputs below. Signing identities can be supplied explicitly or selected by the app's build configuration.
 
 | Input                                             | Description                                                                             | Required                                                                |
 | ------------------------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
@@ -76,7 +76,7 @@ Unless `unsigned: true`, provide at least one of the three certificate inputs be
 
 ### Unsigned builds
 
-Use a hosted runner without signing credentials, set `unsigned: true`, and omit the signing inputs. Build scripts and artifact uploads run normally; certificate import and notarization setup are skipped, and signing identities and the Windows signing hook are left empty.
+Use a hosted runner without signing credentials, set `signed: false`, and omit the signing inputs. Build scripts and artifact uploads run normally; certificate import and notarization setup are skipped, and signing identities and the Windows signing hook are left empty.
 
 ```yaml
 jobs:
@@ -96,7 +96,7 @@ jobs:
       - uses: holepunchto/actions/make-pear-app@v1
         with:
           channel: dev
-          unsigned: true
+          signed: false
           macos_app: unsigned-macos-app.zip
           windows_msix: '*.msix'
           windows_msix_artifact_name: unsigned-windows-msix
@@ -114,7 +114,7 @@ The action runs the app's npm `make` script, or the script selected by `script`.
 
   Merge `signing` into the maker's `config` object in your Forge configuration. Only require signing credentials when signing is requested.
 
-The action does not override signing hardcoded in app scripts. Omitting credentials does not opt out of signing: use `unsigned: true`. Existing signed callers keep their signing behavior without setting this input. Unsigned artifacts can be signed later; for macOS, sign the extracted `.app` before creating the final distribution archive or DMG.
+The action does not override signing hardcoded in app scripts. Omitting credentials does not opt out of signing: use `signed: false`. Existing signed callers keep their signing behavior without setting this input. Unsigned artifacts can be signed later; for macOS, sign the extracted `.app` before creating the final distribution archive or DMG.
 
 ### Windows
 

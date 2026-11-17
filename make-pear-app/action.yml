@@ -21,9 +21,9 @@ inputs:
     description: 'Enable Socket Firewall'
     default: true
     required: false
-  unsigned:
-    description: 'Skip macOS and Windows signing setup and build without signing identities or hooks'
-    default: 'false'
+  signed:
+    description: 'Enable macOS and Windows signing setup, identities, and hooks'
+    default: 'true'
     required: false
   standalone:
     description: 'Standalone executable to upload'
@@ -183,7 +183,7 @@ runs:
   steps:
     - name: 'Require signing credentials'
       if: |-
-        ${{ inputs.unsigned != 'true' && (
+        ${{ inputs.signed != 'false' && (
           (runner.os == 'macOS' &&
             inputs.macos_development_certificate_base64 == '' &&
             inputs.macos_distribution_certificate_base64 == '' &&
@@ -194,12 +194,12 @@ runs:
           ))
         ) }}
       run: |
-        echo '::error::Missing signing credentials. Provide the platform signing certificate inputs, or explicitly set unsigned: true for an unsigned build.'
+        echo '::error::Missing signing credentials. Provide the platform signing certificate inputs, or explicitly set signed: false for an unsigned build.'
         exit 1
       shell: bash
     - name: 'Setup certificates on macOS'
       id: setup-certificates-macos
-      if: ${{ runner.os == 'macOS' && inputs.unsigned != 'true' }}
+      if: ${{ runner.os == 'macOS' && inputs.signed != 'false' }}
       uses: holepunchto/actions/setup-certificates/macos@v1
       with:
         development_certificate_base64: ${{ inputs.macos_development_certificate_base64 }}
@@ -218,7 +218,7 @@ runs:
         api_issuer: ${{ inputs.macos_api_issuer }}
     - name: 'Setup certificates on Windows'
       id: setup-certificates-windows
-      if: ${{ runner.os == 'Windows' && inputs.unsigned != 'true' }}
+      if: ${{ runner.os == 'Windows' && inputs.signed != 'false' }}
       uses: holepunchto/actions/setup-certificates/windows@v1
       with:
         signing_method: ${{ inputs.windows_signing_method }}
@@ -249,11 +249,11 @@ runs:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
-        MAC_CODESIGN_IDENTITY: ${{ inputs.unsigned != 'true' && inputs.macos_codesign_identity || '' }}
-        MAS_DISTRIBUTION_IDENTITY: ${{ inputs.unsigned != 'true' && inputs.macos_distribution_identity || '' }}
-        MAS_INSTALLER_DISTRIBUTION_IDENTITY: ${{ inputs.unsigned != 'true' && inputs.macos_installer_distribution_identity || '' }}
-        MAS_PROVISIONING_PROFILE: ${{ inputs.unsigned != 'true' && steps.setup-certificates-macos.outputs.provisioning-profile || '' }}
-        KEYCHAIN_PROFILE: ${{ inputs.unsigned != 'true' && steps.setup-certificates-macos.outputs.keychain-profile || '' }}
+        MAC_CODESIGN_IDENTITY: ${{ inputs.signed != 'false' && inputs.macos_codesign_identity || '' }}
+        MAS_DISTRIBUTION_IDENTITY: ${{ inputs.signed != 'false' && inputs.macos_distribution_identity || '' }}
+        MAS_INSTALLER_DISTRIBUTION_IDENTITY: ${{ inputs.signed != 'false' && inputs.macos_installer_distribution_identity || '' }}
+        MAS_PROVISIONING_PROFILE: ${{ inputs.signed != 'false' && steps.setup-certificates-macos.outputs.provisioning-profile || '' }}
+        KEYCHAIN_PROFILE: ${{ inputs.signed != 'false' && steps.setup-certificates-macos.outputs.keychain-profile || '' }}
         NODE_ENV: production
         HOST: ${{ inputs.host }}
     - name: 'Build application (Windows)'
@@ -267,9 +267,9 @@ runs:
         CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
         WINDOWS_CERT_SHA1: >-
-          ${{ inputs.unsigned != 'true' &&
+          ${{ inputs.signed != 'false' &&
             (inputs.windows_signing_method == 'cert_pfx' && steps.setup-certificates-windows.outputs.certificate-thumbprint || inputs.windows_cert_sha1) || '' }}
-        WINDOWS_SIGN_HOOK: ${{ inputs.unsigned != 'true' && format('{0}/windows-sign.js', github.action_path) || '' }}
+        WINDOWS_SIGN_HOOK: ${{ inputs.signed != 'false' && format('{0}/windows-sign.js', github.action_path) || '' }}
         NODE_ENV: production
         HOST: ${{ inputs.host }}
     - name: 'Upload standalone executable artifact'
