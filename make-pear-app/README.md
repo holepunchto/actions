@@ -2,6 +2,8 @@
 
 GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing and artifact upload.
 
+For unsigned builds, omit signing inputs and configure the app's build to skip signing when no identity or hook is supplied. The action skips macOS certificate setup and leaves `WINDOWS_SIGN_HOOK` empty when signing is not requested.
+
 ## Inputs
 
 ### Build Inputs
@@ -18,16 +20,16 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 
 ### Windows
 
-| Input                        | Description                                                      | Required                                                               |
-| ---------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| `windows_msix`               | Windows MSIX to upload                                           | No                                                                     |
-| `windows_msix_artifact_name` | Windows MSIX uploaded artifact name                              | No                                                                     |
-| `windows_zip`                | Windows ZIP to upload                                            | No                                                                     |
-| `windows_zip_artifact_name`  | Windows ZIP uploaded artifact name                               | No                                                                     |
-| `windows_signing_method`     | Signing method to use: `windows_cert_sha1` or `windows_cert_pfx` | Required on Windows                                                    |
-| `windows_cert_sha1`          | SHA1 thumbprint of the Windows cert                              | Required on Windows if `windows_signing_method` is `windows_cert_sha1` |
-| `windows_cert_pfx_base64`    | Base64-encoded Windows cert pfx file                             | Required on Windows if `windows_signing_method` is `windows_cert_pfx`  |
-| `windows_cert_password`      | Password for the Windows certificate                             | Required on Windows if `windows_signing_method` is `windows_cert_pfx`  |
+| Input                        | Description                                      | Required                         |
+| ---------------------------- | ------------------------------------------------ | -------------------------------- |
+| `windows_msix`               | Windows MSIX to upload                           | No                               |
+| `windows_msix_artifact_name` | Windows MSIX uploaded artifact name              | No                               |
+| `windows_zip`                | Windows ZIP to upload                            | No                               |
+| `windows_zip_artifact_name`  | Windows ZIP uploaded artifact name               | No                               |
+| `windows_signing_method`     | Signing method to use: `cert_sha1` or `cert_pfx` | No; omit for unsigned builds     |
+| `windows_cert_sha1`          | SHA1 thumbprint of the Windows cert              | Required for `cert_sha1` signing |
+| `windows_cert_pfx_base64`    | Base64-encoded Windows cert pfx file             | Required for `cert_pfx` signing  |
+| `windows_cert_password`      | Password for the Windows certificate             | Required for `cert_pfx` signing  |
 
 ### macOS
 
@@ -43,7 +45,7 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 | `macos_codesign_identity`                         | Code signing identity                                                                   | No                                                                      |
 | `macos_distribution_certificate_base64`           | Base64 Apple distribution certificate (P12)                                             | No                                                                      |
 | `macos_distribution_password`                     | Password for the P12 certificate                                                        | No                                                                      |
-| `macos_distribution_identity`                     | Distribution identity used for macOS App Store builds                                   | Required on macOS                                                       |
+| `macos_distribution_identity`                     | Distribution identity used for macOS App Store builds                                   | Required for macOS App Store signing                                    |
 | `macos_installer_distribution_certificate_base64` | Base64 macOS installer distribution certificate (P12)                                   | No                                                                      |
 | `macos_installer_distribution_password`           | Password for the P12 certificate                                                        | No                                                                      |
 | `macos_installer_distribution_identity`           | Distribution identity used for macOS App Store PKG Installer builds                     | No                                                                      |
@@ -68,6 +70,47 @@ GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing
 | `linux_flatpak_artifact_name`  | Linux Flatpak uploaded artifact name  | No       |
 
 ## Usage
+
+### Unsigned builds
+
+Use a hosted runner without signing credentials and omit the signing inputs. Build scripts and artifact uploads run normally; certificate import, notarization setup, and the Windows signing hook are skipped.
+
+```yaml
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: holepunchto/actions/node-base-extended@v1
+        with:
+          version: 24
+          clean-install: true
+      - uses: holepunchto/actions/make-pear-app@v1
+        with:
+          channel: dev
+          macos_app: unsigned-macos-app.zip
+          windows_msix: '*.msix'
+          windows_msix_artifact_name: unsigned-windows-msix
+```
+
+The action runs the app's npm `make` script, or the script selected by `script`. Keep any app-specific dependency preparation before that step. The app must allow unsigned builds:
+
+- On macOS, only configure Forge's `osxSign` and `osxNotarize` when `MAC_CODESIGN_IDENTITY` is nonempty.
+- For Windows MSIX, explicitly set `sign: false` when `WINDOWS_SIGN_HOOK` is empty. The maker otherwise defaults to signing. For example, in the maker's configuration:
+
+  ```js
+  const hook = process.env.WINDOWS_SIGN_HOOK
+  const signing = hook ? { windowsSignOptions: { hookModulePath: hook } } : { sign: false }
+  ```
+
+  Merge `signing` into the existing MSIX maker configuration. Remove any unconditional requirement for signing credentials from the unsigned build path.
+
+The action does not override signing hardcoded in app scripts. Supplying signing inputs keeps the existing signing behavior, including errors for incomplete credentials. Unsigned artifacts can be signed later; for macOS, sign the extracted `.app` before creating the final distribution archive or DMG.
 
 ### Windows
 
@@ -95,7 +138,7 @@ jobs:
           windows_msix_artifact_name: Keet-win32-x64-4.17.0-msix
           windows_zip: Keet-win32-x64-4.17.0.zip
           windows_zip_artifact_name: Keet-win32-x64-4.17.0-zip
-          windows_signing_method: windows_cert_sha1
+          windows_signing_method: cert_sha1
           windows_cert_sha1: ${{ secrets.WINDOWS_CERT_SHA1 }}
 ```
 

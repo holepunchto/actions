@@ -1,5 +1,5 @@
 name: 'Make Pear Apps'
-description: 'Action for making Pear apps'
+description: 'Build Pear apps with optional code signing and artifact upload'
 
 inputs:
   script:
@@ -179,7 +179,13 @@ runs:
   steps:
     - name: 'Setup certificates on macOS'
       id: setup-certificates-macos
-      if: ${{ runner.os == 'macOS' }}
+      if: |-
+        ${{ runner.os == 'macOS' && (
+          inputs.macos_development_certificate_base64 != '' ||
+          inputs.macos_distribution_certificate_base64 != '' ||
+          inputs.macos_installer_distribution_certificate_base64 != '' ||
+          inputs.macos_distribution_provisioning_profile_base64 != '' ||
+          inputs.macos_notarization_method != '') }}
       uses: holepunchto/actions/setup-certificates/macos@v1
       with:
         development_certificate_base64: ${{ inputs.macos_development_certificate_base64 }}
@@ -198,7 +204,7 @@ runs:
         api_issuer: ${{ inputs.macos_api_issuer }}
     - name: 'Setup certificates on Windows'
       id: setup-certificates-windows
-      if: ${{ runner.os == 'Windows' }}
+      if: ${{ runner.os == 'Windows' && inputs.windows_signing_method == 'cert_pfx' }}
       uses: holepunchto/actions/setup-certificates/windows@v1
       with:
         signing_method: ${{ inputs.windows_signing_method }}
@@ -247,7 +253,9 @@ runs:
         CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
         WINDOWS_CERT_SHA1: "${{ inputs.windows_signing_method == 'cert_pfx' && steps.setup-certificates-windows.outputs.certificate-thumbprint || inputs.windows_cert_sha1 }}"
-        WINDOWS_SIGN_HOOK: ${{ github.action_path }}/windows-sign.js
+        WINDOWS_SIGN_HOOK: >-
+          ${{ (inputs.windows_signing_method != '' || inputs.windows_cert_sha1 != '' || inputs.windows_cert_pfx_base64 != '')
+            && format('{0}/windows-sign.js', github.action_path) || '' }}
         NODE_ENV: production
         HOST: ${{ inputs.host }}
     - name: 'Upload standalone executable artifact'
