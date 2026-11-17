@@ -21,16 +21,16 @@ Signing is enabled by default on macOS and Windows; missing required certificate
 
 ### Windows
 
-| Input                        | Description                                      | Required                         |
-| ---------------------------- | ------------------------------------------------ | -------------------------------- |
-| `windows_msix`               | Windows MSIX to upload                           | No                               |
-| `windows_msix_artifact_name` | Windows MSIX uploaded artifact name              | No                               |
-| `windows_zip`                | Windows ZIP to upload                            | No                               |
-| `windows_zip_artifact_name`  | Windows ZIP uploaded artifact name               | No                               |
+| Input                        | Description                                      | Required                           |
+| ---------------------------- | ------------------------------------------------ | ---------------------------------- |
+| `windows_msix`               | Windows MSIX to upload                           | No                                 |
+| `windows_msix_artifact_name` | Windows MSIX uploaded artifact name              | No                                 |
+| `windows_zip`                | Windows ZIP to upload                            | No                                 |
+| `windows_zip_artifact_name`  | Windows ZIP uploaded artifact name               | No                                 |
 | `windows_signing_method`     | Signing method to use: `cert_sha1` or `cert_pfx` | No; defaults to thumbprint signing |
-| `windows_cert_sha1`          | SHA1 thumbprint of the Windows cert              | Required for `cert_sha1` signing |
-| `windows_cert_pfx_base64`    | Base64-encoded Windows cert pfx file             | Required for `cert_pfx` signing  |
-| `windows_cert_password`      | Password for the Windows certificate             | Required for `cert_pfx` signing  |
+| `windows_cert_sha1`          | SHA1 thumbprint of the Windows cert              | Required for `cert_sha1` signing   |
+| `windows_cert_pfx_base64`    | Base64-encoded Windows cert pfx file             | Required for `cert_pfx` signing    |
+| `windows_cert_password`      | Password for the Windows certificate             | Required for `cert_pfx` signing    |
 
 ### macOS
 
