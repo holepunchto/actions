@@ -204,7 +204,7 @@ runs:
         api_issuer: ${{ inputs.macos_api_issuer }}
     - name: 'Setup certificates on Windows'
       id: setup-certificates-windows
-      if: ${{ runner.os == 'Windows' && inputs.windows_signing_method == 'cert_pfx' }}
+      if: ${{ runner.os == 'Windows' }}
       uses: holepunchto/actions/setup-certificates/windows@v1
       with:
         signing_method: ${{ inputs.windows_signing_method }}

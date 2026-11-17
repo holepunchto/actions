@@ -98,17 +98,17 @@ jobs:
           windows_msix_artifact_name: unsigned-windows-msix
 ```
 
-The action runs the app's npm `make` script, or the script selected by `script`. Keep any app-specific dependency preparation before that step. The app must allow unsigned builds:
+The action runs the app's npm `make` script, or the script selected by `script`. Keep any app-specific dependency preparation before that step. The app's build configuration must allow unsigned builds. For example, if the app uses Electron Forge:
 
 - On macOS, only configure Forge's `osxSign` and `osxNotarize` when `MAC_CODESIGN_IDENTITY` is nonempty.
-- For Windows MSIX, explicitly set `sign: false` when `WINDOWS_SIGN_HOOK` is empty. The maker otherwise defaults to signing. For example, in the maker's configuration:
+- For `@electron-forge/maker-msix` on Windows, set `sign: false` when `WINDOWS_SIGN_HOOK` is empty. The maker otherwise defaults to signing. Example signing settings for this Forge maker:
 
   ```js
   const hook = process.env.WINDOWS_SIGN_HOOK
   const signing = hook ? { windowsSignOptions: { hookModulePath: hook } } : { sign: false }
   ```
 
-  Merge `signing` into the existing MSIX maker configuration. Remove any unconditional requirement for signing credentials from the unsigned build path.
+  Merge `signing` into the maker's `config` object in your Forge configuration. Only require signing credentials when signing is requested.
 
 The action does not override signing hardcoded in app scripts. Supplying signing inputs keeps the existing signing behavior, including errors for incomplete credentials. Unsigned artifacts can be signed later; for macOS, sign the extracted `.app` before creating the final distribution archive or DMG.
 
