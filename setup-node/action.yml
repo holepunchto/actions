@@ -3,13 +3,13 @@ description: Install and configure Node.js
 
 inputs:
   version:
-    description: Node.js version
+    description: The Node.js version to install, such as 24 or lts/*
     default: lts/*
   registry-url:
-    description: npm registry URL to configure for auth
+    description: The npm registry URL to configure authentication for
     default: https://registry.npmjs.org
   scope:
-    description: Optional scope for scoped registries (e.g. @myorg)
+    description: The package scope to use the registry for, such as @myorg
   package-manager-cache:
     description: Cache the package manager's global directory
     default: false
