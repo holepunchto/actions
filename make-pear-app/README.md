@@ -2,7 +2,7 @@
 
 GitHub Action to build Pear apps on Linux, macOS, and Windows, with code signing and artifact upload.
 
-For unsigned builds, omit signing inputs and configure the app's build to skip signing when no identity or hook is supplied. The action skips macOS certificate setup and leaves `WINDOWS_SIGN_HOOK` empty when signing is not requested.
+Signing is enabled by default on macOS and Windows; missing required certificate inputs fail before the build. For unsigned builds, explicitly set `unsigned: true`, omit signing credentials, and configure the app's build to skip signing when no identity or hook is supplied. Linux builds are unchanged.
 
 ## Inputs
 
@@ -15,6 +15,7 @@ For unsigned builds, omit signing inputs and configure the app's build to skip s
 | `upgrade_key`              | Upgrade key (e.g. `pear://jj7jywoj83pswtcf5asywbm4ngro3xikgg1zcaqq3kdyhghats6o`) | No       |
 | `host`                     | Host passed to `npm run make` as environment variable.                           | No       |
 | `sfw`                      | Enable Socket Firewall. (`true` by default)                                      | No       |
+| `unsigned`                 | Skip macOS and Windows signing setup (`false` by default)                        | No       |
 | `standalone`               | Standalone executable to upload                                                  | No       |
 | `standalone_artifact_name` | Standalone uploaded artifact name                                                | No       |
 
@@ -26,12 +27,14 @@ For unsigned builds, omit signing inputs and configure the app's build to skip s
 | `windows_msix_artifact_name` | Windows MSIX uploaded artifact name              | No                               |
 | `windows_zip`                | Windows ZIP to upload                            | No                               |
 | `windows_zip_artifact_name`  | Windows ZIP uploaded artifact name               | No                               |
-| `windows_signing_method`     | Signing method to use: `cert_sha1` or `cert_pfx` | No; omit for unsigned builds     |
+| `windows_signing_method`     | Signing method to use: `cert_sha1` or `cert_pfx` | No; defaults to thumbprint signing |
 | `windows_cert_sha1`          | SHA1 thumbprint of the Windows cert              | Required for `cert_sha1` signing |
 | `windows_cert_pfx_base64`    | Base64-encoded Windows cert pfx file             | Required for `cert_pfx` signing  |
 | `windows_cert_password`      | Password for the Windows certificate             | Required for `cert_pfx` signing  |
 
 ### macOS
+
+Unless `unsigned: true`, provide at least one of the three certificate inputs below. Signing identities can be supplied explicitly or selected by the app's build configuration.
 
 | Input                                             | Description                                                                             | Required                                                                |
 | ------------------------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
@@ -73,7 +76,7 @@ For unsigned builds, omit signing inputs and configure the app's build to skip s
 
 ### Unsigned builds
 
-Use a hosted runner without signing credentials and omit the signing inputs. Build scripts and artifact uploads run normally; certificate import, notarization setup, and the Windows signing hook are skipped.
+Use a hosted runner without signing credentials, set `unsigned: true`, and omit the signing inputs. Build scripts and artifact uploads run normally; certificate import and notarization setup are skipped, and signing identities and the Windows signing hook are left empty.
 
 ```yaml
 jobs:
@@ -93,6 +96,7 @@ jobs:
       - uses: holepunchto/actions/make-pear-app@v1
         with:
           channel: dev
+          unsigned: true
           macos_app: unsigned-macos-app.zip
           windows_msix: '*.msix'
           windows_msix_artifact_name: unsigned-windows-msix
@@ -110,7 +114,7 @@ The action runs the app's npm `make` script, or the script selected by `script`.
 
   Merge `signing` into the maker's `config` object in your Forge configuration. Only require signing credentials when signing is requested.
 
-The action does not override signing hardcoded in app scripts. Supplying signing inputs keeps the existing signing behavior, including errors for incomplete credentials. Unsigned artifacts can be signed later; for macOS, sign the extracted `.app` before creating the final distribution archive or DMG.
+The action does not override signing hardcoded in app scripts. Omitting credentials does not opt out of signing: use `unsigned: true`. Existing signed callers keep their signing behavior without setting this input. Unsigned artifacts can be signed later; for macOS, sign the extracted `.app` before creating the final distribution archive or DMG.
 
 ### Windows
 

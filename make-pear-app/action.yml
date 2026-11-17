@@ -21,6 +21,10 @@ inputs:
     description: 'Enable Socket Firewall'
     default: true
     required: false
+  unsigned:
+    description: 'Skip macOS and Windows signing setup and build without signing identities or hooks'
+    default: 'false'
+    required: false
   standalone:
     description: 'Standalone executable to upload'
     required: false
@@ -177,15 +181,25 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: 'Require signing credentials'
+      if: |-
+        ${{ inputs.unsigned != 'true' && (
+          (runner.os == 'macOS' &&
+            inputs.macos_development_certificate_base64 == '' &&
+            inputs.macos_distribution_certificate_base64 == '' &&
+            inputs.macos_installer_distribution_certificate_base64 == '') ||
+          (runner.os == 'Windows' && (
+            (inputs.windows_signing_method == 'cert_pfx' && inputs.windows_cert_pfx_base64 == '') ||
+            (inputs.windows_signing_method != 'cert_pfx' && inputs.windows_cert_sha1 == '')
+          ))
+        ) }}
+      run: |
+        echo '::error::Missing signing credentials. Provide the platform signing certificate inputs, or explicitly set unsigned: true for an unsigned build.'
+        exit 1
+      shell: bash
     - name: 'Setup certificates on macOS'
       id: setup-certificates-macos
-      if: |-
-        ${{ runner.os == 'macOS' && (
-          inputs.macos_development_certificate_base64 != '' ||
-          inputs.macos_distribution_certificate_base64 != '' ||
-          inputs.macos_installer_distribution_certificate_base64 != '' ||
-          inputs.macos_distribution_provisioning_profile_base64 != '' ||
-          inputs.macos_notarization_method != '') }}
+      if: ${{ runner.os == 'macOS' && inputs.unsigned != 'true' }}
       uses: holepunchto/actions/setup-certificates/macos@v1
       with:
         development_certificate_base64: ${{ inputs.macos_development_certificate_base64 }}
@@ -204,7 +218,7 @@ runs:
         api_issuer: ${{ inputs.macos_api_issuer }}
     - name: 'Setup certificates on Windows'
       id: setup-certificates-windows
-      if: ${{ runner.os == 'Windows' }}
+      if: ${{ runner.os == 'Windows' && inputs.unsigned != 'true' }}
       uses: holepunchto/actions/setup-certificates/windows@v1
       with:
         signing_method: ${{ inputs.windows_signing_method }}
@@ -235,11 +249,11 @@ runs:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
-        MAC_CODESIGN_IDENTITY: '${{ inputs.macos_codesign_identity }}'
-        MAS_DISTRIBUTION_IDENTITY: '${{ inputs.macos_distribution_identity }}'
-        MAS_INSTALLER_DISTRIBUTION_IDENTITY: '${{ inputs.macos_installer_distribution_identity }}'
-        MAS_PROVISIONING_PROFILE: ${{ steps.setup-certificates-macos.outputs.provisioning-profile }}
-        KEYCHAIN_PROFILE: ${{ steps.setup-certificates-macos.outputs.keychain-profile }}
+        MAC_CODESIGN_IDENTITY: ${{ inputs.unsigned != 'true' && inputs.macos_codesign_identity || '' }}
+        MAS_DISTRIBUTION_IDENTITY: ${{ inputs.unsigned != 'true' && inputs.macos_distribution_identity || '' }}
+        MAS_INSTALLER_DISTRIBUTION_IDENTITY: ${{ inputs.unsigned != 'true' && inputs.macos_installer_distribution_identity || '' }}
+        MAS_PROVISIONING_PROFILE: ${{ inputs.unsigned != 'true' && steps.setup-certificates-macos.outputs.provisioning-profile || '' }}
+        KEYCHAIN_PROFILE: ${{ inputs.unsigned != 'true' && steps.setup-certificates-macos.outputs.keychain-profile || '' }}
         NODE_ENV: production
         HOST: ${{ inputs.host }}
     - name: 'Build application (Windows)'
@@ -252,10 +266,10 @@ runs:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
-        WINDOWS_CERT_SHA1: "${{ inputs.windows_signing_method == 'cert_pfx' && steps.setup-certificates-windows.outputs.certificate-thumbprint || inputs.windows_cert_sha1 }}"
-        WINDOWS_SIGN_HOOK: >-
-          ${{ (inputs.windows_signing_method != '' || inputs.windows_cert_sha1 != '' || inputs.windows_cert_pfx_base64 != '')
-            && format('{0}/windows-sign.js', github.action_path) || '' }}
+        WINDOWS_CERT_SHA1: >-
+          ${{ inputs.unsigned != 'true' &&
+            (inputs.windows_signing_method == 'cert_pfx' && steps.setup-certificates-windows.outputs.certificate-thumbprint || inputs.windows_cert_sha1) || '' }}
+        WINDOWS_SIGN_HOOK: ${{ inputs.unsigned != 'true' && format('{0}/windows-sign.js', github.action_path) || '' }}
         NODE_ENV: production
         HOST: ${{ inputs.host }}
     - name: 'Upload standalone executable artifact'
