@@ -26,7 +26,7 @@ runs:
         NAME: ${{ inputs.platform }}-${{ inputs.arch }}${{ inputs.tags }}
         PREFIX: ${{ inputs.prefix }}
       shell: bash
-    - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+    - uses: holepunchto/actions/upload-artifact@v1
       with:
         name: ${{ inputs.platform }}-${{ inputs.arch }}${{ inputs.tags }}
         path: ${{ inputs.archive == 'true' && format('{0}/{1}-{2}{3}.tar', runner.temp, inputs.platform, inputs.arch, inputs.tags) || format('{0}/*', inputs.prefix) }}
