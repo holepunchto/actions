@@ -1,20 +1,26 @@
 name: Bare base
-description: Configure a Bare project
+description: Check out the repository, install Node.js and npm dependencies, and install Bare
 
 inputs:
+  node-version:
+    description: The Node.js version to install, such as 24 or lts/*
+    default: lts/*
   allow-git:
-    description: Allow git dependencies
+    description: Which git dependencies to allow, either none, root for those of the root package only, or all
     default: none
+  clean-install:
+    description: Install dependencies with npm clean-install instead of npm install
+    default: false
   force-install:
-    description: Force install npm packages
+    description: Pass --force to npm when installing dependencies
     default: false
   registry-url:
-    description: npm registry URL to configure for auth
+    description: The npm registry URL to configure authentication for
     default: https://registry.npmjs.org
   scope:
-    description: Optional scope for scoped registries (e.g. @myorg)
+    description: The package scope to use the registry for, such as @myorg
   node-auth-token:
-    description: npm auth token
+    description: The token to authenticate with the npm registry. Defaults to the NODE_AUTH_TOKEN environment variable.
   source:
     description: Compile Bare from source instead of installing the prebuilt runtime
     default: false
@@ -31,7 +37,9 @@ runs:
   steps:
     - uses: holepunchto/actions/node-base@v1
       with:
+        version: ${{ inputs.node-version }}
         allow-git: ${{ inputs.allow-git }}
+        clean-install: ${{ inputs.clean-install }}
         force-install: ${{ inputs.force-install }}
         registry-url: ${{ inputs.registry-url }}
         scope: ${{ inputs.scope }}

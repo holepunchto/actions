@@ -3,16 +3,16 @@ description: Install npm dependencies through Socket Firewall when available
 
 inputs:
   allow-git:
-    description: Allow git dependencies
+    description: Which git dependencies to allow, either none, root for those of the root package only, or all
     default: none
   clean-install:
-    description: Use npm ci
+    description: Install dependencies with npm clean-install instead of npm install
     default: false
   force-install:
-    description: Force install npm packages
+    description: Pass --force to npm when installing dependencies
     default: false
   node-auth-token:
-    description: npm auth token
+    description: The token to authenticate with the npm registry. Defaults to the NODE_AUTH_TOKEN environment variable.
 
 runs:
   using: composite
