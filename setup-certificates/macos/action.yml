@@ -146,6 +146,7 @@ runs:
             --keychain "$KEYCHAIN_PATH"
 
           echo "notarytool credentials added using appstore_connect"
+          echo "keychain_profile=$KEYCHAIN_PROFILE" >> $GITHUB_OUTPUT
         elif [ "$NOTARIZATION_METHOD" = "apple_id_password" ]; then
           xcrun notarytool store-credentials "$KEYCHAIN_PROFILE" \
             --apple-id "$APPLE_ID" \
@@ -154,7 +155,6 @@ runs:
             --keychain "$KEYCHAIN_PATH"
 
           echo "notarytool credentials added using apple_id_password"
+          echo "keychain_profile=$KEYCHAIN_PROFILE" >> $GITHUB_OUTPUT
         fi
-
-        echo "keychain_profile=$KEYCHAIN_PROFILE" >> $GITHUB_OUTPUT
       shell: bash
