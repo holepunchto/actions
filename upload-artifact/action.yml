@@ -1,0 +1,26 @@
+name: Upload artifact
+description: Upload files as a workflow artifact
+
+inputs:
+  name:
+    description: The name of the artifact
+    default: artifact
+  path:
+    description: The files and directories to upload, separated by newlines and expanded as globs
+    required: true
+  if-no-files-found:
+    description: What to do if no files are found, either warn, error, or ignore
+    default: warn
+  retention-days:
+    description: The number of days to keep the artifact. Defaults to the retention period of the repository.
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      with:
+        name: ${{ inputs.name }}
+        path: ${{ inputs.path }}
+        if-no-files-found: ${{ inputs.if-no-files-found }}
+        retention-days: ${{ inputs.retention-days }}
