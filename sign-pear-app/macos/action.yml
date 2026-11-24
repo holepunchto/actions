@@ -1,0 +1,196 @@
+name: 'Sign Pear App on macOS'
+description: 'Sign (and notarize or package) a zipped .app artifact built by make-pear-app, without running app code'
+
+inputs:
+  artifact:
+    description: 'Artifact holding one .zip of one .app, re-uploaded signed under the same name'
+    required: true
+  platform:
+    description: 'darwin (hardened runtime, notarized) or mas (Mac App Store)'
+    required: false
+    default: 'darwin'
+  identity:
+    description: 'Code signing identity'
+    required: true
+  entitlements:
+    description: 'Entitlements rules file: one `<regex> <plist>` per line, first match against the path inside the .app (like /Contents/MacOS/App) wins, the app itself is "". Plist paths are relative to the rules file.'
+    required: true
+  certificate_base64:
+    description: 'Base64-encoded signing certificate (P12)'
+    required: true
+  certificate_password:
+    description: 'Password for the signing certificate'
+    required: true
+  notarization_method:
+    description: 'appstore_connect or apple_id_password (darwin)'
+    required: false
+    default: ''
+  apple_id:
+    description: 'Apple ID email for notarization'
+    required: false
+    default: ''
+  apple_password:
+    description: 'Apple app-specific password'
+    required: false
+    default: ''
+  apple_team_id:
+    description: 'Apple Developer Team ID'
+    required: false
+    default: ''
+  api_key_base64:
+    description: 'Base64-encoded App Store Connect API key'
+    required: false
+    default: ''
+  api_key_id:
+    description: 'App Store Connect API key ID'
+    required: false
+    default: ''
+  api_issuer:
+    description: 'App Store Connect API key issuer'
+    required: false
+    default: ''
+  provisioning_profile_base64:
+    description: 'Base64-encoded provisioning profile to embed (mas)'
+    required: false
+    default: ''
+  pkg:
+    description: 'Name of a signed .pkg to build from the app and upload (mas)'
+    required: false
+    default: ''
+  installer_identity:
+    description: 'Installer signing identity for the .pkg'
+    required: false
+    default: ''
+  installer_certificate_base64:
+    description: 'Base64-encoded installer certificate (P12) for the .pkg'
+    required: false
+    default: ''
+  installer_certificate_password:
+    description: 'Password for the installer certificate'
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+      with:
+        name: ${{ inputs.artifact }}
+        path: ${{ runner.temp }}/sign-pear-app/artifact
+    - name: 'Setup certificates'
+      id: certificates
+      uses: holepunchto/actions/setup-certificates/macos@8c9558555af5a408885fe1891dae250de1d7dcbe
+      with:
+        distribution_certificate_base64: ${{ inputs.certificate_base64 }}
+        distribution_password: ${{ inputs.certificate_password }}
+        installer_distribution_certificate_base64: ${{ inputs.installer_certificate_base64 }}
+        installer_distribution_password: ${{ inputs.installer_certificate_password }}
+        distribution_provisioning_profile_base64: ${{ inputs.provisioning_profile_base64 }}
+        notarization_method: ${{ inputs.platform == 'darwin' && inputs.notarization_method || '' }}
+        apple_id: ${{ inputs.apple_id }}
+        apple_password: ${{ inputs.apple_password }}
+        apple_team_id: ${{ inputs.apple_team_id }}
+        api_key_base64: ${{ inputs.api_key_base64 }}
+        api_key_id: ${{ inputs.api_key_id }}
+        api_issuer: ${{ inputs.api_issuer }}
+    - name: 'Sign app'
+      working-directory: ${{ runner.temp }}/sign-pear-app
+      env:
+        PLATFORM: ${{ inputs.platform }}
+        IDENTITY: ${{ inputs.identity }}
+        RULES: ${{ github.workspace }}/${{ inputs.entitlements }}
+        PROVISIONING_PROFILE: ${{ steps.certificates.outputs.provisioning-profile }}
+        KEYCHAIN_PROFILE: ${{ steps.certificates.outputs.keychain-profile }}
+        PKG: ${{ inputs.pkg }}
+        INSTALLER_IDENTITY: ${{ inputs.installer_identity }}
+      run: |
+        is_bundle() {
+          [[ -d "$1" && ("$1" == *.app || "$1" == *.framework) ]]
+        }
+
+        is_binary() {
+          [[ -f "$1" && "$(file -b "$1")" == Mach-O* ]]
+        }
+
+        is_main_executable() {
+          [[ "$1" =~ /Contents/MacOS/[^/]+$ || "$1" =~ /Versions/[^/]+/[^/]+$ ]]
+        }
+
+        entitlements_for() {
+          local inside="${1#"$app"}"
+          grep '^[^#]' "$RULES" | while read -r pattern plist; do
+            if [[ "$inside" =~ $pattern ]]; then
+              echo "$(dirname "$RULES")/$plist"
+              break
+            fi
+          done
+        }
+
+        sign() {
+          local args=(--sign "$IDENTITY" --force --timestamp)
+          local entitlements="$(entitlements_for "$1")"
+          if [ "$PLATFORM" = darwin ]; then
+            args+=(--options runtime)
+          fi
+          if [ -n "$entitlements" ]; then
+            args+=(--entitlements "$entitlements")
+          fi
+          codesign "${args[@]}" "$1"
+        }
+
+        zip="$(echo artifact/*.zip)"
+        # Unlike ditto, tar refuses to extract outside the target folder
+        mkdir unzipped
+        tar -xf "$zip" -C unzipped
+        app="$(realpath unzipped/*.app)"
+
+        find "$app" -type l -print0 | while IFS= read -r -d '' link; do
+          if [[ "$(realpath "$link")" != "$app"/* ]]; then
+            echo "::error::$link points outside the app"
+            exit 1
+          fi
+        done
+
+        if [ -n "$PROVISIONING_PROFILE" ]; then
+          cp "$PROVISIONING_PROFILE" "$app/Contents/embedded.provisionprofile"
+        fi
+
+        # -depth lists a folder's contents before the folder, so nested code is signed first and the app last.
+        # Main executables are signed along with their bundle.
+        find "$app" -depth ! -type l -print0 | while IFS= read -r -d '' path; do
+          if is_main_executable "$path"; then
+            continue
+          fi
+          if is_bundle "$path" || is_binary "$path"; then
+            sign "$path"
+          fi
+        done
+        codesign --verify --deep --strict --verbose=2 "$app"
+
+        if [ "$PLATFORM" = darwin ]; then
+          ditto -c -k --sequesterRsrc --keepParent "$app" notarize.zip
+          xcrun notarytool submit notarize.zip --keychain-profile "$KEYCHAIN_PROFILE" --wait
+          xcrun stapler staple "$app"
+        fi
+
+        if [ -n "$PKG" ]; then
+          productbuild --component "$app" /Applications --sign "$INSTALLER_IDENTITY" "$PKG"
+        fi
+
+        rm "$zip"
+        ditto -c -k --sequesterRsrc --keepParent "$app" "$zip"
+      shell: bash
+    - name: 'Upload signed app'
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: ${{ inputs.artifact }}
+        path: ${{ runner.temp }}/sign-pear-app/artifact
+        if-no-files-found: error
+        overwrite: true
+    - name: 'Upload signed pkg'
+      if: ${{ inputs.pkg != '' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: ${{ inputs.pkg }}
+        path: ${{ runner.temp }}/sign-pear-app/${{ inputs.pkg }}
+        if-no-files-found: error
