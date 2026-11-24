@@ -12,3 +12,6 @@ runs:
     - uses: dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d # v1.8.1
       with:
         sdk: ${{ inputs.version }}
+        problem-matcher: false
+    - run: echo "::add-matcher::${{ github.action_path }}/dart-analyzer.json"
+      shell: bash
