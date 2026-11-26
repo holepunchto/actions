@@ -1,0 +1,44 @@
+name: Create iOS package archive
+description: Archive an iOS application bundle as an .ipa for distribution
+
+inputs:
+  path:
+    description: The application bundle, relative to the working directory
+    required: true
+  name:
+    description: The path of the archive without its extension, relative to the working directory. Defaults to the path of the application bundle without its extension.
+    required: false
+  attest:
+    description: Attest the build provenance of the archive, which requires the id-token and attestations write permissions
+    default: false
+
+outputs:
+  path:
+    description: The path of the archive
+    value: ${{ steps.archive.outputs.path }}
+
+runs:
+  using: composite
+  steps:
+    - id: payload
+      run: |
+        directory=$(mktemp -d)
+
+        mkdir "$directory/Payload"
+
+        cp -R "$APP" "$directory/Payload"
+
+        echo "directory=$directory" >> $GITHUB_OUTPUT
+        echo "name=${NAME:-${APP%.app}}" >> $GITHUB_OUTPUT
+      env:
+        APP: ${{ inputs.path }}
+        NAME: ${{ inputs.name }}
+      shell: bash
+    - id: archive
+      uses: holepunchto/actions/create-archive@v1
+      with:
+        directory: ${{ steps.payload.outputs.directory }}
+        paths: Payload
+        name: ${{ steps.payload.outputs.name }}
+        extension: ipa
+        attest: ${{ inputs.attest }}
