@@ -1,5 +1,5 @@
 name: 'Make Pear Apps'
-description: 'Build Pear apps with optional code signing and artifact upload'
+description: 'Build unsigned Pear apps and upload the artifacts'
 
 inputs:
   script:
@@ -20,10 +20,6 @@ inputs:
   sfw:
     description: 'Enable Socket Firewall'
     default: true
-    required: false
-  signed:
-    description: 'Enable macOS and Windows signing setup, identities, and hooks'
-    default: 'true'
     required: false
   standalone:
     description: 'Standalone executable to upload'
@@ -53,74 +49,6 @@ inputs:
     description: 'name for the macOS MAS PKG to upload'
     required: false
     default: ''
-  macos_development_certificate_base64:
-    description: 'Base64-encoded Apple development certificate (P12 format)'
-    required: false
-    default: ''
-  macos_development_password:
-    description: 'Password for the P12 certificate'
-    required: false
-    default: ''
-  macos_codesign_identity:
-    description: 'Code signing identity used for macOS builds'
-    required: false
-    default: ''
-  macos_distribution_certificate_base64:
-    description: 'Base64-encoded Apple distribution certificate (P12 format)'
-    required: false
-    default: ''
-  macos_distribution_password:
-    description: 'Password for the P12 certificate'
-    required: false
-    default: ''
-  macos_distribution_identity:
-    description: 'Distribution identity used for macOS App Store builds'
-    required: false
-    default: ''
-  macos_installer_distribution_certificate_base64:
-    description: 'Base64-encoded macOS installer distribution certificate (P12 format)'
-    required: false
-    default: ''
-  macos_installer_distribution_password:
-    description: 'Password for the P12 certificate'
-    required: false
-    default: ''
-  macos_installer_distribution_identity:
-    description: 'Distribution identity used for macOS App Store PKG Installer builds'
-    required: false
-    default: ''
-  macos_distribution_provisioning_profile_base64:
-    description: 'Base64-encoded Apple distribution provisioning profile for MAS build (provisionprofile)'
-    required: false
-    default: ''
-  macos_notarization_method:
-    description: 'Notarization method to use: appstore_connect or apple_id_password'
-    required: false
-    default: ''
-  macos_apple_id:
-    description: 'Apple ID email for notarization'
-    required: false
-    default: ''
-  macos_apple_password:
-    description: 'Apple app-specific password'
-    required: false
-    default: ''
-  macos_apple_team_id:
-    description: 'Apple Developer Team ID'
-    required: false
-    default: ''
-  macos_api_key_base64:
-    description: 'Base64-encoded App Store Connect API key (like AuthKey_ABCD123456.p8)'
-    required: false
-    default: ''
-  macos_api_key_id:
-    description: '10-character alphanumeric ID string of the App Store Connect (like ABCD123456)'
-    required: false
-    default: ''
-  macos_api_issuer:
-    description: 'UUID that identifies the API key issuer'
-    required: false
-    default: ''
   windows_msix:
     description: 'Windows MSIX to upload'
     required: false
@@ -135,22 +63,6 @@ inputs:
     default: ''
   windows_zip_artifact_name:
     description: 'name for the uploaded windows zip artifact'
-    required: false
-    default: ''
-  windows_signing_method:
-    description: 'Signing method to use: cert_sha1 or cert_pfx'
-    required: false
-    default: ''
-  windows_cert_sha1:
-    description: 'SHA1 thumbprint of the Windows cert'
-    required: false
-    default: ''
-  windows_cert_pfx_base64:
-    description: 'Base64-encoded Windows cert pfx file'
-    required: false
-    default: ''
-  windows_cert_password:
-    description: 'Password for the Windows certificate'
     required: false
     default: ''
   linux_appimage:
@@ -181,49 +93,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: 'Require signing credentials'
-      if: |-
-        ${{ inputs.signed != 'false' && (
-          (runner.os == 'macOS' &&
-            inputs.macos_development_certificate_base64 == '' &&
-            inputs.macos_distribution_certificate_base64 == '' &&
-            inputs.macos_installer_distribution_certificate_base64 == '') ||
-          (runner.os == 'Windows' && (
-            (inputs.windows_signing_method == 'cert_pfx' && inputs.windows_cert_pfx_base64 == '') ||
-            (inputs.windows_signing_method != 'cert_pfx' && inputs.windows_cert_sha1 == '')
-          ))
-        ) }}
-      run: |
-        echo '::error::Missing signing credentials. Provide the platform signing certificate inputs, or explicitly set signed: false for an unsigned build.'
-        exit 1
-      shell: bash
-    - name: 'Setup certificates on macOS'
-      id: setup-certificates-macos
-      if: ${{ runner.os == 'macOS' && inputs.signed != 'false' }}
-      uses: holepunchto/actions/setup-certificates/macos@v1
-      with:
-        development_certificate_base64: ${{ inputs.macos_development_certificate_base64 }}
-        development_password: ${{ inputs.macos_development_password }}
-        distribution_certificate_base64: ${{ inputs.macos_distribution_certificate_base64 }}
-        distribution_password: ${{ inputs.macos_distribution_password }}
-        installer_distribution_certificate_base64: ${{ inputs.macos_installer_distribution_certificate_base64 }}
-        installer_distribution_password: ${{ inputs.macos_installer_distribution_password }}
-        distribution_provisioning_profile_base64: ${{ inputs.macos_distribution_provisioning_profile_base64 }}
-        notarization_method: ${{ inputs.macos_notarization_method }}
-        apple_id: ${{ inputs.macos_apple_id }}
-        apple_password: ${{ inputs.macos_apple_password }}
-        apple_team_id: ${{ inputs.macos_apple_team_id }}
-        api_key_base64: ${{ inputs.macos_api_key_base64 }}
-        api_key_id: ${{ inputs.macos_api_key_id }}
-        api_issuer: ${{ inputs.macos_api_issuer }}
-    - name: 'Setup certificates on Windows'
-      id: setup-certificates-windows
-      if: ${{ runner.os == 'Windows' && inputs.signed != 'false' }}
-      uses: holepunchto/actions/setup-certificates/windows@v1
-      with:
-        signing_method: ${{ inputs.windows_signing_method }}
-        cert_pfx_base64: ${{ inputs.windows_cert_pfx_base64 }}
-        cert_password: ${{ inputs.windows_cert_password }}
     - name: 'Set up Snapcraft'
       if: ${{ runner.os == 'Linux' && inputs.linux_snap != '' }}
       uses: holepunchto/actions/setup-snapcraft@v1
@@ -249,11 +118,6 @@ runs:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
-        MAC_CODESIGN_IDENTITY: ${{ inputs.signed != 'false' && inputs.macos_codesign_identity || '' }}
-        MAS_DISTRIBUTION_IDENTITY: ${{ inputs.signed != 'false' && inputs.macos_distribution_identity || '' }}
-        MAS_INSTALLER_DISTRIBUTION_IDENTITY: ${{ inputs.signed != 'false' && inputs.macos_installer_distribution_identity || '' }}
-        MAS_PROVISIONING_PROFILE: ${{ inputs.signed != 'false' && steps.setup-certificates-macos.outputs.provisioning-profile || '' }}
-        KEYCHAIN_PROFILE: ${{ inputs.signed != 'false' && steps.setup-certificates-macos.outputs.keychain-profile || '' }}
         NODE_ENV: production
         HOST: ${{ inputs.host }}
     - name: 'Build application (Windows)'
@@ -266,10 +130,6 @@ runs:
         NODE_AUTH_TOKEN: ${{ github.token }}
         CHANNEL: '${{ inputs.channel }}'
         UPGRADE_KEY: "${{ inputs.upgrade_key != '' && inputs.upgrade_key || null }}"
-        WINDOWS_CERT_SHA1: >-
-          ${{ inputs.signed != 'false' &&
-            (inputs.windows_signing_method == 'cert_pfx' && steps.setup-certificates-windows.outputs.certificate-thumbprint || inputs.windows_cert_sha1) || '' }}
-        WINDOWS_SIGN_HOOK: ${{ inputs.signed != 'false' && format('{0}/windows-sign.js', github.action_path) || '' }}
         NODE_ENV: production
         HOST: ${{ inputs.host }}
     - name: 'Upload standalone executable artifact'
@@ -313,7 +173,7 @@ runs:
         MACOS_APP: ${{ inputs.macos_app }}
       run: |
         ditto -c -k --sequesterRsrc --keepParent \
-          out/*-darwin-*/*.app \
+          out/*/*.app \
           "$RUNNER_TEMP/$MACOS_APP"
       shell: bash
     - name: 'Upload macOS app bundle artifact'
