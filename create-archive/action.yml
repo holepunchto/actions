@@ -14,6 +14,9 @@ inputs:
   format:
     description: The format of the archive, either zip, tar.gz, or tar.xz
     default: zip
+  extension:
+    description: The file extension of the archive. Defaults to the format.
+    required: false
   attest:
     description: Attest the build provenance of the archive, which requires the id-token and attestations write permissions
     default: false
@@ -43,7 +46,9 @@ runs:
           exit 1
         fi
 
-        archive="$root/$name.$FORMAT"
+        extension=${EXTENSION:-$FORMAT}
+
+        archive="$root/$name.$extension"
 
         mkdir -p "$(dirname "$archive")"
 
@@ -57,12 +62,13 @@ runs:
             ;;
         esac
 
-        echo "path=$name.$FORMAT" >> $GITHUB_OUTPUT
+        echo "path=$name.$extension" >> $GITHUB_OUTPUT
       env:
         PATHS: ${{ inputs.paths }}
         DIRECTORY: ${{ inputs.directory }}
         NAME: ${{ inputs.name }}
         FORMAT: ${{ inputs.format }}
+        EXTENSION: ${{ inputs.extension }}
       shell: bash
     - uses: holepunchto/actions/attest@v1
       if: ${{ inputs.attest == 'true' }}
