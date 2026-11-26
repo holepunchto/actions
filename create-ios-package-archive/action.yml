@@ -20,8 +20,6 @@ outputs:
 runs:
   using: composite
   steps:
-    # An .ipa is an archive of a `Payload` directory holding the application
-    # bundle, so stage one for the archive to be made from.
     - id: payload
       run: |
         directory=$(mktemp -d)
